@@ -47,10 +47,10 @@ nano .env.production
 
 | O'zgaruvchi | Generator buyruq |
 |---|---|
-| `POSTGRES_PASSWORD` | `openssl rand -base64 32` |
-| `REDIS_PASSWORD` | `openssl rand -base64 24` |
+| `POSTGRES_PASSWORD` | `openssl rand -hex 24` (HEX majburiy — URL-safe) |
+| `REDIS_PASSWORD` | `openssl rand -hex 18` (HEX majburiy — URL-safe) |
 | `MINIO_ROOT_USER` | Ixtiyoriy nom (masalan `lms_minio`) |
-| `MINIO_ROOT_PASSWORD` | `openssl rand -base64 32` |
+| `MINIO_ROOT_PASSWORD` | `openssl rand -hex 24` |
 | `JWT_SECRET_KEY` | `openssl rand -hex 64` |
 | `LIVEKIT_API_KEY` | `openssl rand -hex 16` |
 | `LIVEKIT_API_SECRET` | `openssl rand -hex 32` (min. 32 belgi) |
