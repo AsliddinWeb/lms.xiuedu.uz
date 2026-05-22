@@ -136,6 +136,11 @@ class ConnectionManager:
         assert self._pubsub is not None
         while True:
             try:
+                # Hech qanday channel subscribe qilinmagan bo'lsa kutib turamiz.
+                # Redis PubSub `get_message` empty subscription'da xato beradi.
+                if not self._subscribed_users:
+                    await asyncio.sleep(0.5)
+                    continue
                 msg = await self._pubsub.get_message(
                     ignore_subscribe_messages=True, timeout=1.0
                 )
