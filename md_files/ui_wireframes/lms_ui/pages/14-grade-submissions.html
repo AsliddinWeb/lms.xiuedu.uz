@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>14 — Grade Submissions</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+
+<div class="wf-label">14 / Grade Submissions</div>
+<a href="../index.html" class="wf-back">← Index</a>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon">L</div><span>EduPlatform</span></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">O'qituvchi</div>
+      <a class="nav-item" href="12-teacher-dashboard.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg>Dashboard</a>
+      <a class="nav-item"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h8"/></svg>Mening kurslarim</a>
+      <a class="nav-item" href="13-course-builder.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 2v12M2 8h12"/></svg>Kurs konstruktori</a>
+      <a class="nav-item active"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h10v9H3z M5 7h6M5 10h4"/></svg>Topshiriqlar<span class="nav-badge">42</span></a>
+      <a class="nav-item" href="15-live-class.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg>Live darslar</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-search"><svg class="topbar-search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="4"/><path d="m9 9 3 3"/></svg><input placeholder="Talabalarni qidirish..."></div>
+      <div class="topbar-actions">
+        <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6a5 5 0 0 1 10 0v4l1 2H2l1-2V6z M6 14a2 2 0 0 0 4 0"/></svg></button>
+        <div class="avatar" style="background: var(--info);">AK</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="page-header">
+        <div class="breadcrumb">
+          <a href="12-teacher-dashboard.html" style="color: inherit;">Dashboard</a> · 
+          <span>Algoritmlar</span> · 
+          <span>Mustaqil ish #4</span>
+        </div>
+        <div class="page-header-row">
+          <div>
+            <h1 class="page-title">Topshiriqlarni baholash</h1>
+            <p class="page-subtitle">Mustaqil ish #4 — Daraxt obhodlari · 42 talaba · Muddat: 02 may</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-outline btn-sm">📥 Hammasini yuklash</button>
+            <button class="btn btn-outline btn-sm">⚙ Sozlamalar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Yuborilgan</div>
+          <div class="stat-value">28<span style="color: var(--muted-foreground); font-size: 14px;">/42</span></div>
+          <div class="progress" style="margin-top: 8px;"><div class="progress-bar" style="width: 67%;"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Baholangan</div>
+          <div class="stat-value">20</div>
+          <div class="stat-trend up"><span class="dot"></span>20 / 28</div>
+        </div>
+        <div class="stat-card" style="background: #fefce8; border-color: #fde68a;">
+          <div class="stat-label" style="color: #a16207;">Kutmoqda</div>
+          <div class="stat-value" style="color: #a16207;">8</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">O'rtacha ball</div>
+          <div class="stat-value">86.2</div>
+        </div>
+      </div>
+
+      <!-- Layout -->
+      <div style="display: grid; grid-template-columns: 320px 1fr; gap: 16px;">
+        <!-- Student list -->
+        <div class="card" style="height: fit-content;">
+          <div class="card-header">
+            <span class="card-title">Talabalar (28)</span>
+            <select class="input" style="width: auto; padding: 4px 8px; font-size: 11px;">
+              <option>Hammasi</option>
+              <option>Baholanmagan</option>
+            </select>
+          </div>
+          <div style="max-height: 600px; overflow-y: auto;">
+            <div style="padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; align-items: center; cursor: pointer; background: var(--muted); border-left: 3px solid var(--foreground);">
+              <div class="avatar" style="background: var(--info); width: 32px; height: 32px;">BK</div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 500; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Bekzod Karimov</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">CS-301 · 28 APR</div>
+              </div>
+              <span class="badge badge-warning">YANGI</span>
+            </div>
+            <div style="padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; align-items: center; cursor: pointer;">
+              <div class="avatar" style="background: #a855f7; width: 32px; height: 32px;">FA</div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 500; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Farrux Abdullayev</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">CS-301 · 27 APR</div>
+              </div>
+              <span class="badge badge-success">92</span>
+            </div>
+            <div style="padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; align-items: center; cursor: pointer;">
+              <div class="avatar" style="background: var(--success); width: 32px; height: 32px;">DR</div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 500; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Dilnoza Rasulova</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">CS-301 · 26 APR</div>
+              </div>
+              <span class="badge badge-success">88</span>
+            </div>
+            <div style="padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; align-items: center; cursor: pointer;">
+              <div class="avatar" style="background: var(--warning); width: 32px; height: 32px;">JN</div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 500; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Jasur Norboyev</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">CS-301 · 26 APR</div>
+              </div>
+              <span class="badge badge-warning">YANGI</span>
+            </div>
+            <div style="padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; align-items: center; cursor: pointer;">
+              <div class="avatar" style="background: var(--destructive); width: 32px; height: 32px;">MA</div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 500; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Madina Ahmedova</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">CS-301 · 25 APR</div>
+              </div>
+              <span class="badge badge-success">95</span>
+            </div>
+            <div style="padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; align-items: center; cursor: pointer;">
+              <div class="avatar" style="background: var(--foreground); width: 32px; height: 32px;">RT</div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 500; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Rustam Tursunov</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">CS-301 · 24 APR</div>
+              </div>
+              <span class="badge">75</span>
+            </div>
+            <div style="padding: 12px 16px; display: flex; gap: 12px; align-items: center; cursor: pointer;">
+              <div class="avatar" style="background: var(--info); width: 32px; height: 32px;">NS</div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 500; font-size: 13px;">Nodira Salimova</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">CS-301 · 23 APR</div>
+              </div>
+              <span class="badge badge-success">90</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submission detail -->
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <!-- Student info -->
+          <div class="card">
+            <div style="padding: 20px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div style="display: flex; gap: 12px; align-items: center;">
+                  <div class="avatar" style="background: var(--info); width: 48px; height: 48px; font-size: 16px;">BK</div>
+                  <div>
+                    <div style="font-weight: 600; font-size: 16px;">Bekzod Karimov</div>
+                    <div style="font-size: 12px; color: var(--muted-foreground);">CS-301 · ID: ST-2024-001823 · PINFL: ••••••••••89</div>
+                  </div>
+                </div>
+                <div class="flex gap-2">
+                  <button class="btn btn-outline btn-sm">← Oldingi</button>
+                  <button class="btn btn-outline btn-sm">Keyingi →</button>
+                </div>
+              </div>
+              <div style="display: flex; gap: 24px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px;">
+                <div>
+                  <div style="font-family: 'Geist Mono', monospace; color: var(--muted-foreground); font-size: 10px; text-transform: uppercase;">YUBORILDI</div>
+                  <div style="font-weight: 500; margin-top: 2px;">28 APR · 18:42</div>
+                </div>
+                <div>
+                  <div style="font-family: 'Geist Mono', monospace; color: var(--muted-foreground); font-size: 10px; text-transform: uppercase;">MUDDAT</div>
+                  <div style="font-weight: 500; margin-top: 2px;">02 MAY · 23:59 ✓</div>
+                </div>
+                <div>
+                  <div style="font-family: 'Geist Mono', monospace; color: var(--muted-foreground); font-size: 10px; text-transform: uppercase;">URINISH</div>
+                  <div style="font-weight: 500; margin-top: 2px;">1 / 1</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Antiplag -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Antiplag tahlili</span>
+              <span class="badge badge-success">QABUL QILINADI</span>
+            </div>
+            <div style="padding: 20px;">
+              <div style="display: flex; gap: 24px;">
+                <div style="text-align: center;">
+                  <div style="position: relative; width: 80px; height: 80px;">
+                    <svg width="80" height="80" viewBox="0 0 80 80">
+                      <circle cx="40" cy="40" r="34" fill="none" stroke="var(--border)" stroke-width="6"/>
+                      <circle cx="40" cy="40" r="34" fill="none" stroke="var(--success)" stroke-width="6" stroke-dasharray="213" stroke-dashoffset="205" transform="rotate(-90 40 40)" stroke-linecap="round"/>
+                    </svg>
+                    <div style="position: absolute; inset: 0; display: grid; place-items: center;">
+                      <div style="font-family: 'Geist Mono', monospace; font-size: 18px; font-weight: 700;">4%</div>
+                    </div>
+                  </div>
+                  <div style="font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--muted-foreground); margin-top: 6px; text-transform: uppercase;">PLAGIAT</div>
+                </div>
+
+                <div style="flex: 1; padding-left: 24px; border-left: 1px solid var(--border); font-size: 13px;">
+                  <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
+                    <span style="color: var(--muted-foreground);">Originallik darajasi</span>
+                    <span style="font-family: 'Geist Mono', monospace; font-weight: 500; color: var(--success);">96%</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
+                    <span style="color: var(--muted-foreground);">Internet manbalar</span>
+                    <span style="font-family: 'Geist Mono', monospace; font-weight: 500;">2%</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
+                    <span style="color: var(--muted-foreground);">Boshqa talabalar ishi</span>
+                    <span style="font-family: 'Geist Mono', monospace; font-weight: 500;">1%</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+                    <span style="color: var(--muted-foreground);">AI generatsiya</span>
+                    <span style="font-family: 'Geist Mono', monospace; font-weight: 500;">1%</span>
+                  </div>
+                  <a href="#" style="font-size: 12px; margin-top: 8px; display: inline-block;">Batafsil hisobotni ko'rish →</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Files -->
+          <div class="card">
+            <div class="card-header"><span class="card-title">Yuborilgan fayllar</span></div>
+            <div style="padding: 0;">
+              <div style="padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; align-items: center;">
+                <div style="width: 36px; height: 36px; background: #18181b; color: white; border-radius: 6px; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-size: 11px; font-weight: 600;">PY</div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 500; font-size: 13px;">tree_traversal.py</div>
+                  <div style="font-size: 11px; color: var(--muted-foreground);">8.4 KB · 142 qator kod</div>
+                </div>
+                <button class="btn btn-outline btn-sm">👁 Ko'rish</button>
+                <button class="btn btn-outline btn-sm">⬇</button>
+              </div>
+              <div style="padding: 12px 20px; display: flex; gap: 12px; align-items: center;">
+                <div style="width: 36px; height: 36px; background: #dc2626; color: white; border-radius: 6px; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-size: 11px; font-weight: 600;">PDF</div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 500; font-size: 13px;">hisobot.pdf</div>
+                  <div style="font-size: 11px; color: var(--muted-foreground);">2.1 MB · 12 sahifa</div>
+                </div>
+                <button class="btn btn-outline btn-sm">👁 Ko'rish</button>
+                <button class="btn btn-outline btn-sm">⬇</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Grading rubric -->
+          <div class="card">
+            <div class="card-header"><span class="card-title">Baholash mezonlari</span></div>
+            <div style="padding: 20px;">
+              <div style="margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <div>
+                    <div style="font-weight: 500; font-size: 13px;">Algoritmning to'g'riligi</div>
+                    <div style="font-size: 11px; color: var(--muted-foreground);">DFS, BFS, in/pre/post-order</div>
+                  </div>
+                  <div style="display: flex; gap: 4px;">
+                    <button class="btn btn-outline btn-sm">0</button>
+                    <button class="btn btn-outline btn-sm">10</button>
+                    <button class="btn btn-outline btn-sm">20</button>
+                    <button class="btn btn-outline btn-sm">30</button>
+                    <button class="btn btn-primary btn-sm">40</button>
+                  </div>
+                </div>
+                <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">40 / 40 BALL</div>
+              </div>
+              <div style="margin-bottom: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <div>
+                    <div style="font-weight: 500; font-size: 13px;">Kod sifati va o'qiluvchanligi</div>
+                    <div style="font-size: 11px; color: var(--muted-foreground);">Naming, structure, comments</div>
+                  </div>
+                  <div style="display: flex; gap: 4px;">
+                    <button class="btn btn-outline btn-sm">0</button>
+                    <button class="btn btn-outline btn-sm">5</button>
+                    <button class="btn btn-outline btn-sm">10</button>
+                    <button class="btn btn-primary btn-sm">15</button>
+                    <button class="btn btn-outline btn-sm">20</button>
+                  </div>
+                </div>
+                <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">15 / 20 BALL</div>
+              </div>
+              <div style="margin-bottom: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <div>
+                    <div style="font-weight: 500; font-size: 13px;">Hisobot va tahlil</div>
+                    <div style="font-size: 11px; color: var(--muted-foreground);">Murakkablik tahlili, misollar</div>
+                  </div>
+                  <div style="display: flex; gap: 4px;">
+                    <button class="btn btn-outline btn-sm">0</button>
+                    <button class="btn btn-outline btn-sm">5</button>
+                    <button class="btn btn-outline btn-sm">10</button>
+                    <button class="btn btn-primary btn-sm">15</button>
+                    <button class="btn btn-outline btn-sm">20</button>
+                  </div>
+                </div>
+                <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">15 / 20 BALL</div>
+              </div>
+              <div style="margin-bottom: 24px; padding-top: 16px; border-top: 1px solid var(--border);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                  <div>
+                    <div style="font-weight: 500; font-size: 13px;">Test casi'lar</div>
+                    <div style="font-size: 11px; color: var(--muted-foreground);">Edge cases bilan</div>
+                  </div>
+                  <div style="display: flex; gap: 4px;">
+                    <button class="btn btn-outline btn-sm">0</button>
+                    <button class="btn btn-outline btn-sm">5</button>
+                    <button class="btn btn-primary btn-sm">10</button>
+                    <button class="btn btn-outline btn-sm">15</button>
+                    <button class="btn btn-outline btn-sm">20</button>
+                  </div>
+                </div>
+                <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">10 / 20 BALL</div>
+              </div>
+
+              <div style="padding: 16px; background: var(--foreground); color: white; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-family: 'Geist Mono', monospace; font-size: 11px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.05em;">UMUMIY BALL</div>
+                  <div style="font-size: 28px; font-weight: 700; font-family: 'Geist Mono', monospace; letter-spacing: -0.02em; margin-top: 4px;">80 / 100</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-family: 'Geist Mono', monospace; font-size: 11px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.05em;">BAHO</div>
+                  <div style="font-size: 22px; font-weight: 600; margin-top: 4px;">YAXSHI</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feedback -->
+          <div class="card">
+            <div class="card-header"><span class="card-title">Talaba uchun izoh</span></div>
+            <div style="padding: 20px;">
+              <textarea class="input" rows="4" placeholder="Bekzodga konstruktiv fikr-mulohaza yozing...">Yaxshi ishlangan! Algoritmlar to'g'ri implement qilingan. Ammo, edge case'lar uchun qo'shimcha test'lar yozsangiz va Big-O tahlili batafsilroq bo'lsa yaxshi bo'lar edi.</textarea>
+              
+              <div style="display: flex; justify-content: space-between; margin-top: 16px;">
+                <div class="flex gap-2">
+                  <button class="btn btn-ghost btn-sm">📎 Fayl biriktirish</button>
+                  <button class="btn btn-ghost btn-sm">🎤 Ovozli izoh</button>
+                </div>
+                <div class="flex gap-2">
+                  <button class="btn btn-outline">Qoralama saqlash</button>
+                  <button class="btn btn-primary">Bahoni yuborish</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

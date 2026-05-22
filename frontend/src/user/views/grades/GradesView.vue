@@ -1,0 +1,335 @@
+<script setup lang="ts">
+/**
+ * Wireframe 10 (Grades) — talaba transcript va reyting.
+ *
+ * Backend `gradebook` endpoint Phase 6+ da yaratiladi. Hozir mock data
+ * bilan UI ko'rinishini wireframe'ga aniq mos qilamiz. Real data ulanganda
+ * faqat `loadGradebook()` ichini yangilash kifoya.
+ */
+import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+import UiBadge from '@shared/components/ui/UiBadge.vue'
+import UiButton from '@shared/components/ui/UiButton.vue'
+import UiBreadcrumb from '@shared/components/ui/UiBreadcrumb.vue'
+import UiChartBar from '@shared/components/ui/UiChartBar.vue'
+import UiTabs from '@shared/components/ui/UiTabs.vue'
+import {
+  gradebookApi,
+  type GradebookRow,
+} from '@shared/api/courses'
+import {
+  certificatesApi,
+  type CertificateMyItem,
+} from '@shared/api/certificates'
+import { useAuthStore } from '@shared/stores/auth'
+
+const { t } = useI18n()
+const auth = useAuthStore()
+
+type Tab = 'current' | 'history' | 'ranking' | 'certificates'
+const activeTab = ref<Tab>('current')
+
+// Phase 13.20 — real backenddan yuklanadi
+const gpa = ref<number | null>(null)
+const semesterAvg = ref<number | null>(null)
+const totalCredits = ref(0)
+
+// Reyting, programCredits, semestrlar tarixi — backendda hali yo'q (Phase 14+).
+const programCredits = 240
+
+const semesterBars = computed(() => {
+  // Hozircha faqat joriy semestr ko'rsatiladi — tarix Phase 14
+  if (semesterAvg.value === null) return []
+  return [{ label: 'S1', value: Math.round(semesterAvg.value) }]
+})
+
+const currentGrades = ref<GradebookRow[]>([])
+const myCertificates = ref<CertificateMyItem[]>([])
+
+const tabs = computed(() => [
+  { id: 'current', label: t('grades.tab_current') },
+  { id: 'history', label: t('grades.tab_history'), disabled: true },
+  { id: 'ranking', label: t('grades.tab_ranking'), disabled: true },
+  // Phase 13.20 — sertifikatlar tabi real ma'lumotlardan
+  { id: 'certificates', label: t('grades.tab_certificates') },
+])
+
+async function loadGradebook() {
+  try {
+    const rows = await gradebookApi.myGradebook()
+    currentGrades.value = rows
+    totalCredits.value = rows.reduce((acc, r) => acc + r.credits, 0)
+
+    // GPA va semester avg: rows ichidagi total sonlardan o'rtacha (foiz)
+    const totals = rows
+      .map((r) => r.grade_number)
+      .filter((n) => Number.isFinite(n) && n > 0)
+    if (totals.length > 0) {
+      const avg = totals.reduce((a, b) => a + b, 0) / totals.length
+      semesterAvg.value = Math.round(avg * 10) / 10
+      // 4.0 shkalada GPA: foiz/100 * 4
+      gpa.value = Math.round((avg / 100) * 4 * 100) / 100
+    }
+  } catch {
+    currentGrades.value = []
+  }
+}
+
+async function loadCertificates() {
+  try {
+    myCertificates.value = await certificatesApi.listMine()
+  } catch {
+    myCertificates.value = []
+  }
+}
+
+function fmtDate(iso: string): string {
+  return new Date(iso).toLocaleDateString()
+}
+
+onMounted(async () => {
+  await Promise.all([loadGradebook(), loadCertificates()])
+})
+</script>
+
+<template>
+  <!-- PAGE HEADER -->
+  <div class="mb-6">
+    <UiBreadcrumb :items="[t('dashboard.crumb_home'), t('grades.title')]" />
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <h1 class="page-title mb-1.5">{{ t('grades.title') }}</h1>
+        <p class="page-subtitle">
+          3-{{ t('grades.semester') }} · 2025-2026 · {{ auth.user?.full_name }}
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <UiButton variant="outline" size="sm" disabled>
+          📥 {{ t('grades.btn_download_transcript') }}
+          <span class="font-mono text-[10px] text-muted-foreground ml-1">Ph.6</span>
+        </UiButton>
+        <UiButton variant="outline" size="sm" disabled>
+          📊 {{ t('grades.btn_pdf') }}
+          <span class="font-mono text-[10px] text-muted-foreground ml-1">Ph.6</span>
+        </UiButton>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP STATS: GPA card (dark) + semester chart -->
+  <div class="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-4 mb-6">
+    <!-- GPA card — wireframe signature dark element -->
+    <div class="bg-foreground text-background rounded-lg p-6">
+      <div class="font-mono text-[11px] uppercase tracking-widest opacity-60 mb-3">
+        {{ t('grades.gpa_label') }}
+      </div>
+      <div class="flex items-baseline gap-2 mb-1">
+        <div class="text-[56px] font-semibold tracking-tightest leading-none tabular-nums">
+          {{ gpa ?? '—' }}
+        </div>
+        <div class="opacity-50 font-mono text-sm">/ 4.0</div>
+      </div>
+      <div class="text-xs opacity-70 mb-6">
+        {{ t('grades.gpa_hint') }}
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
+        <div>
+          <div class="opacity-50 font-mono text-[10px] uppercase tracking-wider">
+            {{ t('grades.semester_avg') }}
+          </div>
+          <div class="font-mono text-lg font-semibold mt-1 tabular-nums">
+            {{ semesterAvg !== null ? `${semesterAvg}%` : '—' }}
+          </div>
+        </div>
+        <div>
+          <div class="opacity-50 font-mono text-[10px] uppercase tracking-wider">
+            {{ t('grades.credits') }}
+          </div>
+          <div class="font-mono text-lg font-semibold mt-1 tabular-nums">
+            {{ totalCredits }} / {{ programCredits }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Semester chart -->
+    <div class="bg-card border border-border rounded-lg overflow-hidden">
+      <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+        <span class="text-sm font-semibold">{{ t('grades.semester_chart_title') }}</span>
+        <UiBadge>{{ semesterBars.length }} {{ t('grades.semester_short') }}</UiBadge>
+      </div>
+      <div class="p-5">
+        <UiChartBar :items="semesterBars" :height="160" />
+        <div class="mt-8 pt-4 border-t border-border flex justify-between text-xs">
+          <div>
+            <span class="text-muted-foreground">{{ t('grades.current_semester') }}:</span>
+            <span class="font-mono font-semibold ml-1">{{ semesterAvg }}</span>
+          </div>
+          <div>
+            <span class="text-muted-foreground">{{ t('grades.highest') }}:</span>
+            <span class="font-mono font-semibold text-success-600 ml-1">{{ Math.max(...semesterBars.map(s => s.value)) }}</span>
+          </div>
+          <div>
+            <span class="text-muted-foreground">{{ t('grades.lowest') }}:</span>
+            <span class="font-mono font-semibold ml-1">{{ Math.min(...semesterBars.map(s => s.value)) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <UiTabs v-model="activeTab" :tabs="tabs" />
+
+  <!-- CURRENT SEMESTER -->
+  <div
+    v-if="activeTab === 'current'"
+    class="bg-card border border-border rounded-lg overflow-hidden"
+  >
+    <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+      <span class="text-sm font-semibold">
+        3-{{ t('grades.semester') }} · {{ t('grades.subjects_grades') }}
+      </span>
+      <span class="font-mono text-[11px] text-muted-foreground uppercase tracking-wider">
+        {{ currentGrades.length }} {{ t('grades.subjects_short') }} ·
+        {{ currentGrades.reduce((acc, g) => acc + g.credits, 0) }} {{ t('grades.credits_short') }}
+      </span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-[13px]">
+        <thead>
+          <tr class="bg-muted">
+            <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('grades.col_subject') }}
+            </th>
+            <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('grades.col_credits') }}
+            </th>
+            <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('grades.col_current') }}
+            </th>
+            <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('grades.col_midterm') }}
+            </th>
+            <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('grades.col_final') }}
+            </th>
+            <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('grades.col_total') }}
+            </th>
+            <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('grades.col_grade') }}
+            </th>
+            <th scope="col" class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-if="currentGrades.length === 0"
+          >
+            <td colspan="8" class="px-4 py-12 text-center text-muted-foreground">
+              {{ t('grades.empty') }}
+            </td>
+          </tr>
+          <tr
+            v-for="g in currentGrades"
+            :key="g.course_id"
+            class="border-t border-border hover:bg-muted/30"
+          >
+            <td class="px-4 py-3">
+              <div class="font-medium">{{ g.title }}</div>
+              <div class="text-[11px] text-muted-foreground">{{ g.teacher }}</div>
+            </td>
+            <td class="px-4 py-3 font-mono text-[12px]">{{ g.credits }}</td>
+            <td class="px-4 py-3 font-mono">{{ g.current_avg }}</td>
+            <td class="px-4 py-3 font-mono">{{ g.midterm }}</td>
+            <td class="px-4 py-3 font-mono text-muted-foreground">{{ g.final }}</td>
+            <td class="px-4 py-3 font-mono font-semibold">{{ g.total }}</td>
+            <td class="px-4 py-3">
+              <UiBadge :variant="g.grade_variant">
+                {{ g.grade_letter }} · {{ g.grade_number }}
+              </UiBadge>
+            </td>
+            <td class="px-4 py-3 text-right">
+              <UiButton
+                variant="ghost"
+                size="sm"
+                @click="$router.push({ name: 'course-detail', params: { id: g.course_id } })"
+              >
+                {{ t('common.view') }}
+              </UiButton>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Phase 13.20 — Certificates tab: real ma'lumotlar -->
+  <div
+    v-else-if="activeTab === 'certificates'"
+    class="bg-card border border-border rounded-lg overflow-hidden"
+  >
+    <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+      <span class="text-sm font-semibold">{{ t('certificates.title') }}</span>
+      <span class="font-mono text-[11px] text-muted-foreground uppercase tracking-wider">
+        {{ myCertificates.length }}
+      </span>
+    </div>
+    <div
+      v-if="myCertificates.length === 0"
+      class="py-12 text-center text-[13px] text-muted-foreground"
+    >
+      {{ t('certificates.empty') }}
+    </div>
+    <table v-else class="w-full text-[13px]">
+      <thead>
+        <tr class="bg-muted">
+          <th class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+            {{ t('certificates.col_number') }}
+          </th>
+          <th class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+            {{ t('certificates.col_course') }}
+          </th>
+          <th class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+            {{ t('certificates.col_issued') }}
+          </th>
+          <th class="px-4 py-3"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="c in myCertificates"
+          :key="c.id"
+          class="border-t border-border"
+        >
+          <td class="px-4 py-3 font-mono">{{ c.certificate_number }}</td>
+          <td class="px-4 py-3">{{ c.course_title }}</td>
+          <td class="px-4 py-3 font-mono">{{ fmtDate(c.issued_at) }}</td>
+          <td class="px-4 py-3 text-right">
+            <UiButton
+              variant="outline"
+              size="sm"
+              @click="$router.push({ name: 'my-certificates' })"
+            >
+              {{ t('common.view') }}
+            </UiButton>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Other tabs — disabled placeholders (history/ranking — Phase 14+) -->
+  <div
+    v-else
+    class="text-center py-16 border border-dashed border-border rounded-lg"
+  >
+    <p class="text-muted-foreground">
+      {{ t('grades.tab_coming_soon') }}
+    </p>
+  </div>
+</template>

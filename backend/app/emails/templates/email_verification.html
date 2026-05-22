@@ -1,0 +1,30 @@
+{% extends "_base.html" %}
+{% block content %}
+<h1 style="font-size:22px;font-weight:600;letter-spacing:-0.025em;margin:0 0 12px;">Email manzilingizni tasdiqlang</h1>
+<p style="margin:0 0 16px;color:#71717a;font-size:14px;">
+  Salom, <strong style="color:#0a0a0a;">{{ full_name }}</strong>!
+</p>
+<p style="margin:0 0 24px;font-size:14px;">
+  XIU EduPlatform ga ro'yxatdan o'tganingiz uchun rahmat. Davom etish uchun email
+  manzilingizni tasdiqlang:
+</p>
+<table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 24px;">
+  <tr>
+    <td style="background:#0a0a0a;border-radius:6px;">
+      <a href="{{ verify_url }}" style="display:inline-block;padding:12px 24px;color:#fff;text-decoration:none;font-weight:500;font-size:14px;">
+        Email tasdiqlash →
+      </a>
+    </td>
+  </tr>
+</table>
+<p style="margin:0 0 8px;font-size:12px;color:#71717a;">
+  Yoki shu havolani brauzerda oching:
+</p>
+<p style="margin:0;font-family:'SF Mono',Menlo,monospace;font-size:11px;color:#0a0a0a;word-break:break-all;background:#f4f4f5;padding:8px;border-radius:4px;">
+  {{ verify_url }}
+</p>
+<p style="margin:24px 0 0;font-size:12px;color:#71717a;">
+  Havola <strong>24 soat</strong> davomida amal qiladi. Agar siz bu so'rovni bermagan
+  bo'lsangiz, bu xatni e'tiborsiz qoldiring.
+</p>
+{% endblock %}

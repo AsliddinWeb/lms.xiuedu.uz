@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>05 — Courses List</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+
+<div class="wf-label">05 / Courses List</div>
+<a href="../index.html" class="wf-back">← Index</a>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon">L</div><span>EduPlatform</span></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Asosiy</div>
+      <a class="nav-item" href="04-student-dashboard.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg>Dashboard</a>
+      <a class="nav-item active"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h8"/></svg>Kurslar<span class="nav-badge">12</span></a>
+      <a class="nav-item" href="08-assignments.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="2" width="10" height="12"/><path d="M5 5h6M5 8h6M5 11h4"/></svg>Topshiriqlar<span class="nav-badge">3</span></a>
+      <a class="nav-item"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l2 2"/></svg>Jadval</a>
+      <a class="nav-item" href="10-grades.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 14V2M2 14h12M5 11V7M8 11V4M11 11V8"/></svg>Baholar</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Boshqa</div>
+      <a class="nav-item" href="11-payments.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="9" rx="1"/><path d="M2 7h12"/></svg>To'lovlar</a>
+      <a class="nav-item"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h10v10H3z M6 6h4v4H6z"/></svg>Sertifikatlar</a>
+      <a class="nav-item"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 4h10M3 8h10M3 12h6"/></svg>Forum</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-search">
+        <svg class="topbar-search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="4"/><path d="m9 9 3 3"/></svg>
+        <input placeholder="Qidirish...">
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6a5 5 0 0 1 10 0v4l1 2H2l1-2V6z M6 14a2 2 0 0 0 4 0"/></svg><div class="notification-dot"></div></button>
+        <div class="avatar">BK</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="page-header">
+        <div class="breadcrumb"><span>Bosh sahifa</span> · <span>Kurslar</span></div>
+        <div class="page-header-row">
+          <div>
+            <h1 class="page-title">Kurslar</h1>
+            <p class="page-subtitle">12 ta faol kurs · 3-semestr · 2025-2026 o'quv yili</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-outline btn-sm">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h10M3 7h8M5 10h4"/></svg>
+              Filter
+            </button>
+            <button class="btn btn-outline btn-sm">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h10M2 7h10M2 11h10"/></svg>
+              Tartiblash
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter chips -->
+      <div style="display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap;">
+        <button class="btn btn-primary btn-sm">Hammasi <span style="margin-left: 4px; opacity: 0.6;">12</span></button>
+        <button class="btn btn-outline btn-sm">Faol <span style="margin-left: 4px; color: var(--muted-foreground);">8</span></button>
+        <button class="btn btn-outline btn-sm">Tugatilgan <span style="margin-left: 4px; color: var(--muted-foreground);">3</span></button>
+        <button class="btn btn-outline btn-sm">Boshlanmagan <span style="margin-left: 4px; color: var(--muted-foreground);">1</span></button>
+        <div style="width: 1px; height: 28px; background: var(--border); margin: 0 4px;"></div>
+        <button class="btn btn-ghost btn-sm">Dasturlash</button>
+        <button class="btn btn-ghost btn-sm">Matematika</button>
+        <button class="btn btn-ghost btn-sm">Falsafa</button>
+        <button class="btn btn-ghost btn-sm">Til</button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active">Mening kurslarim</button>
+        <button class="tab">Mening OTM kurslari</button>
+        <button class="tab">Boshqa kurslar (catalog)</button>
+        <button class="tab">Wishlist</button>
+      </div>
+
+      <!-- Course grid -->
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+        <!-- Card 1 -->
+        <div class="course-card">
+          <div class="image-placeholder" style="aspect-ratio: 16/9; border-radius: 0;">
+            <span>COVER</span>
+          </div>
+          <div class="course-meta">
+            <div class="course-category">DASTURLASH · 4-MODUL</div>
+            <div class="course-title">Algoritmlar va ma'lumotlar tuzilmasi</div>
+            <div class="course-stats">
+              <span>👤 Karimov A.</span>
+              <span>📚 24 dars</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+              <div class="progress" style="flex: 1;"><div class="progress-bar" style="width: 64%;"></div></div>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 11px;">64%</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="badge badge-info"><span class="dot"></span>FAOL</span>
+              <a href="06-course-detail.html" class="btn btn-outline btn-sm">Ochish →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="course-card">
+          <div class="image-placeholder" style="aspect-ratio: 16/9; border-radius: 0;"><span>COVER</span></div>
+          <div class="course-meta">
+            <div class="course-category">MATEMATIKA · 2-MODUL</div>
+            <div class="course-title">Lineer algebra asoslari</div>
+            <div class="course-stats">
+              <span>👤 Saidova M.</span>
+              <span>📚 18 dars</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+              <div class="progress" style="flex: 1;"><div class="progress-bar" style="width: 38%;"></div></div>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 11px;">38%</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="badge badge-info"><span class="dot"></span>FAOL</span>
+              <a href="06-course-detail.html" class="btn btn-outline btn-sm">Ochish →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="course-card">
+          <div class="image-placeholder" style="aspect-ratio: 16/9; border-radius: 0;"><span>COVER</span></div>
+          <div class="course-meta">
+            <div class="course-category">FALSAFA · 1-MODUL</div>
+            <div class="course-title">Falsafa tarixiga kirish</div>
+            <div class="course-stats">
+              <span>👤 Olimov R.</span>
+              <span>📚 12 dars</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+              <div class="progress" style="flex: 1;"><div class="progress-bar" style="width: 12%;"></div></div>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 11px;">12%</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="badge badge-warning"><span class="dot"></span>YANGI</span>
+              <a href="06-course-detail.html" class="btn btn-outline btn-sm">Ochish →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="course-card">
+          <div class="image-placeholder" style="aspect-ratio: 16/9; border-radius: 0;"><span>COVER</span></div>
+          <div class="course-meta">
+            <div class="course-category">WEB DEV · 3-MODUL</div>
+            <div class="course-title">Frontend dasturlash (HTML/CSS/JS)</div>
+            <div class="course-stats">
+              <span>👤 Yusupov S.</span>
+              <span>📚 32 dars</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+              <div class="progress" style="flex: 1;"><div class="progress-bar" style="width: 88%;"></div></div>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 11px;">88%</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="badge badge-success"><span class="dot"></span>QARIY TUGADI</span>
+              <a href="06-course-detail.html" class="btn btn-outline btn-sm">Ochish →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="course-card">
+          <div class="image-placeholder" style="aspect-ratio: 16/9; border-radius: 0;"><span>COVER</span></div>
+          <div class="course-meta">
+            <div class="course-category">INGLIZ TILI · B2</div>
+            <div class="course-title">Academic English Writing</div>
+            <div class="course-stats">
+              <span>👤 Davletova N.</span>
+              <span>📚 20 dars</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+              <div class="progress" style="flex: 1;"><div class="progress-bar" style="width: 55%;"></div></div>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 11px;">55%</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="badge badge-info"><span class="dot"></span>FAOL</span>
+              <a href="06-course-detail.html" class="btn btn-outline btn-sm">Ochish →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 6 - completed -->
+        <div class="course-card" style="opacity: 0.7;">
+          <div class="image-placeholder" style="aspect-ratio: 16/9; border-radius: 0; background: var(--foreground);"><span style="color: white; background: var(--foreground);">✓ TUGATILDI</span></div>
+          <div class="course-meta">
+            <div class="course-category">DASTURLASH · ASOSLAR</div>
+            <div class="course-title">Python — boshlovchilar uchun</div>
+            <div class="course-stats">
+              <span>👤 Karimov A.</span>
+              <span>📚 16 dars</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+              <div class="progress" style="flex: 1;"><div class="progress-bar" style="width: 100%;"></div></div>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 11px;">100%</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span class="badge badge-success"><span class="dot"></span>SERTIFIKAT</span>
+              <button class="btn btn-outline btn-sm">PDF →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div style="margin-top: 32px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">
+          1—6 / 12 KURS
+        </div>
+        <div class="flex gap-1">
+          <button class="btn btn-outline btn-sm" style="width: 32px; padding: 6px; justify-content: center;">←</button>
+          <button class="btn btn-primary btn-sm" style="width: 32px; padding: 6px; justify-content: center;">1</button>
+          <button class="btn btn-outline btn-sm" style="width: 32px; padding: 6px; justify-content: center;">2</button>
+          <button class="btn btn-outline btn-sm" style="width: 32px; padding: 6px; justify-content: center;">→</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

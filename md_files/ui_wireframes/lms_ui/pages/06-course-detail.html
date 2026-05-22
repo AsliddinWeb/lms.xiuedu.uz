@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>06 — Course Detail</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+
+<div class="wf-label">06 / Course Detail</div>
+<a href="../index.html" class="wf-back">← Index</a>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon">L</div><span>EduPlatform</span></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Asosiy</div>
+      <a class="nav-item" href="04-student-dashboard.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg>Dashboard</a>
+      <a class="nav-item active" href="05-courses-list.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h8"/></svg>Kurslar<span class="nav-badge">12</span></a>
+      <a class="nav-item" href="08-assignments.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="2" width="10" height="12"/><path d="M5 5h6M5 8h6M5 11h4"/></svg>Topshiriqlar<span class="nav-badge">3</span></a>
+      <a class="nav-item"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l2 2"/></svg>Jadval</a>
+      <a class="nav-item" href="10-grades.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 14V2M2 14h12M5 11V7M8 11V4M11 11V8"/></svg>Baholar</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-search"><svg class="topbar-search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="4"/><path d="m9 9 3 3"/></svg><input placeholder="Qidirish..."></div>
+      <div class="topbar-actions">
+        <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6a5 5 0 0 1 10 0v4l1 2H2l1-2V6z M6 14a2 2 0 0 0 4 0"/></svg></button>
+        <div class="avatar">BK</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <!-- Breadcrumb -->
+      <div class="breadcrumb" style="margin-bottom: 24px;">
+        <a href="04-student-dashboard.html" style="color: inherit;">Bosh sahifa</a> · 
+        <a href="05-courses-list.html" style="color: inherit;">Kurslar</a> · 
+        <span style="color: var(--foreground);">Algoritmlar va ma'lumotlar tuzilmasi</span>
+      </div>
+
+      <!-- Course hero -->
+      <div style="display: grid; grid-template-columns: 1fr 320px; gap: 24px; margin-bottom: 24px;">
+        <div>
+          <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+            <span class="badge">DASTURLASH</span>
+            <span class="badge badge-info"><span class="dot"></span>FAOL</span>
+            <span class="badge">SCORM 2004</span>
+          </div>
+          <h1 style="font-size: 32px; font-weight: 600; letter-spacing: -0.025em; margin-bottom: 12px; line-height: 1.2;">Algoritmlar va ma'lumotlar tuzilmasi</h1>
+          <p style="color: var(--muted-foreground); font-size: 15px; line-height: 1.6; margin-bottom: 20px;">Bu kurs algoritmlarning asosiy tushunchalari, tahlili va ma'lumotlar tuzilmalari bilan tanishtiradi. Dasturchining kundalik amaliyotida zarur bo'lgan klassik algoritmlar va ularning vaqt/xotira murakkabligi o'rganiladi.</p>
+          
+          <div style="display: flex; gap: 32px; padding: 20px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); margin-bottom: 24px;">
+            <div>
+              <div style="font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-foreground); margin-bottom: 4px;">O'qituvchi</div>
+              <div style="font-weight: 500; font-size: 14px;">Karimov Aziz</div>
+              <div style="font-size: 12px; color: var(--muted-foreground);">PhD · Dotsent</div>
+            </div>
+            <div style="width: 1px; background: var(--border);"></div>
+            <div>
+              <div style="font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-foreground); margin-bottom: 4px;">Davomiyligi</div>
+              <div style="font-weight: 500; font-size: 14px;">12 hafta</div>
+              <div style="font-size: 12px; color: var(--muted-foreground);">~36 soat</div>
+            </div>
+            <div style="width: 1px; background: var(--border);"></div>
+            <div>
+              <div style="font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-foreground); margin-bottom: 4px;">Daraja</div>
+              <div style="font-weight: 500; font-size: 14px;">O'rta</div>
+              <div style="font-size: 12px; color: var(--muted-foreground);">Asoslarni biluvchilar</div>
+            </div>
+            <div style="width: 1px; background: var(--border);"></div>
+            <div>
+              <div style="font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-foreground); margin-bottom: 4px;">Sertifikat</div>
+              <div style="font-weight: 500; font-size: 14px;">Mavjud</div>
+              <div style="font-size: 12px; color: var(--muted-foreground);">Tugatgandan so'ng</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right card -->
+        <div class="card" style="height: fit-content; position: sticky; top: 80px;">
+          <div class="image-placeholder" style="aspect-ratio: 16/9; border-radius: 8px 8px 0 0; border: none;"><span>COURSE COVER</span></div>
+          <div style="padding: 20px;">
+            <div style="margin-bottom: 16px;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="font-size: 13px; font-weight: 500;">Sizning progressingiz</span>
+                <span style="font-family: 'Geist Mono', monospace; font-size: 13px; font-weight: 600;">64%</span>
+              </div>
+              <div class="progress"><div class="progress-bar" style="width: 64%;"></div></div>
+              <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 8px;">15 / 24 dars tugatildi</div>
+            </div>
+
+            <a href="07-lesson-player.html" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; margin-bottom: 8px;">
+              ▶ Davom etish
+            </a>
+            <button class="btn btn-outline" style="width: 100%; justify-content: center; padding: 10px;">
+              📥 Materiallarni yuklash
+            </button>
+
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 12px;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="color: var(--muted-foreground);">Boshlangan:</span>
+                <span style="font-family: 'Geist Mono', monospace;">15 FEV 2026</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="color: var(--muted-foreground);">Tugaydi:</span>
+                <span style="font-family: 'Geist Mono', monospace;">15 MAY 2026</span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span style="color: var(--muted-foreground);">Talabalar:</span>
+                <span style="font-family: 'Geist Mono', monospace;">142</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active">Modullar (6)</button>
+        <button class="tab">Sillabus</button>
+        <button class="tab">O'qituvchi</button>
+        <button class="tab">Forum (24)</button>
+        <button class="tab">Sharhlar (18)</button>
+      </div>
+
+      <!-- Modules -->
+      <div style="display: grid; grid-template-columns: 1fr 320px; gap: 24px;">
+        <div>
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- Module 1 - completed -->
+            <div class="card">
+              <div style="padding: 16px 20px; display: flex; align-items: center; gap: 16px; cursor: pointer;">
+                <div style="width: 32px; height: 32px; border: 2px solid var(--success); background: var(--success); color: white; border-radius: 50%; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 600;">✓</div>
+                <div style="flex: 1;">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <span class="course-category" style="margin: 0;">MODUL 1</span>
+                    <span class="badge badge-success">TUGATILDI</span>
+                  </div>
+                  <div style="font-weight: 600; font-size: 15px;">Algoritmlarga kirish</div>
+                  <div style="font-size: 12px; color: var(--muted-foreground); margin-top: 2px;">4 dars · 2 soat 30 daq · 1 ta test</div>
+                </div>
+                <span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--muted-foreground);">100%</span>
+              </div>
+            </div>
+
+            <!-- Module 2 - completed -->
+            <div class="card">
+              <div style="padding: 16px 20px; display: flex; align-items: center; gap: 16px; cursor: pointer;">
+                <div style="width: 32px; height: 32px; border: 2px solid var(--success); background: var(--success); color: white; border-radius: 50%; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 600;">✓</div>
+                <div style="flex: 1;">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <span class="course-category" style="margin: 0;">MODUL 2</span>
+                    <span class="badge badge-success">TUGATILDI</span>
+                  </div>
+                  <div style="font-weight: 600; font-size: 15px;">Vaqt va xotira murakkabligi</div>
+                  <div style="font-size: 12px; color: var(--muted-foreground); margin-top: 2px;">5 dars · 3 soat · 1 ta test</div>
+                </div>
+                <span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--muted-foreground);">100%</span>
+              </div>
+            </div>
+
+            <!-- Module 3 - completed -->
+            <div class="card">
+              <div style="padding: 16px 20px; display: flex; align-items: center; gap: 16px; cursor: pointer;">
+                <div style="width: 32px; height: 32px; border: 2px solid var(--success); background: var(--success); color: white; border-radius: 50%; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 600;">✓</div>
+                <div style="flex: 1;">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <span class="course-category" style="margin: 0;">MODUL 3</span>
+                    <span class="badge badge-success">TUGATILDI</span>
+                  </div>
+                  <div style="font-weight: 600; font-size: 15px;">Saralash algoritmlari</div>
+                  <div style="font-size: 12px; color: var(--muted-foreground); margin-top: 2px;">6 dars · 4 soat · 2 ta amaliyot</div>
+                </div>
+                <span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--muted-foreground);">100%</span>
+              </div>
+            </div>
+
+            <!-- Module 4 - active expanded -->
+            <div class="card" style="border-color: var(--foreground);">
+              <div style="padding: 16px 20px; display: flex; align-items: center; gap: 16px; cursor: pointer;">
+                <div style="width: 32px; height: 32px; border: 2px solid var(--foreground); border-radius: 50%; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 600;">04</div>
+                <div style="flex: 1;">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                    <span class="course-category" style="margin: 0;">MODUL 4</span>
+                    <span class="badge badge-info"><span class="dot"></span>HOZIR</span>
+                  </div>
+                  <div style="font-weight: 600; font-size: 15px;">Qidirish algoritmlari va daraxtlar</div>
+                  <div style="font-size: 12px; color: var(--muted-foreground); margin-top: 2px;">5 dars · 3 soat · 1 ta loyiha</div>
+                </div>
+                <span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--foreground); font-weight: 600;">60%</span>
+              </div>
+              
+              <div style="border-top: 1px solid var(--border);">
+                <a href="07-lesson-player.html" style="padding: 12px 20px 12px 64px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); text-decoration: none; color: inherit;">
+                  <div style="color: var(--success);">✓</div>
+                  <div style="flex: 1; font-size: 13px;">4.1 Binar qidirish</div>
+                  <span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">15 DAQ · VIDEO</span>
+                </a>
+                <a href="07-lesson-player.html" style="padding: 12px 20px 12px 64px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); text-decoration: none; color: inherit;">
+                  <div style="color: var(--success);">✓</div>
+                  <div style="flex: 1; font-size: 13px;">4.2 Hashing va xesh-jadvallar</div>
+                  <span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">22 DAQ · SCORM</span>
+                </a>
+                <a href="07-lesson-player.html" style="padding: 12px 20px 12px 64px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); background: var(--muted); text-decoration: none; color: inherit;">
+                  <div style="width: 16px; height: 16px; border: 2px solid var(--foreground); border-radius: 50%; background: var(--foreground); display: grid; place-items: center; color: white; font-size: 9px;">▶</div>
+                  <div style="flex: 1; font-size: 13px; font-weight: 500;">4.3 Binar daraxt</div>
+                  <span class="badge badge-info">HOZIR</span>
+                </a>
+                <a href="#" style="padding: 12px 20px 12px 64px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); text-decoration: none; color: var(--muted-foreground); opacity: 0.7;">
+                  <div style="width: 16px; height: 16px; border: 1px solid var(--border-strong); border-radius: 50%;"></div>
+                  <div style="flex: 1; font-size: 13px;">4.4 Daraxt obhodlari</div>
+                  <span style="font-family: 'Geist Mono', monospace; font-size: 11px;">18 DAQ · VIDEO</span>
+                </a>
+                <a href="#" style="padding: 12px 20px 12px 64px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--muted-foreground); opacity: 0.7;">
+                  <div style="width: 16px; height: 16px; border: 1px solid var(--border-strong); border-radius: 50%;"></div>
+                  <div style="flex: 1; font-size: 13px;">4.5 Loyiha — daraxt vizualizatsiyasi</div>
+                  <span class="badge">LOYIHA</span>
+                </a>
+              </div>
+            </div>
+
+            <!-- Module 5 - locked -->
+            <div class="card" style="opacity: 0.6;">
+              <div style="padding: 16px 20px; display: flex; align-items: center; gap: 16px;">
+                <div style="width: 32px; height: 32px; border: 2px solid var(--border-strong); border-radius: 50%; display: grid; place-items: center; color: var(--muted-foreground);">🔒</div>
+                <div style="flex: 1;">
+                  <div class="course-category">MODUL 5</div>
+                  <div style="font-weight: 600; font-size: 15px;">Graf algoritmlar</div>
+                  <div style="font-size: 12px; color: var(--muted-foreground); margin-top: 2px;">7 dars · 5 soat</div>
+                </div>
+                <span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">YOPIQ</span>
+              </div>
+            </div>
+
+            <!-- Module 6 - locked -->
+            <div class="card" style="opacity: 0.6;">
+              <div style="padding: 16px 20px; display: flex; align-items: center; gap: 16px;">
+                <div style="width: 32px; height: 32px; border: 2px solid var(--border-strong); border-radius: 50%; display: grid; place-items: center; color: var(--muted-foreground);">🔒</div>
+                <div style="flex: 1;">
+                  <div class="course-category">MODUL 6</div>
+                  <div style="font-weight: 600; font-size: 15px;">Yakuniy imtihon</div>
+                  <div style="font-size: 12px; color: var(--muted-foreground); margin-top: 2px;">Avtoproctoring · 90 daq</div>
+                </div>
+                <span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">YOPIQ</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right sidebar - resources -->
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Materiallar</span>
+              <span class="badge">12</span>
+            </div>
+            <div style="padding: 8px 0;">
+              <a href="#" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: inherit; font-size: 13px;">
+                <div style="width: 28px; height: 28px; background: var(--muted); border-radius: 4px; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-size: 9px; font-weight: 600;">PDF</div>
+                <div style="flex: 1;">
+                  <div>Sillabus 2026</div>
+                  <div style="font-size: 11px; color: var(--muted-foreground);">2.4 MB</div>
+                </div>
+              </a>
+              <a href="#" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: inherit; font-size: 13px;">
+                <div style="width: 28px; height: 28px; background: var(--muted); border-radius: 4px; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-size: 9px; font-weight: 600;">DOC</div>
+                <div style="flex: 1;">
+                  <div>Lab ishlari to'plami</div>
+                  <div style="font-size: 11px; color: var(--muted-foreground);">5.1 MB</div>
+                </div>
+              </a>
+              <a href="#" style="display: flex; align-items: center; gap: 12px; padding: 10px 20px; text-decoration: none; color: inherit; font-size: 13px;">
+                <div style="width: 28px; height: 28px; background: var(--muted); border-radius: 4px; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-size: 9px; font-weight: 600;">ZIP</div>
+                <div style="flex: 1;">
+                  <div>Manba kodlar</div>
+                  <div style="font-size: 11px; color: var(--muted-foreground);">12.8 MB</div>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span class="card-title">Statistika</span></div>
+            <div style="padding: 16px 20px; font-size: 12px;">
+              <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--muted-foreground);">Tugatilgan dars</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 600;">15 / 24</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--muted-foreground);">O'rtacha baho</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 600;">88.5</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
+                <span style="color: var(--muted-foreground);">Sarf qilingan vaqt</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 600;">18h 24m</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+                <span style="color: var(--muted-foreground);">Davomat</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 600; color: var(--success);">94%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

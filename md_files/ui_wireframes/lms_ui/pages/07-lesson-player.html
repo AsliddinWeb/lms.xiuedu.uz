@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>07 — Lesson Player</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+
+<div class="wf-label">07 / Lesson Player</div>
+<a href="../index.html" class="wf-back">← Index</a>
+
+<style>
+  .player-shell { display: grid; grid-template-columns: 320px 1fr; min-height: 100vh; background: var(--background); }
+  .lesson-sidebar { border-right: 1px solid var(--border); height: 100vh; position: sticky; top: 0; overflow-y: auto; background: var(--background); }
+  .lesson-header { padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  .lesson-list { padding: 8px 0; }
+  .lesson-item { padding: 10px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .lesson-item:hover { background: var(--muted); }
+  .lesson-item.active { background: var(--muted); border-left: 2px solid var(--foreground); }
+  .lesson-item.done .check { background: var(--success); border-color: var(--success); color: white; }
+  .check { width: 18px; height: 18px; border: 1.5px solid var(--border-strong); border-radius: 50%; display: grid; place-items: center; font-size: 10px; flex-shrink: 0; }
+</style>
+
+<div class="player-shell">
+  <!-- Lesson sidebar -->
+  <aside class="lesson-sidebar">
+    <div class="lesson-header">
+      <a href="06-course-detail.html" style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground); text-decoration: none; display: flex; align-items: center; gap: 6px; margin-bottom: 12px;">← KURSGA QAYTISH</a>
+      <div style="font-weight: 600; font-size: 14px; line-height: 1.4;">Algoritmlar va ma'lumotlar tuzilmasi</div>
+      <div style="display: flex; align-items: center; gap: 8px; margin-top: 12px;">
+        <div class="progress" style="flex: 1;"><div class="progress-bar" style="width: 64%;"></div></div>
+        <span style="font-family: 'Geist Mono', monospace; font-size: 11px;">64%</span>
+      </div>
+    </div>
+
+    <div style="padding: 16px 20px 8px;">
+      <div class="sidebar-section-title">MODUL 4 · QIDIRISH ALGORITMLARI</div>
+    </div>
+    <div class="lesson-list">
+      <div class="lesson-item done">
+        <div class="check">✓</div>
+        <div style="flex: 1;">
+          <div style="font-size: 13px; font-weight: 500;">4.1 Binar qidirish</div>
+          <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">15:00 · VIDEO</div>
+        </div>
+      </div>
+      <div class="lesson-item done">
+        <div class="check">✓</div>
+        <div style="flex: 1;">
+          <div style="font-size: 13px; font-weight: 500;">4.2 Hashing</div>
+          <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">22:00 · SCORM</div>
+        </div>
+      </div>
+      <div class="lesson-item active">
+        <div class="check"></div>
+        <div style="flex: 1;">
+          <div style="font-size: 13px; font-weight: 600;">4.3 Binar daraxt</div>
+          <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">28:00 · VIDEO</div>
+        </div>
+      </div>
+      <div class="lesson-item">
+        <div class="check"></div>
+        <div style="flex: 1;">
+          <div style="font-size: 13px;">4.4 Daraxt obhodlari</div>
+          <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">18:00 · VIDEO</div>
+        </div>
+      </div>
+      <div class="lesson-item">
+        <div class="check"></div>
+        <div style="flex: 1;">
+          <div style="font-size: 13px;">4.5 Loyiha</div>
+          <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">LOYIHA</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding: 16px 20px 8px; border-top: 1px solid var(--border); margin-top: 8px;">
+      <div class="sidebar-section-title">MODUL 5 · GRAF ALGORITMLAR</div>
+    </div>
+    <div class="lesson-list">
+      <div class="lesson-item" style="opacity: 0.5;">
+        <div class="check">🔒</div>
+        <div style="flex: 1;"><div style="font-size: 13px;">5.1 Graf nima?</div><div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">YOPIQ</div></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Player area -->
+  <div style="display: flex; flex-direction: column;">
+    <!-- Top bar -->
+    <div style="padding: 12px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--background);">
+      <div>
+        <div style="font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--muted-foreground); margin-bottom: 2px;">DARS 4.3 / 24</div>
+        <div style="font-weight: 600; font-size: 16px;">Binar daraxt — tushunchasi va amaliyoti</div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-outline btn-sm">← Oldingi</button>
+        <button class="btn btn-primary btn-sm">Keyingi →</button>
+      </div>
+    </div>
+
+    <!-- Video player -->
+    <div style="background: #18181b; padding: 32px; display: grid; place-items: center;">
+      <div style="width: 100%; max-width: 1000px;">
+        <div class="video-placeholder" style="aspect-ratio: 16/9;">
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+            <div class="video-play">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3v14l12-7z"/></svg>
+            </div>
+            <div style="font-family: 'Geist Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.1em;">VIDEO PLAYER · HLS · 1080p</div>
+          </div>
+        </div>
+        
+        <!-- Video controls bar -->
+        <div style="background: #27272a; padding: 12px 16px; display: flex; align-items: center; gap: 16px; border-radius: 0 0 6px 6px;">
+          <button style="width: 36px; height: 36px; background: white; color: black; border: none; border-radius: 50%; display: grid; place-items: center; cursor: pointer;">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M3 2v10l9-5z"/></svg>
+          </button>
+          <div style="font-family: 'Geist Mono', monospace; font-size: 12px; color: rgba(255,255,255,0.7);">12:34 / 28:00</div>
+          <div style="flex: 1; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; position: relative;">
+            <div style="position: absolute; left: 0; top: 0; height: 100%; width: 45%; background: white; border-radius: 2px;"></div>
+            <div style="position: absolute; left: 45%; top: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; background: white; border-radius: 50%;"></div>
+          </div>
+          <span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.7);">1080p</span>
+          <span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.7);">1.0x</span>
+          <span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.7);">CC</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Below video -->
+    <div style="padding: 32px; max-width: 1000px; margin: 0 auto; width: 100%;">
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active">Mavzu</button>
+        <button class="tab">Eslatmalar (3)</button>
+        <button class="tab">Materiallar (4)</button>
+        <button class="tab">Savol-javob (12)</button>
+        <button class="tab">Transkript</button>
+      </div>
+
+      <!-- Lesson content -->
+      <div style="display: grid; grid-template-columns: 1fr 280px; gap: 32px;">
+        <div>
+          <h2 style="font-size: 22px; font-weight: 600; letter-spacing: -0.025em; margin-bottom: 16px;">Binar daraxt nima?</h2>
+          <p style="font-size: 14px; line-height: 1.7; color: var(--muted-foreground); margin-bottom: 16px;">Binar daraxt — bu har bir tugun maksimal ikkita "bola" tugunga ega bo'lgan iyerarxik ma'lumotlar tuzilmasi. Bu tuzilma kompyuter fanidagi eng asosiy va keng tarqalgan tuzilmalardan biri hisoblanadi.</p>
+          <p style="font-size: 14px; line-height: 1.7; color: var(--muted-foreground); margin-bottom: 24px;">Bu darsda biz binar daraxtning asosiy tushunchalarini, uning turlarini (full, complete, perfect, balanced) va Python'da implementatsiyasini ko'rib chiqamiz.</p>
+
+          <div style="padding: 16px 20px; background: var(--muted); border-left: 3px solid var(--foreground); border-radius: 0 6px 6px 0; margin-bottom: 24px;">
+            <div style="font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted-foreground); margin-bottom: 6px;">EZTRA</div>
+            <div style="font-size: 13px; line-height: 1.6;">Binar daraxtlarning amaliy qo'llanilishi: kompilyator parser'lari, fayl tizimlari, ma'lumotlar bazasi indekslari, AI qaror daraxtlari.</div>
+          </div>
+
+          <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">Asosiy operatsiyalar</h3>
+          <div style="font-family: 'Geist Mono', monospace; font-size: 12px; padding: 16px; background: #18181b; color: #d4d4d8; border-radius: 6px; line-height: 1.7; overflow-x: auto;">
+            <span style="color: #a78bfa;">class</span> <span style="color: #60a5fa;">Node</span>:<br>
+            &nbsp;&nbsp;<span style="color: #a78bfa;">def</span> <span style="color: #34d399;">__init__</span>(self, value):<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;self.value = value<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;self.left = <span style="color: #fbbf24;">None</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;self.right = <span style="color: #fbbf24;">None</span><br>
+          </div>
+        </div>
+
+        <!-- Right: notes panel -->
+        <div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Eslatmalaringiz</span>
+              <button class="btn btn-ghost btn-sm">+ Yangi</button>
+            </div>
+            <div style="padding: 12px 16px;">
+              <div style="padding: 8px; border-left: 2px solid var(--foreground); margin-bottom: 12px; background: var(--muted); border-radius: 0 4px 4px 0;">
+                <div style="font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--muted-foreground); margin-bottom: 4px;">⏱ 03:24</div>
+                <div style="font-size: 12px;">Binar daraxt — har tugun max 2 ta bola</div>
+              </div>
+              <div style="padding: 8px; border-left: 2px solid var(--foreground); margin-bottom: 12px; background: var(--muted); border-radius: 0 4px 4px 0;">
+                <div style="font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--muted-foreground); margin-bottom: 4px;">⏱ 08:12</div>
+                <div style="font-size: 12px;">Recursion — daraxt obhodida juda muhim</div>
+              </div>
+              <div style="padding: 8px; border-left: 2px solid var(--foreground); background: var(--muted); border-radius: 0 4px 4px 0;">
+                <div style="font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--muted-foreground); margin-bottom: 4px;">⏱ 11:48</div>
+                <div style="font-size: 12px;">Balanced tree → O(log n) qidirish</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top: 16px;">
+            <div class="card-header"><span class="card-title">AI yordamchi</span></div>
+            <div style="padding: 16px;">
+              <div style="font-size: 12px; color: var(--muted-foreground); margin-bottom: 12px;">Bu dars haqida savolingiz bormi?</div>
+              <button class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; margin-bottom: 6px;">Mavzuni qisqartirib ber</button>
+              <button class="btn btn-outline btn-sm" style="width: 100%; justify-content: center; margin-bottom: 6px;">Test savollar tuz</button>
+              <button class="btn btn-outline btn-sm" style="width: 100%; justify-content: center;">Misol kod tushuntir</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom action bar -->
+      <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <input type="checkbox" id="done" style="width: 18px; height: 18px;">
+          <label for="done" style="font-size: 14px; font-weight: 500;">Bu darsni tugatdim</label>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-outline">← 4.2 Hashing</button>
+          <button class="btn btn-primary">4.4 Daraxt obhodlari →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

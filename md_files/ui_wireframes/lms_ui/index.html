@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>LMS Wireframes — Index</title>
+<link rel="stylesheet" href="assets/styles.css">
+<style>
+  body { padding: 64px 32px; max-width: 1200px; margin: 0 auto; }
+  .hero { margin-bottom: 64px; padding-bottom: 48px; border-bottom: 1px solid var(--border); }
+  .hero h1 { font-size: 48px; font-weight: 600; letter-spacing: -0.04em; margin-bottom: 16px; font-family: 'Instrument Serif', serif; }
+  .hero p { color: var(--muted-foreground); max-width: 600px; font-size: 15px; }
+  .meta-row { display: flex; gap: 24px; margin-top: 24px; font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted-foreground); }
+  .section { margin-bottom: 48px; }
+  .section-title { font-family: 'Geist Mono', monospace; font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted-foreground); margin-bottom: 16px; }
+  .pages-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .page-card { display: block; padding: 20px; border: 1px solid var(--border); border-radius: 8px; background: white; text-decoration: none; color: var(--foreground); transition: all 0.15s; }
+  .page-card:hover { border-color: var(--foreground); transform: translateY(-2px); }
+  .page-num { font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground); margin-bottom: 8px; }
+  .page-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .page-desc { font-size: 12px; color: var(--muted-foreground); line-height: 1.5; }
+  .page-role { display: inline-block; font-family: 'Geist Mono', monospace; font-size: 10px; padding: 2px 6px; border: 1px solid var(--border); border-radius: 3px; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .footer { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--border); font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground); display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted-foreground); margin-bottom: 16px;">UI WIREFRAMES — V1.0</div>
+  <h1>Masofaviy Ta'lim Platformasi</h1>
+  <p>O'zbekiston Respublikasi oliy ta'lim muassasalari uchun mo'ljallangan distance learning platformasining UI wireframe'lari. 559-son qaror talablariga muvofiq.</p>
+  <div class="meta-row">
+    <span>18 SAHIFA</span>
+    <span>·</span>
+    <span>5 ROL</span>
+    <span>·</span>
+    <span>SHADCN STYLE</span>
+    <span>·</span>
+    <span>TAILWIND</span>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">01 — Auth & Onboarding</div>
+  <div class="pages-grid">
+    <a href="pages/01-login.html" class="page-card">
+      <div class="page-num">01</div>
+      <div class="page-name">Login</div>
+      <div class="page-desc">Email/parol va OneID orqali kirish</div>
+      <span class="page-role">PUBLIC</span>
+    </a>
+    <a href="pages/02-register.html" class="page-card">
+      <div class="page-num">02</div>
+      <div class="page-name">Ro'yxatdan o'tish</div>
+      <div class="page-desc">Yangi talaba ro'yxati, OneID bilan</div>
+      <span class="page-role">PUBLIC</span>
+    </a>
+    <a href="pages/03-forgot-password.html" class="page-card">
+      <div class="page-num">03</div>
+      <div class="page-name">Parolni tiklash</div>
+      <div class="page-desc">Email orqali parolni qayta tiklash</div>
+      <span class="page-role">PUBLIC</span>
+    </a>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">02 — Talaba</div>
+  <div class="pages-grid">
+    <a href="pages/04-student-dashboard.html" class="page-card">
+      <div class="page-num">04</div>
+      <div class="page-name">Talaba Dashboard</div>
+      <div class="page-desc">Bosh sahifa, kurslar, jadval, hisobotlar</div>
+      <span class="page-role">STUDENT</span>
+    </a>
+    <a href="pages/05-courses-list.html" class="page-card">
+      <div class="page-num">05</div>
+      <div class="page-name">Kurslar ro'yxati</div>
+      <div class="page-desc">Filter, qidiruv, kategoriyalar</div>
+      <span class="page-role">STUDENT</span>
+    </a>
+    <a href="pages/06-course-detail.html" class="page-card">
+      <div class="page-num">06</div>
+      <div class="page-name">Kurs sahifasi</div>
+      <div class="page-desc">Modullar, darslar, materiallar</div>
+      <span class="page-role">STUDENT</span>
+    </a>
+    <a href="pages/07-lesson-player.html" class="page-card">
+      <div class="page-num">07</div>
+      <div class="page-name">Dars o'qish</div>
+      <div class="page-desc">Video player, materiallar, izohlar</div>
+      <span class="page-role">STUDENT</span>
+    </a>
+    <a href="pages/08-assignments.html" class="page-card">
+      <div class="page-num">08</div>
+      <div class="page-name">Topshiriqlar</div>
+      <div class="page-desc">Topshiriqlar ro'yxati va yuborish</div>
+      <span class="page-role">STUDENT</span>
+    </a>
+    <a href="pages/09-exam-page.html" class="page-card">
+      <div class="page-num">09</div>
+      <div class="page-name">Imtihon (proctoring)</div>
+      <div class="page-desc">Avtoproctoring, savollar, taymer</div>
+      <span class="page-role">STUDENT</span>
+    </a>
+    <a href="pages/10-grades.html" class="page-card">
+      <div class="page-num">10</div>
+      <div class="page-name">Baholar</div>
+      <div class="page-desc">Reyting, ball, transcript</div>
+      <span class="page-role">STUDENT</span>
+    </a>
+    <a href="pages/11-payments.html" class="page-card">
+      <div class="page-num">11</div>
+      <div class="page-name">To'lovlar</div>
+      <div class="page-desc">Click, Payme, shartnoma</div>
+      <span class="page-role">STUDENT</span>
+    </a>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">03 — O'qituvchi</div>
+  <div class="pages-grid">
+    <a href="pages/12-teacher-dashboard.html" class="page-card">
+      <div class="page-num">12</div>
+      <div class="page-name">O'qituvchi Dashboard</div>
+      <div class="page-desc">Kurslari, talabalar, tahliliyot</div>
+      <span class="page-role">TEACHER</span>
+    </a>
+    <a href="pages/13-course-builder.html" class="page-card">
+      <div class="page-num">13</div>
+      <div class="page-name">Kurs konstruktori</div>
+      <div class="page-desc">Modul, dars, material qo'shish</div>
+      <span class="page-role">TEACHER</span>
+    </a>
+    <a href="pages/14-grade-submissions.html" class="page-card">
+      <div class="page-num">14</div>
+      <div class="page-name">Topshiriqlarni baholash</div>
+      <div class="page-desc">Antiplag natijasi, baho qo'yish</div>
+      <span class="page-role">TEACHER</span>
+    </a>
+    <a href="pages/15-live-class.html" class="page-card">
+      <div class="page-num">15</div>
+      <div class="page-name">Live dars</div>
+      <div class="page-desc">Zoom integratsiya, davomat</div>
+      <span class="page-role">TEACHER</span>
+    </a>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">04 — Admin</div>
+  <div class="pages-grid">
+    <a href="pages/16-admin-dashboard.html" class="page-card">
+      <div class="page-num">16</div>
+      <div class="page-name">Admin Dashboard</div>
+      <div class="page-desc">Umumiy statistika, hisobotlar</div>
+      <span class="page-role">ADMIN</span>
+    </a>
+    <a href="pages/17-users-management.html" class="page-card">
+      <div class="page-num">17</div>
+      <div class="page-name">Foydalanuvchilarni boshqarish</div>
+      <div class="page-desc">CRUD, rollar, ruxsatlar</div>
+      <span class="page-role">ADMIN</span>
+    </a>
+    <a href="pages/18-reports.html" class="page-card">
+      <div class="page-num">18</div>
+      <div class="page-name">Hisobotlar</div>
+      <div class="page-desc">HEMIS, OTJBAT, TSDIN sync</div>
+      <span class="page-role">ADMIN</span>
+    </a>
+  </div>
+</div>
+
+<div class="footer">
+  <span>© 2026 LMS UZ — Wireframes v1.0</span>
+  <span>shadcn/ui + Tailwind CSS</span>
+</div>
+
+</body>
+</html>

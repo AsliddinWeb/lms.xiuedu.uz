@@ -1,0 +1,168 @@
+# ============================================================
+# XIU LMS Platform — PRODUCTION docker-compose
+# ============================================================
+# Foydalanish:
+#   cp .env.production.example .env.production
+#   docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
+#
+# Farqlar (dev'dan):
+#   - Backend: uvicorn workers (--reload yo'q)
+#   - Frontend: vite build -> nginx static serve (8201 / 8203 portlarda)
+#   - Volume bind mount yo'q (faqat data volumes)
+#   - restart: always
+#   - Health/depends_on har bir servis uchun
+#
+# Portlar (host -> container) — dev bilan bir xil, lekin frontend ichida nginx:80:
+#   8200 -> backend:8000
+#   8201 -> frontend-user:80
+#   8203 -> frontend-admin:80
+#   8210 -> postgres:5432
+#   8211 -> redis:6379
+#   8212 -> minio:9000
+#   8213 -> minio:9001
+#   7880-7882 -> livekit
+#
+# Mailhog (dev SMTP) production'da ishlatilmaydi.
+# ============================================================
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: lms_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT:-8210}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: lms_redis
+    restart: always
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    ports:
+      - "${REDIS_PORT:-8211}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: lms_minio
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "${MINIO_PORT:-8212}:9000"
+      - "${MINIO_CONSOLE_PORT:-8213}:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: lms_livekit
+    restart: always
+    command: --dev --bind 0.0.0.0
+    ports:
+      - "${LIVEKIT_PORT:-7880}:7880"
+      - "${LIVEKIT_TCP_PORT:-7881}:7881"
+      - "${LIVEKIT_UDP_PORT:-7882}:7882/udp"
+    environment:
+      LIVEKIT_KEYS: "${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: prod
+    container_name: lms_backend
+    restart: always
+    env_file:
+      - ./backend/.env.production
+    ports:
+      - "${BACKEND_PORT:-8200}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    # Workers — server CPU asosida (default 4)
+    command: >-
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --workers ${BACKEND_WORKERS:-4}
+      --proxy-headers
+      --forwarded-allow-ips=*
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  frontend-user:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: prod-user
+      args:
+        - VITE_API_URL=${VITE_API_URL_USER}
+    container_name: lms_frontend_user
+    restart: always
+    ports:
+      - "${FRONTEND_USER_PORT:-8201}:80"
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  frontend-admin:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: prod-admin
+      args:
+        - VITE_API_URL=${VITE_API_URL_ADMIN}
+    container_name: lms_frontend_admin
+    restart: always
+    ports:
+      - "${FRONTEND_ADMIN_PORT:-8203}:80"
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:

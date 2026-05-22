@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>01 — Login</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+
+<div class="wf-label">01 / Login</div>
+<a href="../index.html" class="wf-back">← Index</a>
+
+<div class="auth-page">
+  <!-- Left side - branding -->
+  <div class="auth-side">
+    <div style="position: relative; z-index: 1;">
+      <div class="flex items-center gap-3" style="margin-bottom: 48px;">
+        <div style="width: 36px; height: 36px; background: white; color: var(--foreground); display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-weight: 700; border-radius: 8px;">LMS</div>
+        <span style="font-weight: 600; font-size: 16px;">EduPlatform UZ</span>
+      </div>
+      <div style="font-family: 'Instrument Serif', serif; font-size: 40px; line-height: 1.1; margin-bottom: 24px; max-width: 420px;">
+        Bilim olishning yangi <em style="font-style: italic;">raqamli</em> davri.
+      </div>
+      <p style="opacity: 0.7; max-width: 380px; line-height: 1.6; font-size: 14px;">
+        O'zbekiston Respublikasi oliy ta'lim muassasalari uchun zamonaviy masofaviy ta'lim platformasi. HEMIS, OneID va e-davlat xizmatlari bilan to'liq integratsiya.
+      </p>
+    </div>
+    
+    <div style="position: relative; z-index: 1;">
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.1);">
+        <div>
+          <div style="font-family: 'Geist Mono', monospace; font-size: 24px; font-weight: 600;">120K+</div>
+          <div style="font-size: 11px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px;">Talabalar</div>
+        </div>
+        <div>
+          <div style="font-family: 'Geist Mono', monospace; font-size: 24px; font-weight: 600;">85+</div>
+          <div style="font-size: 11px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px;">OTM</div>
+        </div>
+        <div>
+          <div style="font-family: 'Geist Mono', monospace; font-size: 24px; font-weight: 600;">99.9%</div>
+          <div style="font-size: 11px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 4px;">Uptime</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right side - form -->
+  <div class="auth-form">
+    <div class="auth-form-inner">
+      <div style="margin-bottom: 32px;">
+        <div style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted-foreground); margin-bottom: 12px;">Tizimga kirish</div>
+        <h1 style="font-size: 28px; font-weight: 600; letter-spacing: -0.025em; margin-bottom: 8px;">Xush kelibsiz</h1>
+        <p style="color: var(--muted-foreground); font-size: 14px;">Hisobingizga kirish uchun ma'lumotlaringizni kiriting</p>
+      </div>
+
+      <!-- OneID button -->
+      <button class="btn btn-outline" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px; margin-bottom: 16px;">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="2" fill="none"/><path d="M6 10h8M10 6v8" stroke="currentColor" stroke-width="2"/></svg>
+        OneID orqali kirish
+      </button>
+      
+      <button class="btn btn-outline" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px;">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="16" height="12" rx="2"/><path d="M2 8h16"/></svg>
+        HEMIS orqali kirish
+      </button>
+
+      <div style="display: flex; align-items: center; gap: 12px; margin: 24px 0; color: var(--muted-foreground);">
+        <div style="flex: 1; height: 1px; background: var(--border);"></div>
+        <span style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em;">yoki email bilan</span>
+        <div style="flex: 1; height: 1px; background: var(--border);"></div>
+      </div>
+
+      <div class="field">
+        <label class="label">Email yoki PINFL</label>
+        <input class="input" type="text" placeholder="user@example.uz" value="">
+      </div>
+
+      <div class="field">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <label class="label" style="margin: 0;">Parol</label>
+          <a href="03-forgot-password.html" style="font-size: 11px; color: var(--muted-foreground); text-decoration: none; font-family: 'Geist Mono', monospace;">UNUTDINGIZMI?</a>
+        </div>
+        <input class="input" type="password" placeholder="••••••••••••">
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 24px;">
+        <input type="checkbox" id="remember" style="width: 14px; height: 14px;">
+        <label for="remember" style="font-size: 13px; color: var(--muted-foreground);">Meni eslab qol (30 kun)</label>
+      </div>
+
+      <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px;">
+        Kirish
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h8M7 3l4 4-4 4"/></svg>
+      </button>
+
+      <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border); text-align: center;">
+        <span style="font-size: 13px; color: var(--muted-foreground);">Hisobingiz yo'qmi?</span>
+        <a href="02-register.html" style="font-size: 13px; color: var(--foreground); font-weight: 500; margin-left: 4px; text-decoration: none;">Ro'yxatdan o'tish →</a>
+      </div>
+
+      <div style="margin-top: 32px; font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--muted-foreground); text-align: center; line-height: 1.6;">
+        559-SON QAROR ASOSIDA · MA'LUMOTLAR HIMOYALANGAN<br>
+        <a href="#" style="color: inherit; text-decoration: underline;">Foydalanish shartlari</a> · <a href="#" style="color: inherit; text-decoration: underline;">Maxfiylik siyosati</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

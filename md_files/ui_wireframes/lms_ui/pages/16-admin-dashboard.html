@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>16 — Admin Dashboard</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+
+<div class="wf-label">16 / Admin Dashboard</div>
+<a href="../index.html" class="wf-back">← Index</a>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon">L</div><span>EduPlatform</span></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Admin</div>
+      <a class="nav-item active"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg>Dashboard</a>
+      <a class="nav-item" href="17-users-management.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2"/><circle cx="11" cy="5" r="2"/><path d="M2 13a4 4 0 0 1 8 0M7 13a4 4 0 0 1 8 0"/></svg>Foydalanuvchilar<span class="nav-badge">12.4K</span></a>
+      <a class="nav-item"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h8"/></svg>Kurslar<span class="nav-badge">348</span></a>
+      <a class="nav-item"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="9" rx="1"/><path d="M2 7h12"/></svg>To'lovlar</a>
+      <a class="nav-item" href="18-reports.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 14V2M2 14h12M5 11V7M8 11V4M11 11V8"/></svg>Hisobotlar</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Tizim</div>
+      <a class="nav-item"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1v3M8 12v3M1 8h3M12 8h3"/></svg>Integratsiyalar</a>
+      <a class="nav-item"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h10v10H3z"/></svg>Audit log</a>
+      <a class="nav-item"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><circle cx="8" cy="8" r="6"/></svg>Sozlamalar</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-search"><svg class="topbar-search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="4"/><path d="m9 9 3 3"/></svg><input placeholder="Foydalanuvchi, kurs, to'lov..."></div>
+      <div class="topbar-actions">
+        <span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--success); display: flex; align-items: center; gap: 6px;"><span class="dot"></span>HAR DOIMLAR HOLATI</span>
+        <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6a5 5 0 0 1 10 0v4l1 2H2l1-2V6z M6 14a2 2 0 0 0 4 0"/></svg><div class="notification-dot"></div></button>
+        <div style="display: flex; align-items: center; gap: 10px; padding: 4px 8px;">
+          <div class="avatar" style="background: var(--destructive);">AD</div>
+          <div style="font-size: 12px; line-height: 1.3;">
+            <div style="font-weight: 500;">Admin User</div>
+            <div style="color: var(--muted-foreground); font-family: 'Geist Mono', monospace; font-size: 10px;">SUPER ADMIN</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="page-header">
+        <div class="breadcrumb"><span>Admin paneli</span> · <span>Dashboard</span></div>
+        <div class="page-header-row">
+          <div>
+            <h1 class="page-title">Tizim umumiy holati</h1>
+            <p class="page-subtitle">Toshkent davlat universiteti · 2025-2026 o'quv yili · Bugun 30-aprel</p>
+          </div>
+          <div class="flex gap-2">
+            <select class="input" style="width: auto;">
+              <option>Barcha fakultetlar</option>
+              <option>Kompyuter injineriyasi</option>
+            </select>
+            <button class="btn btn-outline btn-sm">📥 Eksport</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Jami talabalar</div>
+          <div class="stat-value">12,418</div>
+          <div class="stat-trend up"><span class="dot"></span>+248 oxirgi 30 kunda</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">O'qituvchilar</div>
+          <div class="stat-value">487</div>
+          <div class="stat-trend up"><span class="dot"></span>+12</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Faol kurslar</div>
+          <div class="stat-value">348</div>
+          <div class="stat-trend up"><span class="dot"></span>+15 bu semestr</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Bugungi sessiyalar</div>
+          <div class="stat-value">2,847</div>
+          <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 4px; font-family: 'Geist Mono', monospace;">PEAK 14:00 — 1,420</div>
+        </div>
+      </div>
+
+      <!-- Two columns -->
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <!-- Activity chart -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Tizim faolligi · 30 kun</span>
+            <div class="flex gap-1">
+              <button class="btn btn-outline btn-sm" style="font-size: 11px;">SESSIYALAR</button>
+              <button class="btn btn-ghost btn-sm" style="font-size: 11px;">RO'YXATLAR</button>
+              <button class="btn btn-ghost btn-sm" style="font-size: 11px;">TO'LOVLAR</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div style="display: flex; align-items: flex-end; gap: 3px; height: 200px; padding: 16px 0;">
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 60%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 75%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 82%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 65%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 88%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 92%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 70%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 78%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 85%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 90%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 87%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 95%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 88%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 73%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 80%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 86%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 92%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 84%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 88%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 90%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 96%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 89%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 78%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 92%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 100%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 95%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 88%;"></div>
+              <div style="flex: 1; background: var(--foreground); border-radius: 2px; height: 92%;"></div>
+              <div style="flex: 1; background: var(--success); border-radius: 2px; height: 98%;"></div>
+              <div style="flex: 1; background: var(--success); border-radius: 2px; height: 100%;"></div>
+            </div>
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; font-size: 12px;">
+              <div>
+                <div style="font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--muted-foreground); text-transform: uppercase;">JAMI</div>
+                <div style="font-weight: 600; font-family: 'Geist Mono', monospace;">68,420</div>
+              </div>
+              <div>
+                <div style="font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--muted-foreground); text-transform: uppercase;">PEAK</div>
+                <div style="font-weight: 600; font-family: 'Geist Mono', monospace;">2,847</div>
+              </div>
+              <div>
+                <div style="font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--muted-foreground); text-transform: uppercase;">O'RTACHA</div>
+                <div style="font-weight: 600; font-family: 'Geist Mono', monospace;">2,281</div>
+              </div>
+              <div>
+                <div style="font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--muted-foreground); text-transform: uppercase;">O'SISH</div>
+                <div style="font-weight: 600; font-family: 'Geist Mono', monospace; color: var(--success);">+24%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Integrations status -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">Integratsiyalar</span></div>
+          <div style="padding: 0;">
+            <div style="padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div style="width: 32px; height: 32px; background: var(--foreground); color: white; border-radius: 6px; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-weight: 600; font-size: 10px;">HMS</div>
+                <div>
+                  <div style="font-weight: 500; font-size: 13px;">HEMIS</div>
+                  <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">2 DAQ OLDIN</div>
+                </div>
+              </div>
+              <span class="badge badge-success"><span class="dot"></span>OK</span>
+            </div>
+            <div style="padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div style="width: 32px; height: 32px; background: #2D8CFF; color: white; border-radius: 6px; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-weight: 600; font-size: 10px;">ZM</div>
+                <div>
+                  <div style="font-weight: 500; font-size: 13px;">Zoom SDK</div>
+                  <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">XOZIR FAOL · 12 SESSIYA</div>
+                </div>
+              </div>
+              <span class="badge badge-success"><span class="dot"></span>FAOL</span>
+            </div>
+            <div style="padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div style="width: 32px; height: 32px; background: #00B5FF; color: white; border-radius: 6px; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-weight: 600; font-size: 10px;">1ID</div>
+                <div>
+                  <div style="font-weight: 500; font-size: 13px;">OneID</div>
+                  <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">5 DAQ OLDIN · 142 LOGIN</div>
+                </div>
+              </div>
+              <span class="badge badge-success"><span class="dot"></span>OK</span>
+            </div>
+            <div style="padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div style="width: 32px; height: 32px; background: #00C2FF; color: white; border-radius: 6px; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-weight: 600; font-size: 9px;">CLK</div>
+                <div>
+                  <div style="font-weight: 500; font-size: 13px;">Click + Payme</div>
+                  <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">8 TO'LOV BUGUN</div>
+                </div>
+              </div>
+              <span class="badge badge-success"><span class="dot"></span>OK</span>
+            </div>
+            <div style="padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div style="width: 32px; height: 32px; background: #f59e0b; color: white; border-radius: 6px; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-weight: 600; font-size: 9px;">OTJ</div>
+                <div>
+                  <div style="font-weight: 500; font-size: 13px;">OTJBAT</div>
+                  <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">SO'NGGI: 28 APR</div>
+                </div>
+              </div>
+              <span class="badge badge-warning"><span class="dot"></span>KECHIKDI</span>
+            </div>
+            <div style="padding: 12px 20px; display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div style="width: 32px; height: 32px; background: var(--info); color: white; border-radius: 6px; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-weight: 600; font-size: 9px;">TSD</div>
+                <div>
+                  <div style="font-weight: 500; font-size: 13px;">TSDIN</div>
+                  <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">10 DAQ OLDIN</div>
+                </div>
+              </div>
+              <span class="badge badge-success"><span class="dot"></span>OK</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- System health -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Server</span></div>
+          <div style="padding: 16px 20px;">
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 12px;">
+              <span style="color: var(--muted-foreground);">CPU</span>
+              <span style="font-family: 'Geist Mono', monospace; font-weight: 500;">42%</span>
+            </div>
+            <div class="progress" style="margin-bottom: 12px;"><div class="progress-bar" style="width: 42%;"></div></div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 12px;">
+              <span style="color: var(--muted-foreground);">RAM</span>
+              <span style="font-family: 'Geist Mono', monospace; font-weight: 500;">68%</span>
+            </div>
+            <div class="progress" style="margin-bottom: 12px;"><div class="progress-bar" style="width: 68%; background: var(--warning);"></div></div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; font-size: 12px;">
+              <span style="color: var(--muted-foreground);">Disk</span>
+              <span style="font-family: 'Geist Mono', monospace; font-weight: 500;">31%</span>
+            </div>
+            <div class="progress"><div class="progress-bar" style="width: 31%;"></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">Database</span></div>
+          <div style="padding: 16px 20px; font-size: 12px;">
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
+              <span style="color: var(--muted-foreground);">Status</span>
+              <span class="badge badge-success">HEALTHY</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
+              <span style="color: var(--muted-foreground);">Connections</span>
+              <span style="font-family: 'Geist Mono', monospace; font-weight: 500;">128 / 200</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
+              <span style="color: var(--muted-foreground);">Hajm</span>
+              <span style="font-family: 'Geist Mono', monospace; font-weight: 500;">42.8 GB</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+              <span style="color: var(--muted-foreground);">Backup</span>
+              <span style="font-family: 'Geist Mono', monospace; font-weight: 500; color: var(--success);">2 SOAT OLDIN</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><span class="card-title">CDN / Storage</span></div>
+          <div style="padding: 16px 20px; font-size: 12px;">
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
+              <span style="color: var(--muted-foreground);">Status</span>
+              <span class="badge badge-success">FAOL</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
+              <span style="color: var(--muted-foreground);">Bugungi traffic</span>
+              <span style="font-family: 'Geist Mono', monospace; font-weight: 500;">284 GB</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border);">
+              <span style="color: var(--muted-foreground);">Video chunks</span>
+              <span style="font-family: 'Geist Mono', monospace; font-weight: 500;">14,820</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+              <span style="color: var(--muted-foreground);">Cache hit</span>
+              <span style="font-family: 'Geist Mono', monospace; font-weight: 500; color: var(--success);">94.2%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent activity -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Audit log — oxirgi voqealar</span>
+          <button class="btn btn-outline btn-sm">📋 To'liq log</button>
+        </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Vaqt</th>
+              <th>Foydalanuvchi</th>
+              <th>Amal</th>
+              <th>Resurs</th>
+              <th>IP</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">14:42:18</span></td>
+              <td><span style="font-size: 12px;">karimov_a@uz</span></td>
+              <td><span class="badge">CREATE</span></td>
+              <td><span style="font-size: 12px;">course/CS-301/module/4</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">10.0.42.18</span></td>
+              <td><span class="badge badge-success">200</span></td>
+            </tr>
+            <tr>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">14:38:02</span></td>
+              <td><span style="font-size: 12px;">student_2024@uz</span></td>
+              <td><span class="badge">SUBMIT</span></td>
+              <td><span style="font-size: 12px;">assignment/MI-4</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">94.158.x.x</span></td>
+              <td><span class="badge badge-success">201</span></td>
+            </tr>
+            <tr>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">14:35:24</span></td>
+              <td><span style="font-size: 12px;">SYSTEM</span></td>
+              <td><span class="badge badge-info">SYNC</span></td>
+              <td><span style="font-size: 12px;">HEMIS · 142 record</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">internal</span></td>
+              <td><span class="badge badge-success">200</span></td>
+            </tr>
+            <tr>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">14:30:12</span></td>
+              <td><span style="font-size: 12px;">unknown</span></td>
+              <td><span class="badge">LOGIN</span></td>
+              <td><span style="font-size: 12px;">auth/login</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">203.0.x.x</span></td>
+              <td><span class="badge badge-danger">401</span></td>
+            </tr>
+            <tr>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">14:28:45</span></td>
+              <td><span style="font-size: 12px;">admin@uz</span></td>
+              <td><span class="badge">UPDATE</span></td>
+              <td><span style="font-size: 12px;">user/role/teacher</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">10.0.1.5</span></td>
+              <td><span class="badge badge-success">200</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

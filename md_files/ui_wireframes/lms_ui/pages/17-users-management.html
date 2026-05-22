@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>17 — Users Management</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+
+<div class="wf-label">17 / Users Management</div>
+<a href="../index.html" class="wf-back">← Index</a>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon">L</div><span>EduPlatform</span></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Admin</div>
+      <a class="nav-item" href="16-admin-dashboard.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg>Dashboard</a>
+      <a class="nav-item active"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2"/><circle cx="11" cy="5" r="2"/><path d="M2 13a4 4 0 0 1 8 0M7 13a4 4 0 0 1 8 0"/></svg>Foydalanuvchilar<span class="nav-badge">12.4K</span></a>
+      <a class="nav-item"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h8"/></svg>Kurslar</a>
+      <a class="nav-item"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="9" rx="1"/><path d="M2 7h12"/></svg>To'lovlar</a>
+      <a class="nav-item" href="18-reports.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 14V2M2 14h12M5 11V7M8 11V4M11 11V8"/></svg>Hisobotlar</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-search"><svg class="topbar-search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="4"/><path d="m9 9 3 3"/></svg><input placeholder="Ism, email, PINFL bo'yicha qidirish..."></div>
+      <div class="topbar-actions">
+        <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6a5 5 0 0 1 10 0v4l1 2H2l1-2V6z M6 14a2 2 0 0 0 4 0"/></svg></button>
+        <div class="avatar" style="background: var(--destructive);">AD</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="page-header">
+        <div class="breadcrumb"><span>Admin</span> · <span>Foydalanuvchilar</span></div>
+        <div class="page-header-row">
+          <div>
+            <h1 class="page-title">Foydalanuvchilarni boshqarish</h1>
+            <p class="page-subtitle">12,418 ta foydalanuvchi · 5 ta rol · Toshkent davlat universiteti</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-outline btn-sm">📥 CSV import</button>
+            <button class="btn btn-outline btn-sm">📤 Eksport</button>
+            <button class="btn btn-primary btn-sm">+ Yangi foydalanuvchi</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Role stats -->
+      <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px;">
+        <div class="stat-card">
+          <div class="stat-label">Talabalar</div>
+          <div class="stat-value" style="font-size: 22px;">12,418</div>
+          <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">FAOL: 11,847</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">O'qituvchilar</div>
+          <div class="stat-value" style="font-size: 22px;">487</div>
+          <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">FAOL: 462</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Dekanat</div>
+          <div class="stat-value" style="font-size: 22px;">28</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Adminlar</div>
+          <div class="stat-value" style="font-size: 22px;">12</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Bloklangan</div>
+          <div class="stat-value" style="font-size: 22px; color: var(--destructive);">8</div>
+        </div>
+      </div>
+
+      <!-- Filters bar -->
+      <div style="display: flex; gap: 8px; margin-bottom: 16px; align-items: center; flex-wrap: wrap;">
+        <button class="btn btn-primary btn-sm">Hammasi <span style="opacity: 0.7; margin-left: 4px;">12,953</span></button>
+        <button class="btn btn-outline btn-sm">Talaba <span style="color: var(--muted-foreground); margin-left: 4px;">12,418</span></button>
+        <button class="btn btn-outline btn-sm">O'qituvchi <span style="color: var(--muted-foreground); margin-left: 4px;">487</span></button>
+        <button class="btn btn-outline btn-sm">Dekanat <span style="color: var(--muted-foreground); margin-left: 4px;">28</span></button>
+        <button class="btn btn-outline btn-sm">Admin <span style="color: var(--muted-foreground); margin-left: 4px;">12</span></button>
+        <button class="btn btn-outline btn-sm" style="color: var(--destructive);">Bloklangan <span style="margin-left: 4px;">8</span></button>
+        
+        <div style="margin-left: auto; display: flex; gap: 8px;">
+          <select class="input" style="width: auto; padding: 6px 10px; font-size: 12px;">
+            <option>Barcha fakultetlar</option>
+            <option>Kompyuter injineriyasi</option>
+            <option>Matematika</option>
+          </select>
+          <select class="input" style="width: auto; padding: 6px 10px; font-size: 12px;">
+            <option>Hammasi</option>
+            <option>Faol</option>
+            <option>Nofaol</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Bulk actions -->
+      <div style="padding: 12px 16px; background: var(--muted); border: 1px solid var(--border); border-radius: 8px 8px 0 0; display: flex; align-items: center; gap: 16px; border-bottom: none;">
+        <input type="checkbox" style="width: 14px; height: 14px;">
+        <span style="font-size: 12px; color: var(--muted-foreground);">3 ta tanlangan</span>
+        <div class="flex gap-2">
+          <button class="btn btn-outline btn-sm">📨 Email yuborish</button>
+          <button class="btn btn-outline btn-sm">🔄 Rolni o'zgartirish</button>
+          <button class="btn btn-outline btn-sm">🚫 Bloklash</button>
+          <button class="btn btn-outline btn-sm" style="color: var(--destructive);">🗑 O'chirish</button>
+        </div>
+        <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">442 / 12,953 KO'RSATILMOQDA</span>
+      </div>
+
+      <!-- Users table -->
+      <div class="card" style="border-radius: 0 0 8px 8px; border-top: none;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width: 32px;"><input type="checkbox" style="width: 14px; height: 14px;"></th>
+              <th>Foydalanuvchi</th>
+              <th>Rol</th>
+              <th>PINFL</th>
+              <th>Fakultet / Guruh</th>
+              <th>Holati</th>
+              <th>Oxirgi faollik</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="checkbox" checked style="width: 14px; height: 14px;"></td>
+              <td>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <div class="avatar" style="background: var(--info); width: 32px; height: 32px;">BK</div>
+                  <div>
+                    <div style="font-weight: 500; font-size: 13px;">Karimov Bekzod</div>
+                    <div style="font-size: 11px; color: var(--muted-foreground);">b.karimov@stud.tdtu.uz</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge">TALABA</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">••••••••••89</span></td>
+              <td>
+                <div style="font-size: 12px;">Kompyuter injineriyasi</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">CS-301 · 3-KURS</div>
+              </td>
+              <td><span class="badge badge-success"><span class="dot"></span>FAOL</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px;">2 daq oldin</span></td>
+              <td>
+                <button class="btn btn-ghost btn-sm">⋯</button>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" checked style="width: 14px; height: 14px;"></td>
+              <td>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <div class="avatar" style="background: var(--success); width: 32px; height: 32px;">AK</div>
+                  <div>
+                    <div style="font-weight: 500; font-size: 13px;">Karimov Aziz</div>
+                    <div style="font-size: 11px; color: var(--muted-foreground);">a.karimov@tdtu.uz · PhD · Dotsent</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge badge-info">O'QITUVCHI</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">••••••••••42</span></td>
+              <td>
+                <div style="font-size: 12px;">Kompyuter injineriyasi</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">5 KURS · 142 TALABA</div>
+              </td>
+              <td><span class="badge badge-success"><span class="dot"></span>FAOL</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px;">5 daq oldin</span></td>
+              <td><button class="btn btn-ghost btn-sm">⋯</button></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" checked style="width: 14px; height: 14px;"></td>
+              <td>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <div class="avatar" style="background: #a855f7; width: 32px; height: 32px;">DR</div>
+                  <div>
+                    <div style="font-weight: 500; font-size: 13px;">Rasulova Dilnoza</div>
+                    <div style="font-size: 11px; color: var(--muted-foreground);">d.rasulova@stud.tdtu.uz</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge">TALABA</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">••••••••••72</span></td>
+              <td>
+                <div style="font-size: 12px;">Kompyuter injineriyasi</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">CS-201 · 2-KURS</div>
+              </td>
+              <td><span class="badge badge-success"><span class="dot"></span>FAOL</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px;">1 soat oldin</span></td>
+              <td><button class="btn btn-ghost btn-sm">⋯</button></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" style="width: 14px; height: 14px;"></td>
+              <td>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <div class="avatar" style="background: var(--destructive); width: 32px; height: 32px;">MA</div>
+                  <div>
+                    <div style="font-weight: 500; font-size: 13px;">Ahmedova Madina</div>
+                    <div style="font-size: 11px; color: var(--muted-foreground);">m.ahmedova@stud.tdtu.uz</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge">TALABA</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">••••••••••55</span></td>
+              <td>
+                <div style="font-size: 12px;">Matematika</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">M-101 · 1-KURS</div>
+              </td>
+              <td><span class="badge badge-success"><span class="dot"></span>FAOL</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px;">3 soat oldin</span></td>
+              <td><button class="btn btn-ghost btn-sm">⋯</button></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" style="width: 14px; height: 14px;"></td>
+              <td>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <div class="avatar" style="background: var(--warning); width: 32px; height: 32px;">DN</div>
+                  <div>
+                    <div style="font-weight: 500; font-size: 13px;">Davletova Nilufar</div>
+                    <div style="font-size: 11px; color: var(--muted-foreground);">n.davletova@tdtu.uz · MA · Dotsent</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge badge-info">O'QITUVCHI</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">••••••••••18</span></td>
+              <td>
+                <div style="font-size: 12px;">Filologiya</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">3 KURS · 87 TALABA</div>
+              </td>
+              <td><span class="badge badge-success"><span class="dot"></span>FAOL</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px;">Kecha</span></td>
+              <td><button class="btn btn-ghost btn-sm">⋯</button></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" style="width: 14px; height: 14px;"></td>
+              <td>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <div class="avatar" style="background: var(--foreground); width: 32px; height: 32px;">RT</div>
+                  <div>
+                    <div style="font-weight: 500; font-size: 13px;">Tursunov Rustam</div>
+                    <div style="font-size: 11px; color: var(--muted-foreground);">r.tursunov@dean.tdtu.uz</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge badge-warning">DEKAN O'RNB</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">••••••••••63</span></td>
+              <td>
+                <div style="font-size: 12px;">Kompyuter injineriyasi</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">DEKANAT</div>
+              </td>
+              <td><span class="badge badge-success"><span class="dot"></span>FAOL</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px;">Bugun</span></td>
+              <td><button class="btn btn-ghost btn-sm">⋯</button></td>
+            </tr>
+            <tr style="background: #fef2f2;">
+              <td><input type="checkbox" style="width: 14px; height: 14px;"></td>
+              <td>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <div class="avatar" style="background: var(--muted-foreground); width: 32px; height: 32px;">XX</div>
+                  <div>
+                    <div style="font-weight: 500; font-size: 13px;">Anonim Ismli</div>
+                    <div style="font-size: 11px; color: var(--muted-foreground);">x.anonymous@stud.tdtu.uz</div>
+                  </div>
+                </div>
+              </td>
+              <td><span class="badge">TALABA</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">••••••••••00</span></td>
+              <td>
+                <div style="font-size: 12px;">—</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">CS-301 · BLOKLANGAN</div>
+              </td>
+              <td><span class="badge badge-danger"><span class="dot"></span>BLOKLANGAN</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">15 kun oldin</span></td>
+              <td><button class="btn btn-ghost btn-sm">⋯</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">
+          1—7 / 12,953 FOYDALANUVCHI
+        </div>
+        <div class="flex gap-1">
+          <button class="btn btn-outline btn-sm">←</button>
+          <button class="btn btn-primary btn-sm" style="width: 32px; padding: 6px; justify-content: center;">1</button>
+          <button class="btn btn-outline btn-sm" style="width: 32px; padding: 6px; justify-content: center;">2</button>
+          <button class="btn btn-outline btn-sm" style="width: 32px; padding: 6px; justify-content: center;">3</button>
+          <span style="padding: 6px;">...</span>
+          <button class="btn btn-outline btn-sm" style="width: 48px; padding: 6px; justify-content: center;">1851</button>
+          <button class="btn btn-outline btn-sm">→</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

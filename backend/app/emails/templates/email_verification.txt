@@ -1,0 +1,16 @@
+XIU EduPlatform — Email tasdiqlash
+
+Salom, {{ full_name }}!
+
+XIU EduPlatform ga ro'yxatdan o'tganingiz uchun rahmat. Email manzilingizni
+tasdiqlash uchun quyidagi havolani brauzerda oching:
+
+{{ verify_url }}
+
+Havola 24 soat davomida amal qiladi.
+
+Agar siz bu so'rovni bermagan bo'lsangiz, bu xatni e'tiborsiz qoldiring.
+
+—
+559-son qaror asosida · ma'lumotlar himoyalangan
+Yordam: support@xiuedu.uz

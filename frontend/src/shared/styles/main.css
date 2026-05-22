@@ -1,0 +1,224 @@
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Wireframe shadcn-inspired tokens — light + dark.
+ * Reference: md_files/ui_wireframes/lms_ui/assets/styles.css
+ *
+ * Har bir komponent shu o'zgaruvchilardan foydalanadi.
+ * Tema o'zgarishi <html> ga `dark` klassini qo'shish/o'chirish orqali (Tailwind darkMode: 'class').
+ */
+
+:root {
+  --bg: #ffffff;
+  --fg: #0a0a0a;
+  --muted: #f4f4f5;
+  --muted-fg: #71717a;
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8;
+  --wireframe-bg: #fafafa;
+
+  /* Auth split-screen chap tomon — har ikki rejimda ham contrast berish uchun alohida token */
+  --auth-aside-bg: #0a0a0a;
+  --auth-aside-fg: #fafafa;
+
+  /* Card surface (sidebar va boshqa elevated yuza) */
+  --card: #ffffff;
+  --card-fg: #0a0a0a;
+
+  /* Focus ring */
+  --ring: rgba(0, 0, 0, 0.08);
+}
+
+.dark {
+  /* Surface ierarxiyasi (chuqurroqdan ko'tarilganga):
+     wireframe-bg (page) → bg (card/sidebar) → muted (hover/subtle) */
+  --bg: #18181b;
+  --fg: #fafafa;
+  --muted: #27272a;
+  --muted-fg: #a1a1aa;
+  --border: #27272a;
+  --border-strong: #3f3f46;
+  --wireframe-bg: #09090b;
+
+  /* Tungi rejimda chap aside ham ko'tarilgan yuza */
+  --auth-aside-bg: #0a0a0a;
+  --auth-aside-fg: #fafafa;
+
+  --card: #18181b;
+  --card-fg: #fafafa;
+
+  --ring: rgba(255, 255, 255, 0.1);
+}
+
+@layer base {
+  html,
+  body,
+  #app {
+    height: 100%;
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    background: var(--wireframe-bg);
+    color: var(--fg);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv11', 'ss01';
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  /* Dark mode'da scroll-bar ham mos kelishi */
+  html.dark {
+    scrollbar-color: var(--border-strong) var(--bg);
+  }
+
+  .tabular-nums {
+    font-feature-settings: 'tnum';
+  }
+
+  /* Phase 8b — a11y: faqat keyboard fokusda ko'rinadigan ring.
+     `:focus` ham vizual ringga ega bo'lsa, sichqonchada tugmani bossangiz ring ko'rinib qoladi.
+     `:focus-visible` faqat tab/arrow orqali navigatsiyada ishlaydi. */
+  :focus {
+    outline: none;
+  }
+  :focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Skip link: standart ko'rinmaydi, faqat fokus olganda yuqoriga "tushadi" */
+  .skip-link {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translateY(-100%);
+    background: var(--fg);
+    color: var(--bg);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-bottom-right-radius: 0.25rem;
+    z-index: 100;
+    transition: transform 0.15s ease;
+  }
+  .skip-link:focus,
+  .skip-link:focus-visible {
+    transform: translateY(0);
+    outline: none;
+  }
+
+  /* sr-only (Tailwind'da bor — bu redundant emas, faqat global mavjudlikni ta'kidlash uchun saqlanadi).
+     Screen reader uchun ko'rinadi, lekin vizual yo'q. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Reduced motion preference — animatsiyalarni kamaytirish */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Phase 8d — mobile fallback: agar parent overflow-x-auto bilan o'ralmagan
+     bo'lsa, table o'zi gorizontal scroll qiladi. min-width: max-content
+     kolonkalarni siqilib ketmasligi uchun. */
+  @media (max-width: 767px) {
+    main table {
+      display: block;
+      overflow-x: auto;
+      max-width: 100%;
+    }
+    main table > thead,
+    main table > tbody {
+      width: max-content;
+      min-width: 100%;
+    }
+  }
+
+  /* Phase 8d — touch target ≥44x44 (WCAG 2.5.5 AAA / Apple HIG / Material).
+     Faqat touch (pointer: coarse) qurilmalarda — desktop dense UI'ga tegmaydi.
+     `[data-tt-skip]` attribut bilan exemption (masalan ichki tab tugmalari). */
+  @media (pointer: coarse) {
+    button:not([data-tt-skip]),
+    a[role='button']:not([data-tt-skip]),
+    [role='button']:not(button):not(a):not([data-tt-skip]) {
+      min-height: 44px;
+    }
+    /* Faqat ikon (sm + text bo'lmagan) bo'lsa min-width ham. */
+    button:not([data-tt-skip]):has(> svg:only-child),
+    a:not([data-tt-skip]):has(> svg:only-child) {
+      min-width: 44px;
+    }
+  }
+}
+
+@layer components {
+  .mono-tag {
+    @apply font-mono text-[11px] uppercase tracking-widest text-muted-foreground;
+  }
+
+  .page-title {
+    @apply text-[28px] font-semibold tracking-tight text-foreground;
+  }
+
+  .page-subtitle {
+    @apply text-sm text-muted-foreground;
+  }
+
+  /* Wireframe `.breadcrumb` — Geist Mono UPPERCASE, 11px, mute, 12px mb */
+  .breadcrumb {
+    @apply font-mono text-[11px] uppercase tracking-[0.05em] text-muted-foreground flex items-center gap-1.5 mb-3;
+  }
+
+  /* Wireframe `.sidebar-section-title` — 10px Geist Mono, 0.1em letter-spacing */
+  .sidebar-section-title {
+    @apply font-mono text-[10px] uppercase tracking-widest text-muted-foreground px-2 pb-2;
+  }
+
+  /* Wireframe `.placeholder` — 45deg dashed pattern */
+  .wf-placeholder {
+    background-image: linear-gradient(
+      45deg,
+      transparent 49%,
+      var(--placeholder, #e4e4e7) 49%,
+      var(--placeholder, #e4e4e7) 51%,
+      transparent 51%
+    );
+    background-size: 8px 8px;
+    @apply border border-dashed border-border-strong grid place-items-center text-muted-foreground font-mono text-[11px] uppercase tracking-widest rounded-md;
+  }
+
+  /* Stat value with tabular numbers (wireframe stat-value pattern) */
+  .stat-value {
+    @apply text-[28px] font-semibold tracking-tight tabular-nums;
+  }
+}

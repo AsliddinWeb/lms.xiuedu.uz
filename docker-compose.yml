@@ -1,0 +1,135 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: lms_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-lms}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lms_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-lms_xiuedu}
+    ports:
+      - "${POSTGRES_PORT:-8210}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lms} -d ${POSTGRES_DB:-lms_xiuedu}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: lms_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "${REDIS_PORT:-8211}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: lms_minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio_admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minio_dev_password}
+    ports:
+      - "${MINIO_PORT:-8212}:9000"
+      - "${MINIO_CONSOLE_PORT:-8213}:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: lms_mailhog
+    restart: unless-stopped
+    ports:
+      - "${MAILHOG_SMTP_PORT:-8214}:1025"
+      - "${MAILHOG_UI_PORT:-8215}:8025"
+
+  # LiveKit SFU — native WebRTC, hech qanday tashqi xizmat (Phase 5)
+  # Conference room API: ws://livekit:7880  (host: ws://localhost:7880)
+  # Real-time WebRTC media: UDP 7882 (RTC), TCP 7881 (fallback)
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: lms_livekit
+    restart: unless-stopped
+    command: --dev --bind 0.0.0.0
+    ports:
+      - "${LIVEKIT_PORT:-7880}:7880"     # WS signaling
+      - "${LIVEKIT_TCP_PORT:-7881}:7881" # TCP RTC fallback
+      - "${LIVEKIT_UDP_PORT:-7882}:7882/udp" # UDP RTC (media)
+    environment:
+      LIVEKIT_KEYS: "${LIVEKIT_API_KEY:-devkey}: ${LIVEKIT_API_SECRET:-devsecret_at_least_32_characters_long}"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: dev
+    container_name: lms_backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    ports:
+      - "${BACKEND_PORT:-8200}:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend-user:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: dev
+    container_name: lms_frontend_user
+    restart: unless-stopped
+    env_file:
+      - ./frontend/.env
+    ports:
+      - "${FRONTEND_USER_PORT:-8201}:8201"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: pnpm dev:user --host 0.0.0.0
+
+  frontend-admin:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: dev
+    container_name: lms_frontend_admin
+    restart: unless-stopped
+    env_file:
+      - ./frontend/.env
+    ports:
+      - "${FRONTEND_ADMIN_PORT:-8203}:8203"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: pnpm dev:admin --host 0.0.0.0
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:

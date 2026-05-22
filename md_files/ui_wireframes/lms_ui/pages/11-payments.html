@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>11 — Payments</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+
+<div class="wf-label">11 / Payments</div>
+<a href="../index.html" class="wf-back">← Index</a>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon">L</div><span>EduPlatform</span></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Asosiy</div>
+      <a class="nav-item" href="04-student-dashboard.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg>Dashboard</a>
+      <a class="nav-item" href="05-courses-list.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h8"/></svg>Kurslar</a>
+      <a class="nav-item" href="08-assignments.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="2" width="10" height="12"/><path d="M5 5h6M5 8h6M5 11h4"/></svg>Topshiriqlar</a>
+      <a class="nav-item" href="10-grades.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 14V2M2 14h12"/></svg>Baholar</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Boshqa</div>
+      <a class="nav-item active"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="9" rx="1"/><path d="M2 7h12"/></svg>To'lovlar</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-search"><svg class="topbar-search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="4"/><path d="m9 9 3 3"/></svg><input placeholder="Qidirish..."></div>
+      <div class="topbar-actions">
+        <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6a5 5 0 0 1 10 0v4l1 2H2l1-2V6z M6 14a2 2 0 0 0 4 0"/></svg></button>
+        <div class="avatar">BK</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="page-header">
+        <div class="breadcrumb"><span>Bosh sahifa</span> · <span>To'lovlar</span></div>
+        <h1 class="page-title">To'lovlar va shartnomalar</h1>
+        <p class="page-subtitle">2025-2026 o'quv yili · Kontrakt asosida · 3-kurs</p>
+      </div>
+
+      <!-- Balance and next payment -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+        <div class="stat-card">
+          <div class="stat-label">Yillik kontrakt</div>
+          <div class="stat-value" style="font-size: 22px;">14 400 000</div>
+          <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace; margin-top: 4px;">SO'M · 12 OYLIK</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">To'langan</div>
+          <div class="stat-value" style="font-size: 22px; color: var(--success);">9 600 000</div>
+          <div class="progress" style="margin-top: 8px;"><div class="progress-bar" style="width: 67%; background: var(--success);"></div></div>
+          <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace; margin-top: 6px;">67% · 8 OYLIK</div>
+        </div>
+        <div class="stat-card" style="border-color: var(--warning); background: #fefce8;">
+          <div class="stat-label" style="color: #a16207;">Keyingi to'lov</div>
+          <div class="stat-value" style="font-size: 22px; color: #a16207;">1 200 000</div>
+          <div style="font-size: 11px; color: #a16207; font-family: 'Geist Mono', monospace; margin-top: 4px; font-weight: 600;">15 MAY GACHA · 15 KUN</div>
+        </div>
+      </div>
+
+      <!-- Payment methods -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+          <span class="card-title">To'lovni amalga oshirish</span>
+          <span class="badge badge-info">XAVFSIZ TO'LOV · SSL</span>
+        </div>
+        <div style="padding: 24px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <!-- Left: amount & method -->
+            <div>
+              <div class="field">
+                <label class="label">To'lov summasi</label>
+                <div style="position: relative;">
+                  <input class="input" type="text" value="1 200 000" style="font-family: 'Geist Mono', monospace; font-size: 18px; font-weight: 600; padding-right: 80px;">
+                  <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--muted-foreground);">SO'M</span>
+                </div>
+                <div class="help-text">MAY OYLIK TO'LOV</div>
+              </div>
+
+              <div class="field">
+                <label class="label">To'lov tizimi</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                  <div style="padding: 16px; border: 2px solid var(--foreground); border-radius: 8px; cursor: pointer; background: var(--muted);">
+                    <div style="font-weight: 700; font-size: 16px; color: #00C2FF; margin-bottom: 4px;">Click</div>
+                    <div style="font-size: 11px; color: var(--muted-foreground);">UZS · darhol</div>
+                  </div>
+                  <div style="padding: 16px; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer;">
+                    <div style="font-weight: 700; font-size: 16px; color: #00BFAF; margin-bottom: 4px;">Payme</div>
+                    <div style="font-size: 11px; color: var(--muted-foreground);">UZS · darhol</div>
+                  </div>
+                  <div style="padding: 16px; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer;">
+                    <div style="font-weight: 700; font-size: 16px; color: #FFD700; margin-bottom: 4px;">Uzcard</div>
+                    <div style="font-size: 11px; color: var(--muted-foreground);">UZS · 1 daq</div>
+                  </div>
+                  <div style="padding: 16px; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer;">
+                    <div style="font-weight: 700; font-size: 16px; color: #00A859; margin-bottom: 4px;">Humo</div>
+                    <div style="font-size: 11px; color: var(--muted-foreground);">UZS · 1 daq</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: summary -->
+            <div style="background: var(--muted); border-radius: 8px; padding: 20px;">
+              <div style="font-family: 'Geist Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted-foreground); margin-bottom: 16px;">TO'LOV TAFSILOTI</div>
+              <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px;">
+                <span style="color: var(--muted-foreground);">Kontrakt summasi</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 500;">1 200 000</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px;">
+                <span style="color: var(--muted-foreground);">Komissiya</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 500;">0</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px;">
+                <span style="color: var(--muted-foreground);">Soliq (NDS)</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 500;">0</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 16px 0 8px; font-size: 16px;">
+                <span style="font-weight: 600;">Jami to'lanadigan</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 700; font-size: 18px;">1 200 000 so'm</span>
+              </div>
+
+              <div style="margin: 20px 0; padding: 12px 16px; background: var(--background); border: 1px solid var(--border); border-radius: 6px; font-size: 12px; line-height: 1.5;">
+                💡 To'lovdan so'ng kvitansiya elektron pochtangizga yuboriladi. HEMIS bilan avtomatik sinxronlash 1 daqiqa ichida.
+              </div>
+
+              <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 14px; font-size: 14px;">
+                Click bilan to'lash →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active">Tranzaksiya tarixi</button>
+        <button class="tab">Shartnomalar</button>
+        <button class="tab">Kvitansiyalar</button>
+      </div>
+
+      <!-- Transactions table -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Tranzaksiya tarixi</span>
+          <button class="btn btn-outline btn-sm">📥 CSV eksport</button>
+        </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Sana</th>
+              <th>Tafsilot</th>
+              <th>Kanal</th>
+              <th>Summa</th>
+              <th>Holati</th>
+              <th>Cheka</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">15 APR 2026</span></td>
+              <td>
+                <div style="font-weight: 500;">Aprel oyi to'lovi</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">CONTRACT-2025-1823</div>
+              </td>
+              <td><span class="badge">Click</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-weight: 600;">+ 1 200 000</span></td>
+              <td><span class="badge badge-success"><span class="dot"></span>MUVAFFAQIYATLI</span></td>
+              <td><a href="#" style="font-size: 12px;">PDF →</a></td>
+            </tr>
+            <tr>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">15 MAR 2026</span></td>
+              <td>
+                <div style="font-weight: 500;">Mart oyi to'lovi</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">CONTRACT-2025-1823</div>
+              </td>
+              <td><span class="badge">Payme</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-weight: 600;">+ 1 200 000</span></td>
+              <td><span class="badge badge-success"><span class="dot"></span>MUVAFFAQIYATLI</span></td>
+              <td><a href="#" style="font-size: 12px;">PDF →</a></td>
+            </tr>
+            <tr>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">15 FEV 2026</span></td>
+              <td>
+                <div style="font-weight: 500;">Fevral oyi to'lovi</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">CONTRACT-2025-1823</div>
+              </td>
+              <td><span class="badge">Click</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-weight: 600;">+ 1 200 000</span></td>
+              <td><span class="badge badge-success"><span class="dot"></span>MUVAFFAQIYATLI</span></td>
+              <td><a href="#" style="font-size: 12px;">PDF →</a></td>
+            </tr>
+            <tr>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">10 FEV 2026</span></td>
+              <td>
+                <div style="font-weight: 500;">Urinish — to'lov rad etildi</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">Yetarli mablag' yo'q</div>
+              </td>
+              <td><span class="badge">Uzcard</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; color: var(--muted-foreground);">1 200 000</span></td>
+              <td><span class="badge badge-danger"><span class="dot"></span>RAD ETILGAN</span></td>
+              <td><span style="color: var(--muted-foreground); font-size: 12px;">—</span></td>
+            </tr>
+            <tr>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">15 YAN 2026</span></td>
+              <td>
+                <div style="font-weight: 500;">Yanvar oyi to'lovi</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">CONTRACT-2025-1823</div>
+              </td>
+              <td><span class="badge">Click</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-weight: 600;">+ 1 200 000</span></td>
+              <td><span class="badge badge-success"><span class="dot"></span>MUVAFFAQIYATLI</span></td>
+              <td><a href="#" style="font-size: 12px;">PDF →</a></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>09 — Exam (Proctoring)</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+
+<div class="wf-label">09 / Exam · Auto-Proctoring</div>
+<a href="../index.html" class="wf-back">← Index</a>
+
+<style>
+  .exam-shell { min-height: 100vh; background: var(--background); display: grid; grid-template-rows: auto 1fr; }
+  .exam-header { background: var(--foreground); color: var(--background); padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .timer { font-family: 'Geist Mono', monospace; font-size: 18px; font-weight: 600; padding: 6px 16px; background: rgba(255,255,255,0.1); border-radius: 6px; }
+  .timer.warning { background: var(--warning); color: white; }
+  .timer.danger { background: var(--destructive); color: white; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+  .exam-body { display: grid; grid-template-columns: 1fr 320px; }
+  .question-area { padding: 32px; max-width: 900px; margin: 0 auto; width: 100%; }
+  .proctor-side { background: var(--muted); border-left: 1px solid var(--border); padding: 20px; height: 100%; overflow-y: auto; }
+  .question-nav { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin-top: 16px; }
+  .qnum { aspect-ratio: 1; border: 1.5px solid var(--border-strong); border-radius: 6px; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-size: 12px; font-weight: 500; cursor: pointer; background: var(--background); }
+  .qnum.current { border-color: var(--foreground); background: var(--foreground); color: white; }
+  .qnum.answered { background: var(--success); border-color: var(--success); color: white; }
+  .qnum.flagged { background: var(--warning); border-color: var(--warning); color: white; }
+  .answer-option { padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer; display: flex; gap: 12px; align-items: flex-start; transition: all 0.15s; background: var(--background); }
+  .answer-option:hover { border-color: var(--border-strong); background: var(--muted); }
+  .answer-option.selected { border-color: var(--foreground); background: var(--muted); }
+  .answer-option.selected .radio { background: var(--foreground); border-color: var(--foreground); }
+  .answer-option.selected .radio::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
+  .radio { width: 18px; height: 18px; border: 2px solid var(--border-strong); border-radius: 50%; flex-shrink: 0; margin-top: 1px; display: grid; place-items: center; }
+  .webcam-box { width: 100%; aspect-ratio: 4/3; background: #18181b; border-radius: 8px; position: relative; overflow: hidden; margin-bottom: 16px; }
+  .webcam-overlay { position: absolute; inset: 0; display: grid; place-items: center; color: rgba(255,255,255,0.4); font-family: 'Geist Mono', monospace; font-size: 11px; }
+  .webcam-corner { position: absolute; width: 20px; height: 20px; border: 2px solid var(--success); }
+  .webcam-rec { position: absolute; top: 8px; left: 8px; background: var(--destructive); color: white; padding: 2px 8px; font-family: 'Geist Mono', monospace; font-size: 10px; font-weight: 600; border-radius: 3px; display: flex; align-items: center; gap: 4px; }
+  .webcam-rec::before { content: ''; width: 6px; height: 6px; background: white; border-radius: 50%; animation: pulse 1.5s infinite; }
+  .check-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+  .check-row:last-child { border-bottom: none; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  .status-ok { background: var(--success); }
+  .status-warn { background: var(--warning); }
+</style>
+
+<div class="exam-shell">
+  <!-- Exam header -->
+  <div class="exam-header">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <div style="width: 32px; height: 32px; background: white; color: var(--foreground); border-radius: 6px; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-weight: 700; font-size: 12px;">L</div>
+      <div>
+        <div style="font-family: 'Geist Mono', monospace; font-size: 10px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 2px;">YAKUNIY IMTIHON · ALGORITMLAR</div>
+        <div style="font-weight: 600; font-size: 14px;">Modul 4 — Imtihon</div>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 20px;">
+      <div style="font-family: 'Geist Mono', monospace; font-size: 11px; opacity: 0.6;">SAVOL <span style="color: white; opacity: 1; font-weight: 600;">12 / 30</span></div>
+      <div class="timer warning">⏱ 00:24:18</div>
+      <button class="btn btn-outline btn-sm" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: white;">Yakunlash</button>
+    </div>
+  </div>
+
+  <!-- Exam body -->
+  <div class="exam-body">
+    <!-- Question -->
+    <div class="question-area">
+      <!-- Status bar -->
+      <div style="display: flex; gap: 16px; margin-bottom: 24px; padding: 12px 16px; background: var(--muted); border-radius: 6px; font-size: 12px; align-items: center;">
+        <div class="flex items-center gap-2">
+          <span class="status-dot status-ok"></span>
+          <span style="font-family: 'Geist Mono', monospace;">PROCTORING FAOL</span>
+        </div>
+        <div style="width: 1px; height: 16px; background: var(--border);"></div>
+        <span style="color: var(--muted-foreground);">Joriy savol javobini tanlang. O'tkazib yuborilgan savollarga qaytishingiz mumkin.</span>
+      </div>
+
+      <!-- Question -->
+      <div style="margin-bottom: 32px;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+          <div style="width: 36px; height: 36px; background: var(--foreground); color: white; border-radius: 50%; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-weight: 600; font-size: 14px;">12</div>
+          <div>
+            <div style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.05em;">SAVOL · 5 BALL</div>
+            <div style="font-size: 12px; color: var(--muted-foreground);">Bitta to'g'ri javobni tanlang</div>
+          </div>
+        </div>
+
+        <h2 style="font-size: 20px; font-weight: 500; line-height: 1.5; margin-bottom: 8px;">
+          Binar qidirish algoritmining vaqt murakkabligi qanday?
+        </h2>
+        
+        <div style="font-size: 13px; color: var(--muted-foreground); margin-bottom: 24px; padding: 12px 16px; border-left: 3px solid var(--border-strong); background: var(--muted);">
+          💡 Eslatma: array tartiblangan deb hisoblang. Worst case'ni ko'rib chiqing.
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div class="answer-option">
+            <div class="radio"></div>
+            <div>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground); margin-right: 8px;">A</span>
+              <span style="font-size: 14px;">O(n)</span>
+              <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 4px;">Lineer murakkablik</div>
+            </div>
+          </div>
+          <div class="answer-option selected">
+            <div class="radio"></div>
+            <div>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground); margin-right: 8px;">B</span>
+              <span style="font-size: 14px;">O(log n)</span>
+              <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 4px;">Logarifmik murakkablik</div>
+            </div>
+          </div>
+          <div class="answer-option">
+            <div class="radio"></div>
+            <div>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground); margin-right: 8px;">C</span>
+              <span style="font-size: 14px;">O(n²)</span>
+              <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 4px;">Kvadratik murakkablik</div>
+            </div>
+          </div>
+          <div class="answer-option">
+            <div class="radio"></div>
+            <div>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground); margin-right: 8px;">D</span>
+              <span style="font-size: 14px;">O(1)</span>
+              <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 4px;">Doimiy murakkablik</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 24px; border-top: 1px solid var(--border);">
+        <button class="btn btn-outline">← Oldingi</button>
+        <div class="flex gap-2">
+          <button class="btn btn-ghost btn-sm">🚩 Belgilash</button>
+          <button class="btn btn-ghost btn-sm">⊝ Tozalash</button>
+        </div>
+        <button class="btn btn-primary">Keyingi savol →</button>
+      </div>
+
+      <!-- Question navigation -->
+      <div style="margin-top: 32px; padding: 20px; background: var(--muted); border-radius: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div style="font-weight: 600; font-size: 13px;">Savollar haritasi</div>
+          <div style="display: flex; gap: 16px; font-size: 11px; font-family: 'Geist Mono', monospace;">
+            <span><span class="status-dot status-ok"></span> 11 BAJARILDI</span>
+            <span><span class="status-dot" style="background: var(--warning);"></span> 2 BELGILANGAN</span>
+            <span><span class="status-dot" style="background: var(--border-strong);"></span> 17 QOLDI</span>
+          </div>
+        </div>
+        <div class="question-nav">
+          <div class="qnum answered">1</div>
+          <div class="qnum answered">2</div>
+          <div class="qnum answered">3</div>
+          <div class="qnum answered">4</div>
+          <div class="qnum answered">5</div>
+          <div class="qnum flagged">6</div>
+          <div class="qnum answered">7</div>
+          <div class="qnum answered">8</div>
+          <div class="qnum answered">9</div>
+          <div class="qnum answered">10</div>
+          <div class="qnum answered">11</div>
+          <div class="qnum current">12</div>
+          <div class="qnum">13</div>
+          <div class="qnum">14</div>
+          <div class="qnum flagged">15</div>
+          <div class="qnum">16</div>
+          <div class="qnum">17</div>
+          <div class="qnum">18</div>
+          <div class="qnum">19</div>
+          <div class="qnum">20</div>
+          <div class="qnum">21</div>
+          <div class="qnum">22</div>
+          <div class="qnum">23</div>
+          <div class="qnum">24</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Proctor side -->
+    <div class="proctor-side">
+      <!-- Webcam -->
+      <div style="margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div style="font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted-foreground); font-weight: 600;">VIDEO MONITORING</div>
+          <span class="badge badge-success">FAOL</span>
+        </div>
+        <div class="webcam-box">
+          <div class="webcam-rec">REC · 24:18</div>
+          <div class="webcam-corner" style="top:24px; left:8px; border-right: none; border-bottom: none;"></div>
+          <div class="webcam-corner" style="top:24px; right:8px; border-left: none; border-bottom: none;"></div>
+          <div class="webcam-corner" style="bottom:8px; left:8px; border-right: none; border-top: none;"></div>
+          <div class="webcam-corner" style="bottom:8px; right:8px; border-left: none; border-top: none;"></div>
+          <div class="webcam-overlay">
+            <div style="text-align: center;">
+              <div style="font-size: 32px; margin-bottom: 8px;">👤</div>
+              <div>WEBCAM FEED</div>
+              <div style="margin-top: 4px; font-size: 10px;">FACE DETECTED ✓</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Proctoring checks -->
+      <div style="background: var(--background); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+        <div style="font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted-foreground); font-weight: 600; margin-bottom: 12px;">TIZIM TEKSHIRUVI</div>
+        
+        <div class="check-row">
+          <span><span class="status-dot status-ok"></span>Yuz aniqlandi</span>
+          <span style="font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--success);">OK</span>
+        </div>
+        <div class="check-row">
+          <span><span class="status-dot status-ok"></span>Yagona shaxs</span>
+          <span style="font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--success);">OK</span>
+        </div>
+        <div class="check-row">
+          <span><span class="status-dot status-ok"></span>Mikrofon</span>
+          <span style="font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--success);">YOZILMOQDA</span>
+        </div>
+        <div class="check-row">
+          <span><span class="status-dot status-ok"></span>Ekran ulashish</span>
+          <span style="font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--success);">YOQILGAN</span>
+        </div>
+        <div class="check-row">
+          <span><span class="status-dot status-ok"></span>Fullscreen</span>
+          <span style="font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--success);">FAOL</span>
+        </div>
+        <div class="check-row">
+          <span><span class="status-dot status-warn"></span>Tab almashish</span>
+          <span style="font-family: 'Geist Mono', monospace; font-size: 10px; color: var(--warning);">1 MARTA</span>
+        </div>
+      </div>
+
+      <!-- Warning panel -->
+      <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+        <div style="display: flex; gap: 12px; align-items: flex-start;">
+          <div style="width: 20px; height: 20px; background: var(--destructive); color: white; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; flex-shrink: 0;">!</div>
+          <div>
+            <div style="font-weight: 600; font-size: 12px; color: #991b1b; margin-bottom: 4px;">DIQQAT</div>
+            <div style="font-size: 11px; color: #991b1b; line-height: 1.5;">Imtihon davomida boshqa oynaga o'tish, telefon ishlatish va boshqa shaxs yordami taqiqlanadi. Buzilish 559-qarorga ko'ra qaytadan topshirishga olib keladi.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Proctor info -->
+      <div style="background: var(--background); border: 1px solid var(--border); border-radius: 8px; padding: 16px;">
+        <div style="font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted-foreground); font-weight: 600; margin-bottom: 12px;">PROCTOR (KUZATUVCHI)</div>
+        
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+          <div class="avatar" style="background: var(--info);">SH</div>
+          <div>
+            <div style="font-weight: 500; font-size: 13px;">Shavkatova H.</div>
+            <div style="font-size: 11px; color: var(--muted-foreground);">Onlayn · Zoom yordamchi</div>
+          </div>
+        </div>
+
+        <button class="btn btn-outline btn-sm" style="width: 100%; justify-content: center;">
+          📞 Yordam so'rash
+        </button>
+      </div>
+
+      <!-- Network -->
+      <div style="margin-top: 16px; padding: 10px 12px; background: var(--background); border: 1px solid var(--border); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 11px;">
+        <span style="font-family: 'Geist Mono', monospace; color: var(--muted-foreground);">TARMOQ</span>
+        <span style="font-family: 'Geist Mono', monospace; color: var(--success);">▰▰▰▰ 45 MS</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

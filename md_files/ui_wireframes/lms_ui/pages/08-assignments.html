@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>08 — Assignments</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+
+<div class="wf-label">08 / Assignments</div>
+<a href="../index.html" class="wf-back">← Index</a>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon">L</div><span>EduPlatform</span></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Asosiy</div>
+      <a class="nav-item" href="04-student-dashboard.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg>Dashboard</a>
+      <a class="nav-item" href="05-courses-list.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h8"/></svg>Kurslar<span class="nav-badge">12</span></a>
+      <a class="nav-item active"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="2" width="10" height="12"/><path d="M5 5h6M5 8h6M5 11h4"/></svg>Topshiriqlar<span class="nav-badge">3</span></a>
+      <a class="nav-item"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l2 2"/></svg>Jadval</a>
+      <a class="nav-item" href="10-grades.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 14V2M2 14h12M5 11V7M8 11V4M11 11V8"/></svg>Baholar</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-search"><svg class="topbar-search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="4"/><path d="m9 9 3 3"/></svg><input placeholder="Topshiriqni qidirish..."></div>
+      <div class="topbar-actions">
+        <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6a5 5 0 0 1 10 0v4l1 2H2l1-2V6z M6 14a2 2 0 0 0 4 0"/></svg></button>
+        <div class="avatar">BK</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="page-header">
+        <div class="breadcrumb"><span>Bosh sahifa</span> · <span>Topshiriqlar</span></div>
+        <div class="page-header-row">
+          <div>
+            <h1 class="page-title">Topshiriqlar</h1>
+            <p class="page-subtitle">3 ta yangi · 5 ta ko'rib chiqilmoqda · 14 ta tugatilgan</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-outline btn-sm">📋 Calendar</button>
+            <button class="btn btn-outline btn-sm">📊 Statistika</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Jami</div>
+          <div class="stat-value">22</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Bajarilmagan</div>
+          <div class="stat-value" style="color: var(--destructive);">3</div>
+          <div class="stat-trend down"><span class="dot"></span>2 shoshilinch</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Ko'rib chiqilmoqda</div>
+          <div class="stat-value">5</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">O'rtacha baho</div>
+          <div class="stat-value">87.5</div>
+          <div class="stat-trend up"><span class="dot"></span>A'lo</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active">Hammasi (22)</button>
+        <button class="tab">Bajarilmagan (3)</button>
+        <button class="tab">Ko'rib chiqilmoqda (5)</button>
+        <button class="tab">Baholangan (14)</button>
+      </div>
+
+      <!-- Filters row -->
+      <div style="display: flex; gap: 12px; margin-bottom: 24px; align-items: center;">
+        <select class="input" style="width: auto; min-width: 180px;">
+          <option>Barcha kurslar</option>
+          <option>Algoritmlar</option>
+          <option>Matematika</option>
+        </select>
+        <select class="input" style="width: auto; min-width: 160px;">
+          <option>Barcha turlar</option>
+          <option>Mustaqil ish</option>
+          <option>Loyiha</option>
+          <option>Kurs ishi</option>
+        </select>
+        <select class="input" style="width: auto; min-width: 160px;">
+          <option>Muddat bo'yicha</option>
+          <option>Eng yangi</option>
+          <option>Eng eski</option>
+        </select>
+        <span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground); margin-left: auto;">22 TA TOPILDI</span>
+      </div>
+
+      <!-- Assignments table -->
+      <div class="card">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width: 32px;"></th>
+              <th>Topshiriq</th>
+              <th>Kurs</th>
+              <th>Tur</th>
+              <th>Muddat</th>
+              <th>Holati</th>
+              <th>Baho</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div style="width: 8px; height: 8px; background: var(--destructive); border-radius: 50%;"></div></td>
+              <td>
+                <div style="font-weight: 500;">Mustaqil ish #4 — Daraxt obhodlari</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">DFS, BFS, in-order, pre-order, post-order</div>
+              </td>
+              <td><span style="font-size: 12px;">Algoritmlar</span></td>
+              <td><span class="badge">Mustaqil</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">02 MAY · 23:59</span></td>
+              <td><span class="badge badge-danger"><span class="dot"></span>2 KUN QOLDI</span></td>
+              <td><span style="color: var(--muted-foreground); font-size: 12px;">—</span></td>
+              <td><button class="btn btn-primary btn-sm">Bajarish</button></td>
+            </tr>
+            <tr>
+              <td><div style="width: 8px; height: 8px; background: var(--warning); border-radius: 50%;"></div></td>
+              <td>
+                <div style="font-weight: 500;">Loyiha — Frontend portfolio sayt</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">HTML/CSS/JS bilan responsive sayt yarating</div>
+              </td>
+              <td><span style="font-size: 12px;">Web Dev</span></td>
+              <td><span class="badge">Loyiha</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">05 MAY · 23:59</span></td>
+              <td><span class="badge badge-warning"><span class="dot"></span>5 KUN</span></td>
+              <td><span style="color: var(--muted-foreground); font-size: 12px;">—</span></td>
+              <td><button class="btn btn-outline btn-sm">Boshlash</button></td>
+            </tr>
+            <tr>
+              <td><div style="width: 8px; height: 8px; background: var(--info); border-radius: 50%;"></div></td>
+              <td>
+                <div style="font-weight: 500;">Test #2 — Lineer algebra</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">15 ta savol · 30 daqiqa · 1 urinish</div>
+              </td>
+              <td><span style="font-size: 12px;">Matematika</span></td>
+              <td><span class="badge">Test</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">10 MAY · 14:00</span></td>
+              <td><span class="badge"><span class="dot"></span>10 KUN</span></td>
+              <td><span style="color: var(--muted-foreground); font-size: 12px;">—</span></td>
+              <td><button class="btn btn-outline btn-sm">Tayyorlanish</button></td>
+            </tr>
+            <tr style="background: var(--muted);">
+              <td><div style="width: 8px; height: 8px; background: var(--info); border-radius: 50%;"></div></td>
+              <td>
+                <div style="font-weight: 500;">Mustaqil ish #3 — Saralash</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">Topshirildi: 25 APR · Antiplag: 4% ✓</div>
+              </td>
+              <td><span style="font-size: 12px;">Algoritmlar</span></td>
+              <td><span class="badge">Mustaqil</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">25 APR</span></td>
+              <td><span class="badge badge-info"><span class="dot"></span>BAHOLANMOQDA</span></td>
+              <td><span style="color: var(--muted-foreground); font-size: 12px;">—</span></td>
+              <td><button class="btn btn-ghost btn-sm">Ko'rish</button></td>
+            </tr>
+            <tr>
+              <td><div style="width: 8px; height: 8px; background: var(--success); border-radius: 50%;"></div></td>
+              <td>
+                <div style="font-weight: 500;">Lab #5 — Hashtable implementatsiya</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">Topshirildi: 18 APR · Antiplag: 2% ✓</div>
+              </td>
+              <td><span style="font-size: 12px;">Algoritmlar</span></td>
+              <td><span class="badge">Lab</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">20 APR</span></td>
+              <td><span class="badge badge-success"><span class="dot"></span>BAHOLANGAN</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-weight: 600;">92 / 100</span></td>
+              <td><button class="btn btn-ghost btn-sm">Ko'rish</button></td>
+            </tr>
+            <tr>
+              <td><div style="width: 8px; height: 8px; background: var(--success); border-radius: 50%;"></div></td>
+              <td>
+                <div style="font-weight: 500;">Mustaqil ish #2 — Murakkablik tahlili</div>
+                <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 2px;">Topshirildi: 12 APR · Antiplag: 6% ✓</div>
+              </td>
+              <td><span style="font-size: 12px;">Algoritmlar</span></td>
+              <td><span class="badge">Mustaqil</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">14 APR</span></td>
+              <td><span class="badge badge-success"><span class="dot"></span>BAHOLANGAN</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-weight: 600;">85 / 100</span></td>
+              <td><button class="btn btn-ghost btn-sm">Ko'rish</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Submit modal preview -->
+      <div style="margin-top: 32px; padding: 24px; border: 2px dashed var(--border-strong); border-radius: 8px; background: var(--card);">
+        <div style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">PREVIEW · TOPSHIRIQ YUBORISH FORMASI</div>
+        
+        <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 8px;">Mustaqil ish #4 — Daraxt obhodlari</h2>
+        <div style="font-size: 13px; color: var(--muted-foreground); margin-bottom: 20px;">DFS, BFS, in-order, pre-order, post-order algoritmlarini Python'da implement qiling.</div>
+        
+        <div class="grid-2">
+          <div>
+            <div class="field">
+              <label class="label">Yechim fayli (kod)</label>
+              <div class="placeholder" style="height: 100px;">FAYLNI BU YERGA TASHLANG</div>
+              <div class="help-text">.PY · .ZIP · MAX 50MB</div>
+            </div>
+          </div>
+          <div>
+            <div class="field">
+              <label class="label">Hisobot (PDF/DOCX)</label>
+              <div class="placeholder" style="height: 100px;">FAYLNI BU YERGA TASHLANG</div>
+              <div class="help-text">PDF YOKI DOCX · MAX 10MB</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="field">
+          <label class="label">Izoh (ixtiyoriy)</label>
+          <textarea class="input" rows="3" placeholder="Topshiriq haqida qo'shimcha ma'lumot..."></textarea>
+        </div>
+        
+        <div style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 20px;">
+          <input type="checkbox" id="confirm" style="width: 14px; height: 14px; margin-top: 2px;">
+          <label for="confirm" style="font-size: 12px; color: var(--muted-foreground);">Bu ish mening shaxsiy mehnatim ekanligini va Antiplag.uz orqali tekshirilishiga roziligimni tasdiqlayman</label>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--destructive);">⏱ MUDDAT: 2 KUN 14 SOAT</span>
+          <div class="flex gap-2">
+            <button class="btn btn-outline">Saqlash (qoralama)</button>
+            <button class="btn btn-primary">Yuborish</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

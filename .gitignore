@@ -1,0 +1,78 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.venv/
+venv/
+.python-version
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.production
+!.env.example
+!.env.production.example
+
+# Backups (server-only data, repo'ga tushmasin)
+backups/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+coverage.xml
+*.cover
+
+# Type checking
+.mypy_cache/
+.ruff_cache/
+
+# Node
+node_modules/
+dist/
+dist-admin/
+dist-user/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+.npm/
+.pnpm-store/
+
+# Build artifacts
+*.local
+.vite/
+*.tsbuildinfo
+frontend/vite.config.js
+frontend/vite.config.d.ts
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Docker
+.docker/
+
+# Logs
+logs/
+*.log
+
+# Media / uploads (production handled by MinIO)
+media/
+uploads/
+storage/
+
+# Alembic local DB
+*.sqlite3
+*.db
+
+# Coverage
+coverage/

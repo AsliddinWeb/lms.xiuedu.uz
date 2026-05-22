@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>10 — Grades</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+
+<div class="wf-label">10 / Grades</div>
+<a href="../index.html" class="wf-back">← Index</a>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon">L</div><span>EduPlatform</span></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Asosiy</div>
+      <a class="nav-item" href="04-student-dashboard.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg>Dashboard</a>
+      <a class="nav-item" href="05-courses-list.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h8"/></svg>Kurslar<span class="nav-badge">12</span></a>
+      <a class="nav-item" href="08-assignments.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="2" width="10" height="12"/><path d="M5 5h6M5 8h6M5 11h4"/></svg>Topshiriqlar<span class="nav-badge">3</span></a>
+      <a class="nav-item"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l2 2"/></svg>Jadval</a>
+      <a class="nav-item active"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 14V2M2 14h12M5 11V7M8 11V4M11 11V8"/></svg>Baholar</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Boshqa</div>
+      <a class="nav-item" href="11-payments.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="9" rx="1"/><path d="M2 7h12"/></svg>To'lovlar</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-search"><svg class="topbar-search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="4"/><path d="m9 9 3 3"/></svg><input placeholder="Qidirish..."></div>
+      <div class="topbar-actions">
+        <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6a5 5 0 0 1 10 0v4l1 2H2l1-2V6z M6 14a2 2 0 0 0 4 0"/></svg></button>
+        <div class="avatar">BK</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="page-header">
+        <div class="breadcrumb"><span>Bosh sahifa</span> · <span>Baholar</span></div>
+        <div class="page-header-row">
+          <div>
+            <h1 class="page-title">Baholar va reyting</h1>
+            <p class="page-subtitle">3-semestr · 2025-2026 o'quv yili · Bekzod Karimov · CS-301</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-outline btn-sm">📥 Transcript yuklash</button>
+            <button class="btn btn-outline btn-sm">📊 PDF eksport</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top stats -->
+      <div style="display: grid; grid-template-columns: 2fr 3fr; gap: 16px; margin-bottom: 24px;">
+        <!-- GPA card -->
+        <div class="card" style="background: var(--foreground); color: var(--background); border: none;">
+          <div style="padding: 24px;">
+            <div style="font-family: 'Geist Mono', monospace; font-size: 11px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px;">UMUMIY GPA</div>
+            <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;">
+              <div style="font-size: 56px; font-weight: 600; letter-spacing: -0.04em; line-height: 1; font-feature-settings: 'tnum';">3.87</div>
+              <div style="opacity: 0.5; font-family: 'Geist Mono', monospace; font-size: 14px;">/ 4.0</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; opacity: 0.7; margin-bottom: 24px;">
+              <span style="color: #4ade80;">↑ +0.15</span>
+              <span>oxirgi semestrdan</span>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+              <div>
+                <div style="opacity: 0.5; font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em;">REYTING</div>
+                <div style="font-family: 'Geist Mono', monospace; font-size: 18px; font-weight: 600; margin-top: 4px;">12 / 145</div>
+              </div>
+              <div>
+                <div style="opacity: 0.5; font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em;">DARAJA</div>
+                <div style="font-family: 'Geist Mono', monospace; font-size: 18px; font-weight: 600; margin-top: 4px; color: #4ade80;">A'LO</div>
+              </div>
+              <div>
+                <div style="opacity: 0.5; font-family: 'Geist Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em;">KREDIT</div>
+                <div style="font-family: 'Geist Mono', monospace; font-size: 18px; font-weight: 600; margin-top: 4px;">68 / 240</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grade chart -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Semestrlar bo'yicha o'rtacha baho</span>
+            <span class="badge">5 SEMESTR</span>
+          </div>
+          <div class="card-body">
+            <div class="chart-bar" style="height: 160px;">
+              <div class="chart-bar-item" style="height: 78%"><span class="chart-bar-label">S1</span></div>
+              <div class="chart-bar-item" style="height: 82%"><span class="chart-bar-label">S2</span></div>
+              <div class="chart-bar-item" style="height: 85%"><span class="chart-bar-label">S3</span></div>
+              <div class="chart-bar-item" style="height: 88%"><span class="chart-bar-label">S4</span></div>
+              <div class="chart-bar-item" style="height: 92%; background: var(--success);"><span class="chart-bar-label">S5</span></div>
+            </div>
+            <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 12px;">
+              <div><span style="color: var(--muted-foreground);">Joriy semestr:</span> <span style="font-family: 'Geist Mono', monospace; font-weight: 600;">92.3</span></div>
+              <div><span style="color: var(--muted-foreground);">Eng yuqori:</span> <span style="font-family: 'Geist Mono', monospace; font-weight: 600; color: var(--success);">92.3</span></div>
+              <div><span style="color: var(--muted-foreground);">Eng past:</span> <span style="font-family: 'Geist Mono', monospace; font-weight: 600;">78.5</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active">Joriy semestr</button>
+        <button class="tab">To'liq tarix</button>
+        <button class="tab">Reyting</button>
+        <button class="tab">Sertifikatlar</button>
+      </div>
+
+      <!-- Course grades table -->
+      <div class="card" style="margin-bottom: 24px;">
+        <div class="card-header">
+          <span class="card-title">3-semestr · Fanlar bo'yicha baholar</span>
+          <span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">8 FAN · 24 KREDIT</span>
+        </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Fan</th>
+              <th>Kredit</th>
+              <th>Joriy</th>
+              <th>Oraliq</th>
+              <th>Yakuniy</th>
+              <th>Umumiy</th>
+              <th>Baho</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div style="font-weight: 500;">Algoritmlar va MT</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">Karimov A.</div>
+              </td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">4</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace;">28/30</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace;">29/30</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; color: var(--muted-foreground);">—/40</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-weight: 600;">57/60</span></td>
+              <td><span class="badge badge-success">A'LO · 95</span></td>
+              <td><button class="btn btn-ghost btn-sm">Ko'rish</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div style="font-weight: 500;">Lineer algebra</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">Saidova M.</div>
+              </td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">3</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace;">25/30</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace;">26/30</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; color: var(--muted-foreground);">—/40</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-weight: 600;">51/60</span></td>
+              <td><span class="badge badge-success">YAXSHI · 85</span></td>
+              <td><button class="btn btn-ghost btn-sm">Ko'rish</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div style="font-weight: 500;">Frontend dasturlash</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">Yusupov S.</div>
+              </td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">4</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace;">29/30</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace;">30/30</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace;">38/40</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-weight: 600;">97/100</span></td>
+              <td><span class="badge badge-success">A'LO · 97</span></td>
+              <td><button class="btn btn-ghost btn-sm">Ko'rish</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div style="font-weight: 500;">Falsafa tarixi</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">Olimov R.</div>
+              </td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">2</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace;">22/30</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; color: var(--muted-foreground);">—/30</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; color: var(--muted-foreground);">—/40</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-weight: 600;">22/30</span></td>
+              <td><span class="badge badge-warning">QONIQARLI · 73</span></td>
+              <td><button class="btn btn-ghost btn-sm">Ko'rish</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div style="font-weight: 500;">Academic English B2</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">Davletova N.</div>
+              </td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">3</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace;">27/30</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace;">28/30</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; color: var(--muted-foreground);">—/40</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-weight: 600;">55/60</span></td>
+              <td><span class="badge badge-success">YAXSHI · 91</span></td>
+              <td><button class="btn btn-ghost btn-sm">Ko'rish</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div style="font-weight: 500;">Diskret matematika</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">Rahmonov B.</div>
+              </td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">3</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace;">26/30</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace;">28/30</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; color: var(--muted-foreground);">—/40</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-weight: 600;">54/60</span></td>
+              <td><span class="badge badge-success">YAXSHI · 90</span></td>
+              <td><button class="btn btn-ghost btn-sm">Ko'rish</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Grade scale -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div class="card">
+          <div class="card-header"><span class="card-title">Baholash shkalasi</span></div>
+          <div style="padding: 16px 20px;">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border);">
+              <span class="badge badge-success" style="min-width: 60px; justify-content: center;">A'LO</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--muted-foreground);">90—100</span>
+              <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px;">5.0 / 4.0 GPA</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border);">
+              <span class="badge badge-success" style="min-width: 60px; justify-content: center;">YAXSHI</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--muted-foreground);">75—89</span>
+              <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px;">4.0 / 3.5</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border);">
+              <span class="badge badge-warning" style="min-width: 60px; justify-content: center;">QONIQARLI</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--muted-foreground);">60—74</span>
+              <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px;">3.0 / 2.5</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0;">
+              <span class="badge badge-danger" style="min-width: 60px; justify-content: center;">QONIQ-Z</span>
+              <span style="font-family: 'Geist Mono', monospace; font-size: 12px; color: var(--muted-foreground);">0—59</span>
+              <span style="margin-left: auto; font-family: 'Geist Mono', monospace; font-size: 12px;">2.0 / 1.0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Yutuqlar</span><span class="badge">3 YANGI</span></div>
+          <div style="padding: 16px 20px;">
+            <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border);">
+              <div style="width: 36px; height: 36px; background: var(--success); color: white; border-radius: 50%; display: grid; place-items: center;">🏆</div>
+              <div style="flex: 1;">
+                <div style="font-weight: 500; font-size: 13px;">Eng yuqori reyting</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">Top-15 talaba</div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border);">
+              <div style="width: 36px; height: 36px; background: var(--info); color: white; border-radius: 50%; display: grid; place-items: center;">⭐</div>
+              <div style="flex: 1;">
+                <div style="font-weight: 500; font-size: 13px;">A'lo talaba</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">3 semestr ketma-ket</div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0;">
+              <div style="width: 36px; height: 36px; background: var(--warning); color: white; border-radius: 50%; display: grid; place-items: center;">🔥</div>
+              <div style="flex: 1;">
+                <div style="font-weight: 500; font-size: 13px;">12 kunlik streak</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">Har kuni o'qiyapsiz</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

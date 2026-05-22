@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="uz">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
+    <title>XIU LMS — Masofaviy ta'lim</title>
+    <meta
+      name="description"
+      content="Xalqaro Innovatsiya Universiteti — masofaviy ta'lim platformasi"
+    />
+    <!-- FOUC oldini olish: tema klassi va html lang Vue mount bo'lguncha o'rnatish -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('lms.theme') || 'system';
+          var dark =
+            t === 'dark' ||
+            (t === 'system' &&
+              window.matchMedia &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (dark) document.documentElement.classList.add('dark');
+
+          var loc = localStorage.getItem('lms.locale');
+          if (!loc) {
+            var nav = (navigator.language || '').toLowerCase();
+            loc = nav.indexOf('ru') === 0 ? 'ru'
+              : nav.indexOf('en') === 0 ? 'en'
+              : 'uz-lat';
+          }
+          var langAttr = loc === 'uz-lat' ? 'uz-Latn'
+            : loc === 'uz-cyr' ? 'uz-Cyrl'
+            : loc;
+          document.documentElement.setAttribute('lang', langAttr);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

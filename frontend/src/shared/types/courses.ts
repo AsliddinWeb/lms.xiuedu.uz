@@ -1,0 +1,149 @@
+// Courses types — backend Pydantic schemalar bilan teng.
+
+export type CourseType = 'academic' | 'open' | 'micro' | 'specialization'
+export type CourseLevel = 'beginner' | 'intermediate' | 'advanced'
+export type CourseStatus = 'draft' | 'published' | 'archived'
+export type EnrollmentType = 'auto' | 'manual' | 'self'
+export type EnrollmentMethod = 'auto' | 'manual' | 'self'
+export type CompletionStatus = 'in_progress' | 'completed' | 'failed' | 'dropped'
+export type LangCode = 'uz-lat' | 'uz-cyr' | 'ru' | 'en'
+
+export interface Course {
+  id: number
+  code: string | null
+  title: string
+  slug: string
+  description: string | null
+  subject_id: number | null
+  organization_id: number | null
+  type: CourseType
+  level: CourseLevel | null
+  language: LangCode
+  cover_image_url: string | null
+  trailer_video_url: string | null
+  duration_weeks: number | null
+  estimated_hours: number | null
+  objectives: string[]
+  skills_gained: string[]
+  status: CourseStatus
+  published_at: string | null
+  enrollment_type: EnrollmentType
+  max_students: number | null
+  primary_author_id: number | null
+  created_at: string
+  updated_at: string
+}
+
+export interface PaginatedCourses {
+  items: Course[]
+  total: number
+}
+
+export interface CoursePayload {
+  code?: string | null
+  title: string
+  slug: string
+  description?: string | null
+  subject_id?: number | null
+  organization_id?: number | null
+  type?: CourseType
+  level?: CourseLevel | null
+  language?: LangCode
+  cover_image_url?: string | null
+  trailer_video_url?: string | null
+  duration_weeks?: number | null
+  estimated_hours?: number | null
+  objectives?: string[]
+  skills_gained?: string[]
+  enrollment_type?: EnrollmentType
+  max_students?: number | null
+}
+
+export interface Module {
+  id: number
+  course_id: number
+  title: string
+  description: string | null
+  order_index: number
+  available_from: string | null
+  available_until: string | null
+  created_at: string
+}
+
+export interface ModulePayload {
+  title: string
+  description?: string | null
+  order_index?: number | null
+  available_from?: string | null
+  available_until?: string | null
+}
+
+export interface Lesson {
+  id: number
+  module_id: number
+  title: string
+  description: string | null
+  order_index: number
+  primary_content_id: number | null
+  estimated_minutes: number | null
+  is_required_for_completion: boolean
+  created_at: string
+}
+
+export interface LessonPayload {
+  title: string
+  description?: string | null
+  order_index?: number | null
+  primary_content_id?: number | null
+  estimated_minutes?: number | null
+  is_required_for_completion?: boolean
+}
+
+export interface Enrollment {
+  id: number
+  course_id: number
+  user_id: number
+  enrolled_at: string
+  enrollment_method: EnrollmentMethod
+  enrolled_by: number | null
+  completion_status: CompletionStatus
+  completed_at: string | null
+  final_grade: string | null
+}
+
+export interface EnrollmentStudent {
+  enrollment_id: number
+  user_id: number
+  full_name: string
+  email: string
+  enrolled_at: string
+  enrollment_method: EnrollmentMethod
+  completion_status: CompletionStatus
+  progress_percent: string  // Decimal as string
+}
+
+export interface PaginatedStudents {
+  items: EnrollmentStudent[]
+  total: number
+}
+
+export interface LessonProgress {
+  id: number
+  user_id: number
+  lesson_id: number
+  started_at: string | null
+  completed_at: string | null
+  progress_percent: string
+  time_spent_seconds: number
+  last_position: Record<string, unknown>
+}
+
+export interface CourseProgress {
+  course_id: number
+  enrolled: boolean
+  completion_status: CompletionStatus | null
+  completed_lessons: number
+  total_required_lessons: number
+  percent: string
+  completed_at: string | null
+}

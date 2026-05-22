@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<title>18 — Reports</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+
+<div class="wf-label">18 / Reports</div>
+<a href="../index.html" class="wf-back">← Index</a>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="sidebar-logo-icon">L</div><span>EduPlatform</span></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Admin</div>
+      <a class="nav-item" href="16-admin-dashboard.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg>Dashboard</a>
+      <a class="nav-item" href="17-users-management.html"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2"/><circle cx="11" cy="5" r="2"/><path d="M2 13a4 4 0 0 1 8 0M7 13a4 4 0 0 1 8 0"/></svg>Foydalanuvchilar<span class="nav-badge">12.4K</span></a>
+      <a class="nav-item"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h8"/></svg>Kurslar</a>
+      <a class="nav-item"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="4" width="12" height="9" rx="1"/><path d="M2 7h12"/></svg>To'lovlar</a>
+      <a class="nav-item active"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 14V2M2 14h12M5 11V7M8 11V4M11 11V8"/></svg>Hisobotlar</a>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-title">Tizim</div>
+      <a class="nav-item"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M8 1v3M8 12v3M1 8h3M12 8h3"/></svg>Integratsiyalar</a>
+      <a class="nav-item"><svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h10v10H3z"/></svg>Audit log</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="topbar-search"><svg class="topbar-search-icon" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="4"/><path d="m9 9 3 3"/></svg><input placeholder="Hisobot turini qidirish..."></div>
+      <div class="topbar-actions">
+        <button class="icon-btn"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6a5 5 0 0 1 10 0v4l1 2H2l1-2V6z M6 14a2 2 0 0 0 4 0"/></svg></button>
+        <div class="avatar" style="background: var(--destructive);">AD</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="page-header">
+        <div class="breadcrumb"><span>Admin</span> · <span>Hisobotlar</span></div>
+        <div class="page-header-row">
+          <div>
+            <h1 class="page-title">Hisobotlar va eksport</h1>
+            <p class="page-subtitle">HEMIS, OTJBAT, TSDIN sinxronizatsiya · Maxsus hisobotlar yaratish · 559-qaror talablari</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-outline btn-sm">📅 Avtomatik jadval</button>
+            <button class="btn btn-primary btn-sm">+ Yangi hisobot</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Integration sync status -->
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
+        <!-- HEMIS -->
+        <div class="card">
+          <div style="padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div style="width: 44px; height: 44px; background: var(--foreground); color: white; border-radius: 8px; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-weight: 700; font-size: 12px;">HMS</div>
+                <div>
+                  <div style="font-weight: 600; font-size: 15px;">HEMIS</div>
+                  <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">OLIY TA'LIM REESTRI</div>
+                </div>
+              </div>
+              <span class="badge badge-success"><span class="dot"></span>SINXRON</span>
+            </div>
+            <div style="font-size: 12px; line-height: 1.7; padding: 12px; background: var(--muted); border-radius: 6px; margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                <span style="color: var(--muted-foreground);">So'nggi sync</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 500;">2 daq oldin</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                <span style="color: var(--muted-foreground);">Yuborildi</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 500; color: var(--success);">142 / 142 ✓</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                <span style="color: var(--muted-foreground);">Keyingi sync</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 500;">Avto · 1 soat</span>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-outline btn-sm" style="flex: 1; justify-content: center;">📊 Log</button>
+              <button class="btn btn-primary btn-sm" style="flex: 1; justify-content: center;">↻ Sinxronlash</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- OTJBAT -->
+        <div class="card" style="border-color: var(--warning); background: #fefce8;">
+          <div style="padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div style="width: 44px; height: 44px; background: #f59e0b; color: white; border-radius: 8px; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-weight: 700; font-size: 11px;">OTJ</div>
+                <div>
+                  <div style="font-weight: 600; font-size: 15px;">OTJBAT</div>
+                  <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">O'QUV-METODIK BAZA</div>
+                </div>
+              </div>
+              <span class="badge badge-warning"><span class="dot"></span>KECHIKDI</span>
+            </div>
+            <div style="font-size: 12px; line-height: 1.7; padding: 12px; background: white; border-radius: 6px; margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                <span style="color: var(--muted-foreground);">So'nggi sync</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 500;">28 APR · 3 KUN</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                <span style="color: var(--muted-foreground);">Kutmoqda</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 500; color: var(--warning);">48 ta yozuv</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                <span style="color: var(--muted-foreground);">Xato</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 500; color: var(--destructive);">2 ta</span>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-outline btn-sm" style="flex: 1; justify-content: center;">⚠ Xatolar</button>
+              <button class="btn btn-primary btn-sm" style="flex: 1; justify-content: center;">↻ Qayta urinish</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TSDIN -->
+        <div class="card">
+          <div style="padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div style="width: 44px; height: 44px; background: var(--info); color: white; border-radius: 8px; display: grid; place-items: center; font-family: 'Geist Mono', monospace; font-weight: 700; font-size: 12px;">TSD</div>
+                <div>
+                  <div style="font-weight: 600; font-size: 15px;">TSDIN</div>
+                  <div style="font-size: 11px; color: var(--muted-foreground); font-family: 'Geist Mono', monospace;">DIPLOM REESTRI</div>
+                </div>
+              </div>
+              <span class="badge badge-success"><span class="dot"></span>SINXRON</span>
+            </div>
+            <div style="font-size: 12px; line-height: 1.7; padding: 12px; background: var(--muted); border-radius: 6px; margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                <span style="color: var(--muted-foreground);">So'nggi sync</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 500;">10 daq oldin</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                <span style="color: var(--muted-foreground);">Sertifikatlar</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 500; color: var(--success);">28 / 28 ✓</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                <span style="color: var(--muted-foreground);">Keyingi sync</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 500;">Avto · 6 soat</span>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-outline btn-sm" style="flex: 1; justify-content: center;">📊 Log</button>
+              <button class="btn btn-primary btn-sm" style="flex: 1; justify-content: center;">↻ Sinxronlash</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two columns: builder + recent -->
+      <div style="display: grid; grid-template-columns: 1fr 380px; gap: 16px; margin-bottom: 24px;">
+        <!-- Custom report builder -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Maxsus hisobot yaratish</span>
+            <span class="badge">BUILDER</span>
+          </div>
+          <div style="padding: 24px;">
+            <!-- Step 1: Type -->
+            <div class="field">
+              <label class="label">Hisobot turi</label>
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                <div style="padding: 12px; border: 2px solid var(--foreground); border-radius: 6px; text-align: center; cursor: pointer; background: var(--muted);">
+                  <div style="font-size: 18px; margin-bottom: 4px;">👥</div>
+                  <div style="font-size: 11px; font-weight: 600;">Talabalar</div>
+                </div>
+                <div style="padding: 12px; border: 1.5px solid var(--border); border-radius: 6px; text-align: center; cursor: pointer;">
+                  <div style="font-size: 18px; margin-bottom: 4px;">📚</div>
+                  <div style="font-size: 11px;">Kurslar</div>
+                </div>
+                <div style="padding: 12px; border: 1.5px solid var(--border); border-radius: 6px; text-align: center; cursor: pointer;">
+                  <div style="font-size: 18px; margin-bottom: 4px;">💰</div>
+                  <div style="font-size: 11px;">To'lovlar</div>
+                </div>
+                <div style="padding: 12px; border: 1.5px solid var(--border); border-radius: 6px; text-align: center; cursor: pointer;">
+                  <div style="font-size: 18px; margin-bottom: 4px;">📊</div>
+                  <div style="font-size: 11px;">Statistika</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="grid-2">
+              <div class="field">
+                <label class="label">Sana oraligʻi</label>
+                <div style="display: flex; gap: 8px;">
+                  <input class="input" type="date" value="2026-01-01" style="flex: 1;">
+                  <input class="input" type="date" value="2026-04-30" style="flex: 1;">
+                </div>
+              </div>
+              <div class="field">
+                <label class="label">Fakultet</label>
+                <select class="input">
+                  <option>Barcha fakultetlar</option>
+                  <option>Kompyuter injineriyasi</option>
+                  <option>Matematika</option>
+                  <option>Filologiya</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label class="label">Kurs</label>
+                <select class="input">
+                  <option>Barcha kurslar</option>
+                  <option>1-kurs</option>
+                  <option>2-kurs</option>
+                  <option>3-kurs</option>
+                  <option>4-kurs</option>
+                </select>
+              </div>
+              <div class="field">
+                <label class="label">Holati</label>
+                <select class="input">
+                  <option>Barcha holatlar</option>
+                  <option>Faol</option>
+                  <option>Akademik ta'til</option>
+                  <option>Chetlatilgan</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Fields to include -->
+            <div class="field">
+              <label class="label">Hisobotga kiritilsin</label>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                <label style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 12px;">
+                  <input type="checkbox" checked style="width: 14px; height: 14px;"> F.I.O.
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 12px;">
+                  <input type="checkbox" checked style="width: 14px; height: 14px;"> PINFL
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 12px;">
+                  <input type="checkbox" checked style="width: 14px; height: 14px;"> GPA
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 12px;">
+                  <input type="checkbox" checked style="width: 14px; height: 14px;"> Davomat
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 12px;">
+                  <input type="checkbox" style="width: 14px; height: 14px;"> Kreditlar
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 12px;">
+                  <input type="checkbox" style="width: 14px; height: 14px;"> Telefon
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 12px;">
+                  <input type="checkbox" style="width: 14px; height: 14px;"> Email
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 12px;">
+                  <input type="checkbox" style="width: 14px; height: 14px;"> To'lov
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 12px;">
+                  <input type="checkbox" style="width: 14px; height: 14px;"> Kurslar
+                </label>
+              </div>
+            </div>
+
+            <!-- Action bar -->
+            <div style="display: flex; gap: 12px; padding-top: 16px; border-top: 1px solid var(--border);">
+              <span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground); align-self: center;">~1,420 YOZUV TOPILADI</span>
+              <div style="margin-left: auto; display: flex; gap: 8px;">
+                <button class="btn btn-outline">👁 Preview</button>
+                <button class="btn btn-outline">📊 Excel</button>
+                <button class="btn btn-outline">📄 PDF</button>
+                <button class="btn btn-primary">📥 CSV</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trend chart -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Hisobot generatsiyasi</span>
+            <span style="font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">7 KUN</span>
+          </div>
+          <div class="card-body">
+            <div class="chart-bar" style="height: 140px;">
+              <div class="chart-bar-item" style="height: 35%"><span class="chart-bar-label">Du</span></div>
+              <div class="chart-bar-item" style="height: 65%"><span class="chart-bar-label">Se</span></div>
+              <div class="chart-bar-item" style="height: 48%"><span class="chart-bar-label">Ch</span></div>
+              <div class="chart-bar-item" style="height: 78%"><span class="chart-bar-label">Pa</span></div>
+              <div class="chart-bar-item" style="height: 92%"><span class="chart-bar-label">Ju</span></div>
+              <div class="chart-bar-item" style="height: 22%; opacity: 0.4"><span class="chart-bar-label">Sh</span></div>
+              <div class="chart-bar-item" style="height: 18%; opacity: 0.4"><span class="chart-bar-label">Ya</span></div>
+            </div>
+            <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px;">
+              <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                <span style="color: var(--muted-foreground);">Bu hafta jami</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 600;">128</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                <span style="color: var(--muted-foreground);">Eng ko'p tur</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 600;">TALABALAR</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                <span style="color: var(--muted-foreground);">O'rtacha vaqt</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 600;">2.4s</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 4px 0;">
+                <span style="color: var(--muted-foreground);">Avtomatik</span>
+                <span style="font-family: 'Geist Mono', monospace; font-weight: 600; color: var(--success);">42 / 128</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent reports -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">So'nggi hisobotlar</span>
+          <div class="flex gap-1">
+            <button class="btn btn-outline btn-sm" style="font-size: 11px;">HAMMASI</button>
+            <button class="btn btn-ghost btn-sm" style="font-size: 11px;">MENING</button>
+            <button class="btn btn-ghost btn-sm" style="font-size: 11px;">AVTO</button>
+          </div>
+        </div>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Tur</th>
+              <th>Yaratuvchisi</th>
+              <th>Sana</th>
+              <th>Hajm</th>
+              <th>Format</th>
+              <th>Holati</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div style="font-weight: 500;">Aprel oyi talabalar GPA hisoboti</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">CS · 1,420 yozuv</div>
+              </td>
+              <td><span class="badge">TALABALAR</span></td>
+              <td><span style="font-size: 12px;">admin@uz</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">30 APR · 14:42</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">2.4 MB</span></td>
+              <td><span class="badge badge-info">PDF</span></td>
+              <td><span class="badge badge-success"><span class="dot"></span>TAYYOR</span></td>
+              <td><button class="btn btn-outline btn-sm">📥 Yuklash</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div style="font-weight: 500;">HEMIS — kvartal yuborma</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">Avtomatik · 2026-Q1</div>
+              </td>
+              <td><span class="badge badge-info">SYNC</span></td>
+              <td><span style="font-size: 12px; font-family: 'Geist Mono', monospace;">SYSTEM</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">30 APR · 12:00</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">8.7 MB</span></td>
+              <td><span class="badge">XML</span></td>
+              <td><span class="badge badge-success"><span class="dot"></span>YUBORILDI</span></td>
+              <td><button class="btn btn-outline btn-sm">📥 Yuklash</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div style="font-weight: 500;">3-semestr to'lovlar</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">Barcha fakultetlar · 14.4M so'm</div>
+              </td>
+              <td><span class="badge">TO'LOV</span></td>
+              <td><span style="font-size: 12px;">finance@uz</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">29 APR · 16:18</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">428 KB</span></td>
+              <td><span class="badge badge-info">XLSX</span></td>
+              <td><span class="badge badge-success"><span class="dot"></span>TAYYOR</span></td>
+              <td><button class="btn btn-outline btn-sm">📥 Yuklash</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div style="font-weight: 500;">OTJBAT eksport — modul 4</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">Algoritmlar · qayta urinish</div>
+              </td>
+              <td><span class="badge badge-info">SYNC</span></td>
+              <td><span style="font-size: 12px; font-family: 'Geist Mono', monospace;">SYSTEM</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">28 APR · 09:30</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">1.2 MB</span></td>
+              <td><span class="badge">JSON</span></td>
+              <td><span class="badge badge-warning"><span class="dot"></span>QAYTA URINISH</span></td>
+              <td><button class="btn btn-outline btn-sm">⚠ Tekshirish</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div style="font-weight: 500;">Kurslar bo'yicha statistika</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">348 kurs · davomat tahlili</div>
+              </td>
+              <td><span class="badge">STAT</span></td>
+              <td><span style="font-size: 12px;">karimov_a@uz</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">27 APR · 11:45</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">3.8 MB</span></td>
+              <td><span class="badge badge-info">PDF</span></td>
+              <td><span class="badge badge-success"><span class="dot"></span>TAYYOR</span></td>
+              <td><button class="btn btn-outline btn-sm">📥 Yuklash</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div style="font-weight: 500;">TSDIN — sertifikatlar yuborma</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">Avtomatik · 28 sertifikat</div>
+              </td>
+              <td><span class="badge badge-info">SYNC</span></td>
+              <td><span style="font-size: 12px; font-family: 'Geist Mono', monospace;">SYSTEM</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">26 APR · 06:00</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">512 KB</span></td>
+              <td><span class="badge">XML</span></td>
+              <td><span class="badge badge-success"><span class="dot"></span>YUBORILDI</span></td>
+              <td><button class="btn btn-outline btn-sm">📥 Yuklash</button></td>
+            </tr>
+            <tr>
+              <td>
+                <div style="font-weight: 500;">Imtihon natijalari — modul 3</div>
+                <div style="font-size: 11px; color: var(--muted-foreground);">428 talaba · proctoring log</div>
+              </td>
+              <td><span class="badge">IMTIHON</span></td>
+              <td><span style="font-size: 12px;">admin@uz</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">25 APR · 18:24</span></td>
+              <td><span style="font-family: 'Geist Mono', monospace; font-size: 12px;">12.4 MB</span></td>
+              <td><span class="badge badge-info">PDF</span></td>
+              <td><span class="badge badge-success"><span class="dot"></span>TAYYOR</span></td>
+              <td><button class="btn btn-outline btn-sm">📥 Yuklash</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Footer info -->
+      <div style="margin-top: 24px; padding: 16px 20px; background: var(--muted); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; font-family: 'Geist Mono', monospace; font-size: 11px; color: var(--muted-foreground);">
+        <div>📊 BU OY YARATILDI: <span style="color: var(--foreground); font-weight: 600;">428 HISOBOT</span></div>
+        <div>💾 SAQLASH HAJMI: <span style="color: var(--foreground); font-weight: 600;">2.4 GB / 50 GB</span></div>
+        <div>🤖 AVTO-RUN: <span style="color: var(--success); font-weight: 600;">12 TA JADVAL</span></div>
+        <div>📅 KEYINGI: <span style="color: var(--foreground); font-weight: 600;">01 MAY · 06:00</span></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>
