@@ -14,11 +14,10 @@ docker compose version        # v2.x
 ```
 
 Tashqi nginx domain → port forward sozlangan bo'lishi kerak:
-- `lms.xiuedu.uz` → `localhost:8201`
-- `lms-admin.xiuedu.uz` → `localhost:8203`
-- `api.xiuedu.uz` (yoki shu sub-path) → `localhost:8200`
-- `storage.xiuedu.uz` → `localhost:8212` (MinIO S3 API, presigned URL'lar uchun)
-- `live.xiuedu.uz` → `localhost:7880` (LiveKit WS)
+- `lms.xiuedu.uz` → `localhost:8201` (talaba frontend)
+- `lms-admin.xiuedu.uz` → `localhost:8203` (admin frontend)
+- `lms-api.xiuedu.uz` → `localhost:8200` (backend API)
+- `lms-cdn.xiuedu.uz` → `localhost:8212` (MinIO S3, presigned URL'lar uchun)
 
 ---
 
@@ -61,13 +60,13 @@ nano .env.production
 
 | O'zgaruvchi | Misol qiymat |
 |---|---|
-| `VITE_API_URL_USER` | `https://lms.xiuedu.uz/api/v1` |
-| `VITE_API_URL_ADMIN` | `https://lms-admin.xiuedu.uz/api/v1` |
+| `VITE_API_URL_USER` | `https://lms-api.xiuedu.uz/api/v1` |
+| `VITE_API_URL_ADMIN` | `https://lms-api.xiuedu.uz/api/v1` |
 | `CORS_ORIGINS` | `https://lms.xiuedu.uz,https://lms-admin.xiuedu.uz` |
 | `APP_FRONTEND_URL` | `https://lms.xiuedu.uz` |
 | `ADMIN_FRONTEND_URL` | `https://lms-admin.xiuedu.uz` |
-| `MINIO_PUBLIC_URL` | `https://storage.xiuedu.uz` |
-| `LIVEKIT_URL_PUBLIC` | `wss://live.xiuedu.uz` |
+| `MINIO_PUBLIC_URL` | `https://lms-cdn.xiuedu.uz` |
+| `LIVEKIT_URL_PUBLIC` | `wss://lms-api.xiuedu.uz/livekit` |
 | `COOKIE_DOMAIN` | `.xiuedu.uz` |
 
 > **Eslatma:** Backend container'ga `DATABASE_URL`, `REDIS_URL`, `MINIO_ACCESS_KEY/SECRET_KEY`
