@@ -35,7 +35,10 @@ def validate_production_env() -> None:
     if not settings.is_production:
         return
 
+    # Fatal issues — app boot to'xtatadi
     issues: list[str] = []
+    # Warning'lar — log'ga yoziladi, lekin app ishga tushadi
+    warnings: list[str] = []
 
     jwt_secret = getattr(settings, "JWT_SECRET_KEY", "")
     if jwt_secret in DEV_SECRETS or len(jwt_secret) < 32:
@@ -47,12 +50,17 @@ def validate_production_env() -> None:
     db_url = str(settings.DATABASE_URL)
     if "lms_dev_password" in db_url or "@localhost" in db_url and settings.is_production:
         issues.append("DATABASE_URL dev parol / localhost ishlatmoqda")
-    if not settings.SENTRY_DSN:
-        issues.append("SENTRY_DSN production'da bo'sh — xatolar kuzatilmaydi")
     if settings.APP_DEBUG:
         issues.append("APP_DEBUG=True production'da yoqilgan")
     if not settings.cors_origins_list:
         issues.append("CORS_ORIGINS bo'sh — frontend ulanolmasligi mumkin")
+
+    # SENTRY_DSN — ixtiyoriy, faqat warning
+    if not settings.SENTRY_DSN:
+        warnings.append("SENTRY_DSN bo'sh — xatolar Sentry'da kuzatilmaydi (ixtiyoriy)")
+
+    for w in warnings:
+        logger.warning("env.validation.warning", issue=w)
 
     if issues:
         for issue in issues:
