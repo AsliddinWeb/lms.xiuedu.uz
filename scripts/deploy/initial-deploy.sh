@@ -24,7 +24,6 @@ ENV_FILE=".env.production"
 # --- Preflight ---
 [ -f "$COMPOSE_FILE" ] || err "$COMPOSE_FILE topilmadi. Project root'idan ishga tushiring."
 [ -f "$ENV_FILE" ] || err "$ENV_FILE topilmadi. .env.production.example'dan ko'chiring va to'ldiring."
-[ -f "backend/.env.production" ] || err "backend/.env.production topilmadi."
 
 # Docker compose v2 tekshiruvi
 docker compose version >/dev/null 2>&1 || err "docker compose v2 o'rnatilmagan."

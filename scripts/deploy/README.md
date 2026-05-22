@@ -33,47 +33,45 @@ git clone <repo-url> .
 
 ---
 
-## 3. Konfiguratsiya — `.env.production` fayllar
+## 3. Konfiguratsiya — yagona `.env.production`
 
-### Root `.env.production` (docker-compose uchun)
+Barcha secret'lar va sozlamalar **bitta** root `.env.production` faylida.
+Backend container uni compose orqali oladi — alohida `backend/.env.production`
+KERAK EMAS.
 
 ```bash
 cp .env.production.example .env.production
 nano .env.production
 ```
 
-Quyidagilarni **majburiy** o'zgartiring:
+**Majburiy o'zgartirish kerak bo'lgan secret'lar:**
 
-| O'zgaruvchi | Buyruq |
+| O'zgaruvchi | Generator buyruq |
 |---|---|
 | `POSTGRES_PASSWORD` | `openssl rand -base64 32` |
 | `REDIS_PASSWORD` | `openssl rand -base64 24` |
+| `MINIO_ROOT_USER` | Ixtiyoriy nom (masalan `lms_minio`) |
 | `MINIO_ROOT_PASSWORD` | `openssl rand -base64 32` |
-| `LIVEKIT_API_SECRET` | `openssl rand -hex 32` (min. 32 belgi) |
-| `VITE_API_URL_USER` | Talaba domain'i, masalan `https://lms.xiuedu.uz/api/v1` |
-| `VITE_API_URL_ADMIN` | Admin domain'i, masalan `https://lms-admin.xiuedu.uz/api/v1` |
-
-### Backend `.env.production`
-
-```bash
-cp backend/.env.production.example backend/.env.production
-nano backend/.env.production
-```
-
-**Eng muhim sozlamalar:**
-
-| O'zgaruvchi | Eslatma |
-|---|---|
 | `JWT_SECRET_KEY` | `openssl rand -hex 64` |
-| `DATABASE_URL` | Root .env'dagi `POSTGRES_PASSWORD` bilan mos kelishi kerak |
-| `REDIS_URL` | `redis://:PAROL@redis:6379/0` |
-| `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` | Root .env'dagi root user/parol |
-| `CORS_ORIGINS` | Real prod domain'lar, vergul bilan |
-| `APP_FRONTEND_URL`, `ADMIN_FRONTEND_URL` | HTTPS bilan |
-| `SMTP_*` | Real SMTP server (Mailhog production'da yo'q) |
-| `HEMIS_API_URL`, `HEMIS_API_TOKEN` | HEMIS sinxronizatsiya uchun |
-| `LIVEKIT_URL_PUBLIC` | Brauzerdan ko'rinadigan `wss://` URL |
-| `COOKIE_DOMAIN=.xiuedu.uz`, `COOKIE_SECURE=true` | Production cookie sozlamalari |
+| `LIVEKIT_API_KEY` | `openssl rand -hex 16` |
+| `LIVEKIT_API_SECRET` | `openssl rand -hex 32` (min. 32 belgi) |
+| `SMTP_PASSWORD` | Real SMTP server parol (Gmail App Password va h.k.) |
+
+**Domain sozlamalari (real prod):**
+
+| O'zgaruvchi | Misol qiymat |
+|---|---|
+| `VITE_API_URL_USER` | `https://lms.xiuedu.uz/api/v1` |
+| `VITE_API_URL_ADMIN` | `https://lms-admin.xiuedu.uz/api/v1` |
+| `CORS_ORIGINS` | `https://lms.xiuedu.uz,https://lms-admin.xiuedu.uz` |
+| `APP_FRONTEND_URL` | `https://lms.xiuedu.uz` |
+| `ADMIN_FRONTEND_URL` | `https://lms-admin.xiuedu.uz` |
+| `MINIO_PUBLIC_URL` | `https://storage.xiuedu.uz` |
+| `LIVEKIT_URL_PUBLIC` | `wss://live.xiuedu.uz` |
+| `COOKIE_DOMAIN` | `.xiuedu.uz` |
+
+> **Eslatma:** Backend container'ga `DATABASE_URL`, `REDIS_URL`, `MINIO_ACCESS_KEY/SECRET_KEY`
+> compose orqali **avtomatik tuziladi** (infra parol'laridan). Qo'shimcha sozlash shart emas.
 
 ---
 

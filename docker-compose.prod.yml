@@ -3,26 +3,17 @@
 # ============================================================
 # Foydalanish:
 #   cp .env.production.example .env.production
+#   nano .env.production       # YAGONA fayl — barcha secret'lar shu yerda
 #   docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
 #
-# Farqlar (dev'dan):
-#   - Backend: uvicorn workers (--reload yo'q)
-#   - Frontend: vite build -> nginx static serve (8201 / 8203 portlarda)
-#   - Volume bind mount yo'q (faqat data volumes)
-#   - restart: always
-#   - Health/depends_on har bir servis uchun
+# Backend container o'zgaruvchilarni compose `environment:` orqali oladi —
+# alohida backend/.env.production fayli KERAK EMAS.
 #
-# Portlar (host -> container) — dev bilan bir xil, lekin frontend ichida nginx:80:
-#   8200 -> backend:8000
-#   8201 -> frontend-user:80
-#   8203 -> frontend-admin:80
-#   8210 -> postgres:5432
-#   8211 -> redis:6379
-#   8212 -> minio:9000
-#   8213 -> minio:9001
-#   7880-7882 -> livekit
-#
-# Mailhog (dev SMTP) production'da ishlatilmaydi.
+# Portlar (host -> container):
+#   8200 -> backend:8000      8210 -> postgres:5432
+#   8201 -> frontend-user:80  8211 -> redis:6379
+#   8203 -> frontend-admin:80 8212 -> minio:9000
+#   7880-7882 -> livekit      8213 -> minio:9001
 # ============================================================
 
 services:
@@ -98,8 +89,6 @@ services:
       target: prod
     container_name: lms_backend
     restart: always
-    env_file:
-      - ./backend/.env.production
     ports:
       - "${BACKEND_PORT:-8200}:8000"
     depends_on:
@@ -109,7 +98,98 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-    # Workers — server CPU asosida (default 4)
+    # Backend o'zgaruvchilari — yagona root .env.production'dan kelib chiqib
+    # compose interpolatsiya orqali yasaladi. URL'lar va MinIO key'lari
+    # infra parol'laridan avtomatik tuziladi (DRY).
+    environment:
+      # --- App ---
+      APP_ENV: ${APP_ENV:-production}
+      APP_NAME: ${APP_NAME:-XIU LMS Backend}
+      APP_VERSION: ${APP_VERSION:-0.1.0}
+      APP_DEBUG: ${APP_DEBUG:-false}
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8000
+
+      # --- Database (compose ichida postgres:5432) ---
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      DATABASE_ECHO: "false"
+
+      # --- Redis (compose ichida redis:6379, parol bilan) ---
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+
+      # --- MinIO (root user/parol -> backend uchun ham shu) ---
+      MINIO_ENDPOINT: minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_BUCKET: ${MINIO_BUCKET:-lms-files}
+      MINIO_USE_SSL: "false"
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL}
+
+      # --- JWT ---
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: ${JWT_ACCESS_TOKEN_EXPIRE_MINUTES:-15}
+      JWT_REFRESH_TOKEN_EXPIRE_DAYS: ${JWT_REFRESH_TOKEN_EXPIRE_DAYS:-7}
+
+      # --- CORS / Cookie ---
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN}
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      COOKIE_SAMESITE: ${COOKIE_SAMESITE:-lax}
+
+      # --- Frontend URL'lar (email/qr) ---
+      APP_FRONTEND_URL: ${APP_FRONTEND_URL}
+      ADMIN_FRONTEND_URL: ${ADMIN_FRONTEND_URL}
+
+      # --- SMTP ---
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_FROM: ${SMTP_FROM}
+      SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
+
+      # --- 559-qaror ---
+      TEACHER_STUDENT_RATIO_MAX: ${TEACHER_STUDENT_RATIO_MAX:-50}
+      BACHELOR_STUDENTS_PER_SPECIALTY_MAX: ${BACHELOR_STUDENTS_PER_SPECIALTY_MAX:-300}
+      MASTER_STUDENTS_PER_SPECIALTY_MAX: ${MASTER_STUDENTS_PER_SPECIALTY_MAX:-30}
+      ACADEMIC_YEAR: ${ACADEMIC_YEAR:-2025-2026}
+      SEMESTER: ${SEMESTER:-autumn}
+
+      # --- HEMIS ---
+      HEMIS_API_URL: ${HEMIS_API_URL}
+      HEMIS_API_TOKEN: ${HEMIS_API_TOKEN}
+      HEMIS_SYNC_ENABLED: ${HEMIS_SYNC_ENABLED:-true}
+
+      # --- OneID ---
+      ONEID_CLIENT_ID: ${ONEID_CLIENT_ID}
+      ONEID_CLIENT_SECRET: ${ONEID_CLIENT_SECRET}
+      ONEID_REDIRECT_URI: ${ONEID_REDIRECT_URI}
+      ONEID_AUTHORIZE_URL: ${ONEID_AUTHORIZE_URL}
+      ONEID_TOKEN_URL: ${ONEID_TOKEN_URL}
+
+      # --- Live (LiveKit) ---
+      LIVE_DEFAULT_PROVIDER: native
+      LIVEKIT_URL_INTERNAL: ws://livekit:7880
+      LIVEKIT_URL_PUBLIC: ${LIVEKIT_URL_PUBLIC}
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET}
+      LIVEKIT_TOKEN_TTL_SECONDS: ${LIVEKIT_TOKEN_TTL_SECONDS:-21600}
+
+      # --- Eskiz / Telegram (kelajak) ---
+      ESKIZ_API_URL: ${ESKIZ_API_URL}
+      ESKIZ_API_TOKEN: ${ESKIZ_API_TOKEN}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+
+      # --- Observability ---
+      SENTRY_DSN: ${SENTRY_DSN}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LOG_JSON: ${LOG_JSON:-true}
+
+      # --- Rate limit ---
+      RATE_LIMIT_ENABLED: ${RATE_LIMIT_ENABLED:-true}
+      RATE_LIMIT_REQUESTS_PER_MIN: ${RATE_LIMIT_REQUESTS_PER_MIN:-120}
+
     command: >-
       uvicorn app.main:app
       --host 0.0.0.0
