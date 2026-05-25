@@ -156,12 +156,12 @@ watch(() => route.fullPath, () => {
             :class="[
               'group relative flex items-center rounded-md text-[13px] font-medium text-foreground hover:bg-muted transition-colors no-underline',
               collapsed
-                ? 'lg:justify-center lg:px-0 lg:py-2.5 lg:mb-1 gap-3 px-3 py-2.5'
-                : 'gap-3 px-3 py-2.5',
+                ? 'lg:justify-center lg:px-0 lg:py-3 lg:mb-1 gap-3 px-3 py-2.5'
+                : 'gap-3 px-3 py-2.5 mb-0.5',
             ]"
             active-class="!bg-foreground !text-background hover:!bg-foreground"
           >
-            <UiNavIcon :name="item.icon" :size="18" />
+            <UiNavIcon :name="item.icon" :size="20" />
             <span
               v-show="!collapsed"
               class="flex-1 truncate"
@@ -185,13 +185,13 @@ watch(() => route.fullPath, () => {
             v-else
             :title="collapsed ? item.label : undefined"
             :class="[
-              'flex items-center rounded-md text-[14px] font-medium text-muted-foreground cursor-not-allowed',
+              'flex items-center rounded-md text-[15px] font-medium text-muted-foreground cursor-not-allowed',
               collapsed
-                ? 'lg:justify-center lg:px-0 lg:py-2.5 lg:mb-1 gap-3 px-3 py-2.5'
-                : 'gap-3 px-3 py-2.5',
+                ? 'lg:justify-center lg:px-0 lg:py-3 lg:mb-1 gap-3 px-3 py-2.5'
+                : 'gap-3 px-3 py-2.5 mb-0.5',
             ]"
           >
-            <UiNavIcon :name="item.icon" :size="18" />
+            <UiNavIcon :name="item.icon" :size="20" />
             <span v-show="!collapsed" class="flex-1 truncate">{{ item.label }}</span>
             <span
               v-show="!collapsed && item.badge !== undefined"
@@ -214,27 +214,27 @@ watch(() => route.fullPath, () => {
             :to="item.to"
             :title="collapsed ? item.label : undefined"
             :class="[
-              'flex items-center rounded-md text-[14px] font-medium text-foreground hover:bg-muted transition-colors no-underline',
+              'flex items-center rounded-md text-[15px] font-medium text-foreground hover:bg-muted transition-colors no-underline',
               collapsed
-                ? 'lg:justify-center lg:px-0 lg:py-2.5 lg:mb-1 gap-3 px-3 py-2.5'
-                : 'gap-3 px-3 py-2.5',
+                ? 'lg:justify-center lg:px-0 lg:py-3 lg:mb-1 gap-3 px-3 py-2.5'
+                : 'gap-3 px-3 py-2.5 mb-0.5',
             ]"
             active-class="!bg-foreground !text-background hover:!bg-foreground"
           >
-            <UiNavIcon :name="item.icon" :size="18" />
+            <UiNavIcon :name="item.icon" :size="20" />
             <span v-show="!collapsed" class="flex-1 truncate">{{ item.label }}</span>
           </RouterLink>
           <div
             v-else
             :title="collapsed ? item.label : undefined"
             :class="[
-              'flex items-center rounded-md text-[14px] font-medium text-muted-foreground cursor-not-allowed',
+              'flex items-center rounded-md text-[15px] font-medium text-muted-foreground cursor-not-allowed',
               collapsed
-                ? 'lg:justify-center lg:px-0 lg:py-2.5 lg:mb-1 gap-3 px-3 py-2.5'
-                : 'gap-3 px-3 py-2.5',
+                ? 'lg:justify-center lg:px-0 lg:py-3 lg:mb-1 gap-3 px-3 py-2.5'
+                : 'gap-3 px-3 py-2.5 mb-0.5',
             ]"
           >
-            <UiNavIcon :name="item.icon" :size="18" />
+            <UiNavIcon :name="item.icon" :size="20" />
             <span v-show="!collapsed" class="flex-1 truncate">{{ item.label }}</span>
           </div>
         </template>
@@ -277,10 +277,11 @@ watch(() => route.fullPath, () => {
 <style scoped>
 .sidebar-section-title {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
-  font-size: 10px;
+  font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--muted-fg, #737373);
+  font-weight: 600;
 }
 
 /* Active'da badge rang inversiyasi */
