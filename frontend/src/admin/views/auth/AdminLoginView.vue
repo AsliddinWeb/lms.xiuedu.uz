@@ -47,34 +47,9 @@ async function handleSubmit() {
       <h2 class="font-serif text-[40px] leading-[1.1] mb-6 max-w-md">
         {{ t('admin_auth.side_title') }} <em class="italic">{{ t('admin_auth.side_title_em') }}</em>.
       </h2>
-      <p class="opacity-70 max-w-sm leading-relaxed text-sm">
+      <p class="opacity-70 max-w-md leading-relaxed text-sm">
         {{ t('admin_auth.side_desc') }}
       </p>
-
-      <div class="grid grid-cols-3 gap-6 pt-8 mt-12 border-t border-white/10 max-w-md">
-        <div>
-          <div class="font-mono text-[11px] opacity-60 uppercase tracking-wider mb-1">
-            {{ t('admin_auth.feature_security') }}
-          </div>
-          <div class="text-sm font-semibold">2FA + IP</div>
-        </div>
-        <div>
-          <div class="font-mono text-[11px] opacity-60 uppercase tracking-wider mb-1">
-            {{ t('admin_auth.feature_audit') }}
-          </div>
-          <div class="text-sm font-semibold">{{ t('admin_auth.feature_audit_val') }}</div>
-        </div>
-        <div>
-          <div class="font-mono text-[11px] opacity-60 uppercase tracking-wider mb-1">
-            SLA
-          </div>
-          <div class="text-sm font-semibold">99.9%</div>
-        </div>
-      </div>
-    </template>
-
-    <template #side-bottom>
-      {{ t('admin_auth.side_footer') }}
     </template>
 
     <div class="mb-8">
@@ -82,7 +57,7 @@ async function handleSubmit() {
       <h1 class="text-[28px] font-semibold tracking-tight mb-2">{{ t('admin_auth.title') }}</h1>
       <p class="text-muted-foreground text-sm">
         {{ t('admin_auth.subtitle') }}
-        <a href="http://localhost:8201" class="text-foreground font-medium hover:underline">
+        <a href="https://lms.xiuedu.uz" target="_blank" rel="noopener" class="text-foreground font-medium hover:underline">
           lms.xiuedu.uz
         </a>
         {{ t('admin_auth.subtitle_tail') }}
@@ -119,11 +94,5 @@ async function handleSubmit() {
         </svg>
       </UiButton>
     </form>
-
-    <div
-      class="mt-8 font-mono text-[10px] text-muted-foreground text-center leading-relaxed uppercase tracking-wider"
-    >
-      {{ t('admin_auth.audit_note') }}
-    </div>
   </UiAuthLayout>
 </template>
