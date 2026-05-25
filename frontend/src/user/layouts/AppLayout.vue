@@ -50,7 +50,7 @@ const sections = computed<SidebarSection[]>(() => {
     if (auth.hasPermission('exam.attempt')) {
       main.push({
         name: 'my-exams',
-        icon: 'audit',
+        icon: 'exams',
         label: t('nav.exams'),
         to: '/app/exams',
       })
@@ -63,10 +63,7 @@ const sections = computed<SidebarSection[]>(() => {
         to: '/app/live/upcoming',
       })
     }
-    main.push(
-      { name: 'schedule', icon: 'schedule', label: t('nav.schedule'), disabled: true, badge: 'Ph.6' },
-      { name: 'grades', icon: 'grades', label: t('nav.grades'), to: '/app/grades' },
-    )
+    main.push({ name: 'grades', icon: 'grades', label: t('nav.grades'), to: '/app/grades' })
 
     // Phase 13 — payments LMS skopidan tashqarida (559-qaror), olib tashlandi.
     // Communications/sertifikat/yutuqlar real sahifalar:
@@ -115,14 +112,8 @@ const sections = computed<SidebarSection[]>(() => {
   ]
 })
 
-// Footer (border-top): Yordam + Sozlamalar (Ph.6 placeholderlar)
-const footerSection = computed<SidebarSection>(() => ({
-  title: '',
-  items: [
-    { name: 'help', icon: 'help', label: t('nav.help'), disabled: true, badge: 'Ph.6' },
-    { name: 'settings', icon: 'settings', label: t('nav.settings'), disabled: true, badge: 'Ph.6' },
-  ],
-}))
+// Footer section — hozircha bo'sh (Yordam/Sozlamalar Phase 14+ ga ko'chirildi)
+const footerSection = computed<SidebarSection | undefined>(() => undefined)
 
 // Topbar user dropdown items
 const userMenuItems = computed<UserMenuItem[]>(() => [

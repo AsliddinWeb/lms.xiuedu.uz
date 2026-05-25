@@ -1,203 +1,230 @@
 <script setup lang="ts">
 /**
- * Sidebar nav iconlari — wireframe `md_files/ui_wireframes/lms_ui/pages/*.html` dan
- * 1:1 ko'chirilgan. 16×16 viewBox, stroke 1.5, currentColor.
+ * Sidebar nav iconlari — Phase 17 premium darajada.
  *
- * Manba: design-system.md §6 — icon SVG path nuqtalari aniq belgilangan.
+ * Lucide-style: 24×24 viewBox, stroke 2, round caps/joins, fill none.
+ * `size` propi orqali render o'lchamini boshqarish mumkin (default 18).
  */
 interface Props {
   name: string
   size?: number
 }
-withDefaults(defineProps<Props>(), { size: 16 })
+withDefaults(defineProps<Props>(), { size: 18 })
 </script>
 
 <template>
   <svg
     :width="size"
     :height="size"
-    viewBox="0 0 16 16"
+    viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    stroke-width="1.5"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
     aria-hidden="true"
     class="shrink-0"
   >
-    <!-- DASHBOARD — 4 squares grid -->
+    <!-- DASHBOARD — 4 panels (layout-dashboard) -->
     <template v-if="name === 'dashboard'">
-      <rect x="2" y="2" width="5" height="5" />
-      <rect x="9" y="2" width="5" height="5" />
-      <rect x="2" y="9" width="5" height="5" />
-      <rect x="9" y="9" width="5" height="5" />
+      <rect x="3" y="3" width="7" height="9" rx="1" />
+      <rect x="14" y="3" width="7" height="5" rx="1" />
+      <rect x="14" y="12" width="7" height="9" rx="1" />
+      <rect x="3" y="16" width="7" height="5" rx="1" />
     </template>
 
-    <!-- COURSES (catalog/my-learning/my-courses) — 3-line list -->
+    <!-- COURSES (catalog/my-learning/my-courses) — book-open -->
     <template v-else-if="['courses', 'catalog', 'my-learning', 'my-courses'].includes(name)">
-      <path d="M2 4h12M2 8h12M2 12h8" />
+      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
     </template>
 
-    <!-- ASSIGNMENTS / TEACHER-ASSIGNMENTS — clipboard -->
+    <!-- ASSIGNMENTS — clipboard-check -->
     <template v-else-if="name === 'assignments'">
-      <rect x="3" y="2" width="10" height="12" />
-      <path d="M5 5h6M5 8h6M5 11h4" />
+      <rect x="8" y="2" width="8" height="4" rx="1" />
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+      <path d="m9 14 2 2 4-4" />
     </template>
 
-    <!-- SCHEDULE / CALENDARS — clock -->
+    <!-- EXAMS — file-text with check (Phase 17 yangi) -->
+    <template v-else-if="name === 'exams'">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <path d="M14 2v6h6" />
+      <path d="m9 15 2 2 4-4" />
+    </template>
+
+    <!-- SCHEDULE — calendar-clock -->
     <template v-else-if="name === 'schedule'">
-      <circle cx="8" cy="8" r="6" />
-      <path d="M8 4v4l2 2" />
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M16 2v4M8 2v4M3 10h18" />
     </template>
 
     <!-- CALENDARS — calendar (admin) -->
     <template v-else-if="name === 'calendars'">
-      <rect x="2" y="3" width="12" height="10" rx="1" />
-      <path d="M2 6h12M5 1v3M11 1v3" />
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M16 2v4M8 2v4M3 10h18" />
     </template>
 
-    <!-- GRADES / ANALYTICS / REPORTS — bar chart -->
+    <!-- GRADES / ANALYTICS / REPORTS — bar-chart-3 -->
     <template v-else-if="['grades', 'analytics', 'reports'].includes(name)">
-      <path d="M2 14V2M2 14h12M5 11V7M8 11V4M11 11V8" />
+      <path d="M3 3v18h18" />
+      <path d="M7 16v-5M12 16V8M17 16v-3" />
     </template>
 
-    <!-- PAYMENTS — credit card -->
+    <!-- PAYMENTS — credit-card -->
     <template v-else-if="name === 'payments'">
-      <rect x="2" y="4" width="12" height="9" rx="1" />
-      <path d="M2 7h12" />
+      <rect x="2" y="5" width="20" height="14" rx="2" />
+      <path d="M2 10h20" />
     </template>
 
-    <!-- CERTIFICATES — frame with inner square -->
+    <!-- CERTIFICATES — award (medal + ribbon) -->
     <template v-else-if="name === 'certificates'">
-      <path d="M3 3h10v10H3z M6 6h4v4H6z" />
+      <circle cx="12" cy="9" r="6" />
+      <path d="m9 14-2 7 5-3 5 3-2-7" />
     </template>
 
-    <!-- FORUM — chat lines -->
+    <!-- FORUM — messages-square -->
     <template v-else-if="name === 'forum'">
-      <path d="M3 4h10M3 8h10M3 12h6" />
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
     </template>
 
-    <!-- ACHIEVEMENTS — trophy/cup -->
+    <!-- ACHIEVEMENTS — trophy -->
     <template v-else-if="name === 'achievements'">
-      <path d="M5 2h6v3a3 3 0 0 1-6 0V2z" />
-      <path d="M5 3H3v2a2 2 0 0 0 2 2M11 3h2v2a2 2 0 0 1-2 2" />
-      <path d="M6 8v2h4V8M5 14h6M8 10v4" />
+      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
+      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
+      <path d="M4 22h16" />
+      <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
+      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
+      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
     </template>
 
-    <!-- MESSAGES — envelope -->
+    <!-- MESSAGES / CHAT — message-circle -->
     <template v-else-if="name === 'messages'">
-      <path d="M2 4l6 5 6-5M2 4v8h12V4" />
+      <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
     </template>
 
-    <!-- HELP — circle with ! -->
+    <!-- HELP — help-circle -->
     <template v-else-if="name === 'help'">
-      <circle cx="8" cy="8" r="6" />
-      <path d="M8 5v3M8 10v.5" />
+      <circle cx="12" cy="12" r="10" />
+      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+      <path d="M12 17h.01" />
     </template>
 
-    <!-- SETTINGS — gear (concentric circles) -->
+    <!-- SETTINGS — settings (gear) -->
     <template v-else-if="name === 'settings'">
-      <circle cx="8" cy="8" r="2" />
-      <circle cx="8" cy="8" r="6" />
+      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+      <circle cx="12" cy="12" r="3" />
     </template>
 
-    <!-- LIVE / RECORD — record dot (filled inner circle) -->
+    <!-- LIVE — video / camera with dot -->
     <template v-else-if="name === 'live'">
-      <circle cx="8" cy="8" r="6" />
-      <circle cx="8" cy="8" r="2" fill="currentColor" />
+      <path d="m22 8-6 4 6 4V8Z" />
+      <rect x="2" y="6" width="14" height="12" rx="2" />
+      <circle cx="9" cy="12" r="1.5" fill="currentColor" stroke="none" />
     </template>
 
-    <!-- USERS — two heads + bodies -->
+    <!-- USERS / STUDENTS / DEPARTMENTS — users -->
     <template v-else-if="name === 'users' || name === 'students' || name === 'departments'">
-      <circle cx="6" cy="5" r="2" />
-      <circle cx="11" cy="5" r="2" />
-      <path d="M2 13a4 4 0 0 1 8 0M7 13a4 4 0 0 1 8 0" />
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
     </template>
 
-    <!-- PROFILE — single user -->
+    <!-- PROFILE — user -->
     <template v-else-if="name === 'profile'">
-      <circle cx="8" cy="5" r="2.5" />
-      <path d="M3 14a5 5 0 0 1 10 0" />
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
     </template>
 
-    <!-- SECURITY — shield -->
+    <!-- SECURITY — shield-check -->
     <template v-else-if="name === 'security'">
-      <path d="M8 2 3 4v4c0 3 2.5 5.5 5 6 2.5-.5 5-3 5-6V4l-5-2z" />
-      <path d="M6 8l1.5 1.5L10 7" />
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <path d="m9 12 2 2 4-4" />
     </template>
 
-    <!-- ROLES — key (wireframe-style: circle + bit) -->
+    <!-- ROLES — key -->
     <template v-else-if="name === 'roles'">
-      <circle cx="5" cy="11" r="3" />
-      <path d="M7 9l6-6M11 5l2 2M9 7l2 2" />
+      <circle cx="7.5" cy="15.5" r="5.5" />
+      <path d="m21 2-9.6 9.6" />
+      <path d="m15.5 7.5 3 3L22 7l-3-3" />
     </template>
 
-    <!-- COURSE-BUILDER — plus -->
+    <!-- COURSE-BUILDER — square-pen -->
     <template v-else-if="name === 'course-builder'">
-      <path d="M8 2v12M2 8h12" />
+      <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z" />
     </template>
 
-    <!-- ORGANIZATIONS / UNIVERSITY — building -->
+    <!-- ORGANIZATIONS / UNIVERSITY — building-2 -->
     <template v-else-if="['organizations', 'university'].includes(name)">
-      <path d="M2 14V5l6-3 6 3v9" />
-      <path d="M2 14h12" />
-      <path d="M6 14v-4h4v4" />
-      <path d="M6 7h.01M10 7h.01" />
+      <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
+      <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
+      <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
+      <path d="M10 6h4M10 10h4M10 14h4M10 18h4" />
     </template>
 
-    <!-- FACULTIES — building with windows -->
+    <!-- FACULTIES — school -->
     <template v-else-if="name === 'faculties'">
-      <path d="M2 14V3h8v11" />
-      <path d="M10 8h4v6" />
-      <path d="M2 14h12" />
-      <path d="M4 6h2M4 9h2M8 6h.01M8 9h.01" />
+      <path d="M14 22v-4a2 2 0 1 0-4 0v4" />
+      <path d="m18 10 4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2" />
+      <path d="M18 5v17" />
+      <path d="m4 6 8-4 8 4" />
+      <path d="M6 5v17" />
+      <circle cx="12" cy="9" r="2" />
     </template>
 
-    <!-- SPECIALTIES — id card -->
+    <!-- SPECIALTIES — graduation-cap -->
     <template v-else-if="name === 'specialties'">
-      <rect x="2" y="3" width="12" height="10" rx="1" />
-      <circle cx="6" cy="8" r="1.5" />
-      <path d="M9 7h3M9 10h2" />
+      <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+      <path d="M6 12v5c3 3 9 3 12 0v-5" />
     </template>
 
-    <!-- SUBJECTS — open book -->
+    <!-- SUBJECTS — book-open-text -->
     <template v-else-if="name === 'subjects'">
-      <path d="M2 3v10c2 0 4 .5 6 2 2-1.5 4-2 6-2V3" />
-      <path d="M2 3c2 0 4 .5 6 2v10" />
-      <path d="M14 3c-2 0-4 .5-6 2" />
+      <path d="M12 7v14" />
+      <path d="M16 12h2M16 8h2" />
+      <path d="M6 12h2M6 8h2" />
+      <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
     </template>
 
-    <!-- CURRICULA — document with lines -->
+    <!-- CURRICULA — file-text -->
     <template v-else-if="name === 'curricula'">
-      <path d="M10 2H4v12h8V4l-2-2z" />
-      <path d="M10 2v2h2" />
-      <path d="M6 8h4M6 11h3" />
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <path d="M14 2v6h6" />
+      <path d="M8 13h8M8 17h8M8 9h2" />
     </template>
 
     <!-- CONTENT — folder -->
     <template v-else-if="name === 'content'">
-      <path d="M2 5a1 1 0 0 1 1-1h3l1 1h6a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z" />
+      <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
     </template>
 
-    <!-- AUDIT — document with lines (square) -->
+    <!-- AUDIT — clipboard-list -->
     <template v-else-if="name === 'audit'">
-      <path d="M3 3h10v10H3z" />
-      <path d="M5 6h6M5 9h6M5 11h4" />
+      <rect x="8" y="2" width="8" height="4" rx="1" />
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+      <path d="M12 11h4M12 16h4M8 11h.01M8 16h.01" />
     </template>
 
-    <!-- INTEGRATIONS — connection cross -->
+    <!-- INTEGRATIONS — plug -->
     <template v-else-if="name === 'integrations'">
-      <circle cx="8" cy="8" r="3" />
-      <path d="M8 1v3M8 12v3M1 8h3M12 8h3" />
+      <path d="M12 22v-5" />
+      <path d="M9 7V2" />
+      <path d="M15 7V2" />
+      <path d="M6 13V8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4Z" />
     </template>
 
-    <!-- LOGOUT — arrow exit -->
+    <!-- LOGOUT — log-out -->
     <template v-else-if="name === 'logout'">
-      <path d="M9 14H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5" />
-      <path d="M11 11l3-3-3-3M14 8H7" />
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <path d="m16 17 5-5-5-5" />
+      <path d="M21 12H9" />
     </template>
 
     <!-- Fallback dot -->
     <template v-else>
-      <circle cx="8" cy="8" r="1.5" fill="currentColor" />
+      <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" />
     </template>
   </svg>
 </template>

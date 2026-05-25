@@ -161,7 +161,7 @@ watch(() => route.fullPath, () => {
             ]"
             active-class="!bg-foreground !text-background hover:!bg-foreground"
           >
-            <UiNavIcon :name="item.icon" />
+            <UiNavIcon :name="item.icon" :size="18" />
             <span
               v-show="!collapsed"
               class="flex-1 truncate"
@@ -191,7 +191,7 @@ watch(() => route.fullPath, () => {
                 : 'gap-2.5 px-2.5 py-2',
             ]"
           >
-            <UiNavIcon :name="item.icon" />
+            <UiNavIcon :name="item.icon" :size="18" />
             <span v-show="!collapsed" class="flex-1 truncate">{{ item.label }}</span>
             <span
               v-show="!collapsed && item.badge !== undefined"
@@ -221,7 +221,7 @@ watch(() => route.fullPath, () => {
             ]"
             active-class="!bg-foreground !text-background hover:!bg-foreground"
           >
-            <UiNavIcon :name="item.icon" />
+            <UiNavIcon :name="item.icon" :size="18" />
             <span v-show="!collapsed" class="flex-1 truncate">{{ item.label }}</span>
           </RouterLink>
           <div
@@ -234,7 +234,7 @@ watch(() => route.fullPath, () => {
                 : 'gap-2.5 px-2.5 py-2',
             ]"
           >
-            <UiNavIcon :name="item.icon" />
+            <UiNavIcon :name="item.icon" :size="18" />
             <span v-show="!collapsed" class="flex-1 truncate">{{ item.label }}</span>
           </div>
         </template>
