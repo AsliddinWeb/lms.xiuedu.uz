@@ -298,6 +298,8 @@
     "sso_back_to_login": "Логин саҳифасига қайтиш",
     "hemis_role_student": "Талаба сифатида кириш",
     "hemis_role_employee": "Ходим сифатида кириш",
+    "hemis_dropdown_student": "Талаба",
+    "hemis_dropdown_employee": "Педагог",
     "oauth_side_desc": "HEMIS порталида login бўлгансиз. Ҳисобингизни LMS билан боғлаш учун кутинг.",
     "oauth_callback_title": "HEMIS билан уланмоқда",
     "oauth_callback_subtitle": "Авторизация коди текширилмоқда.",

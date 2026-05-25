@@ -298,6 +298,8 @@
     "sso_back_to_login": "Вернуться к входу",
     "hemis_role_student": "Войти как студент",
     "hemis_role_employee": "Войти как сотрудник",
+    "hemis_dropdown_student": "Студент",
+    "hemis_dropdown_employee": "Преподаватель",
     "oauth_side_desc": "Вы вошли в портал HEMIS. Подождите, пока ваш аккаунт связывается с LMS.",
     "oauth_callback_title": "Подключение к HEMIS",
     "oauth_callback_subtitle": "Проверяем код авторизации.",

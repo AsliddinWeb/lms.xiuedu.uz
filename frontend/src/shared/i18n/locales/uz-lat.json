@@ -298,6 +298,8 @@
     "sso_back_to_login": "Login sahifasiga qaytish",
     "hemis_role_student": "Talaba sifatida kirish",
     "hemis_role_employee": "Xodim sifatida kirish",
+    "hemis_dropdown_student": "Talaba",
+    "hemis_dropdown_employee": "Pedagog",
     "oauth_side_desc": "HEMIS portalida login bo'lgansiz. Hisobingizni LMS bilan bog'lash uchun kuting.",
     "oauth_callback_title": "HEMIS bilan ulanmoqda",
     "oauth_callback_subtitle": "Avtorizatsiya kodi tekshirilmoqda.",

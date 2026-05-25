@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from 'axios'
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
@@ -25,25 +25,10 @@ const remember = ref(false)
 const requires2FA = ref(false)
 const errorMsg = ref<string | null>(null)
 
-// Phase 15 — HEMIS OAuth dropdown
+// Phase 15 — HEMIS OAuth (talaba/pedagog tanlash)
 const hemisDropdownOpen = ref(false)
 const hemisLoading = ref(false)
 const hemisRef = ref<HTMLElement | null>(null)
-
-function closeDropdownOnOutside(e: MouseEvent) {
-  if (!hemisRef.value) return
-  if (!hemisRef.value.contains(e.target as Node)) {
-    hemisDropdownOpen.value = false
-  }
-}
-
-onMounted(() => {
-  document.addEventListener('click', closeDropdownOnOutside)
-})
-
-onBeforeUnmount(() => {
-  document.removeEventListener('click', closeDropdownOnOutside)
-})
 
 async function handleSubmit() {
   errorMsg.value = null
@@ -110,51 +95,86 @@ async function startHemisOAuth(role: 'student' | 'employee') {
 
     <UiAlert v-if="errorMsg" variant="danger" class="mb-4">{{ errorMsg }}</UiAlert>
 
-    <!-- Phase 15 — HEMIS OAuth dropdown (talaba / o'qituvchi) -->
-    <div ref="hemisRef" class="relative mb-2.5">
-      <UiButton
-        variant="primary"
-        full-width
-        type="button"
-        size="lg"
-        :loading="hemisLoading"
-        @click="hemisDropdownOpen = !hemisDropdownOpen"
+    <!-- Phase 15 — HEMIS OAuth (talaba / pedagog tanlash) -->
+    <UiButton
+      variant="primary"
+      full-width
+      type="button"
+      size="lg"
+      class="mb-2.5"
+      :loading="hemisLoading"
+      @click="hemisDropdownOpen = !hemisDropdownOpen"
+    >
+      <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="2" y="4" width="16" height="12" rx="2" />
+        <path d="M2 8h16" />
+      </svg>
+      {{ t('auth.with_hemis') }}
+      <svg
+        width="12"
+        height="12"
+        viewBox="0 0 12 12"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        :style="{ transform: hemisDropdownOpen ? 'rotate(180deg)' : 'rotate(0)' }"
       >
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="2" y="4" width="16" height="12" rx="2" />
-          <path d="M2 8h16" />
-        </svg>
-        {{ t('auth.with_hemis') }}
-        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M3 5l3 3 3-3" />
-        </svg>
-      </UiButton>
+        <path d="M3 5l3 3 3-3" />
+      </svg>
+    </UiButton>
 
-      <div
-        v-if="hemisDropdownOpen"
-        class="absolute z-10 mt-1.5 w-full bg-background border border-border rounded-md shadow-lg overflow-hidden"
+    <!-- 2 ta kvadrat tugma (talaba / pedagog) — yonma-yon -->
+    <div
+      v-if="hemisDropdownOpen"
+      ref="hemisRef"
+      class="grid grid-cols-2 gap-2.5 mb-2.5"
+    >
+      <button
+        type="button"
+        class="flex flex-col items-center justify-center gap-2 p-4 rounded-md border border-border bg-background hover:bg-muted/40 hover:border-foreground transition-colors"
+        :disabled="hemisLoading"
+        @click="startHemisOAuth('student')"
       >
-        <button
-          type="button"
-          class="w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors flex items-center gap-2.5 text-[14px]"
-          @click="startHemisOAuth('student')"
+        <!-- Talaba icon (graduation cap) -->
+        <svg
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
         >
-          <span class="font-mono text-[11px] uppercase tracking-wider text-muted-foreground w-16">
-            {{ t('nav.role_student') }}
-          </span>
-          <span>{{ t('auth.hemis_role_student') }}</span>
-        </button>
-        <button
-          type="button"
-          class="w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors flex items-center gap-2.5 text-[14px] border-t border-border"
-          @click="startHemisOAuth('employee')"
+          <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+          <path d="M6 12v5c3 3 9 3 12 0v-5" />
+        </svg>
+        <span class="text-[13px] font-medium">{{ t('auth.hemis_dropdown_student') }}</span>
+      </button>
+
+      <button
+        type="button"
+        class="flex flex-col items-center justify-center gap-2 p-4 rounded-md border border-border bg-background hover:bg-muted/40 hover:border-foreground transition-colors"
+        :disabled="hemisLoading"
+        @click="startHemisOAuth('employee')"
+      >
+        <!-- Pedagog icon (presenter / teacher) -->
+        <svg
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
         >
-          <span class="font-mono text-[11px] uppercase tracking-wider text-muted-foreground w-16">
-            {{ t('nav.role_teacher') }}
-          </span>
-          <span>{{ t('auth.hemis_role_employee') }}</span>
-        </button>
-      </div>
+          <circle cx="12" cy="7" r="3" />
+          <path d="M5 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2" />
+          <path d="M16 11h4M18 9v4" />
+        </svg>
+        <span class="text-[13px] font-medium">{{ t('auth.hemis_dropdown_employee') }}</span>
+      </button>
     </div>
 
     <p class="text-[12px] text-muted-foreground mb-4 text-center">

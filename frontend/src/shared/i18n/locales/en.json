@@ -298,6 +298,8 @@
     "sso_back_to_login": "Back to login",
     "hemis_role_student": "Sign in as student",
     "hemis_role_employee": "Sign in as employee",
+    "hemis_dropdown_student": "Student",
+    "hemis_dropdown_employee": "Teacher",
     "oauth_side_desc": "You are logged into HEMIS portal. Linking your account with LMS, please wait.",
     "oauth_callback_title": "Connecting to HEMIS",
     "oauth_callback_subtitle": "Verifying authorization code.",
