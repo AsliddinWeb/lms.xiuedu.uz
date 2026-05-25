@@ -38,11 +38,6 @@ const routes: RouteRecordRaw[] = [
         name: 'forgot-password',
         component: () => import('@user/views/auth/ForgotPasswordView.vue'),
       },
-      {
-        path: 'login/hemis',
-        name: 'hemis-login',
-        component: () => import('@user/views/auth/HemisLoginView.vue'),
-      },
     ],
   },
 
@@ -61,11 +56,17 @@ const routes: RouteRecordRaw[] = [
         name: 'verify-email',
         component: () => import('@user/views/auth/VerifyEmailView.vue'),
       },
-      // Phase 10e — HEMIS SSO callback
+      // Phase 10e — HEMIS SSO callback (eski oqim, hozircha qoldirilgan)
       {
         path: 'auth/sso/callback',
         name: 'sso-callback',
         component: () => import('@user/views/auth/SsoCallbackView.vue'),
+      },
+      // Phase 15 — HEMIS OAuth2 callback (standart oqim)
+      {
+        path: 'auth/hemis/callback',
+        name: 'hemis-oauth-callback',
+        component: () => import('@user/views/auth/HemisOAuthCallbackView.vue'),
       },
     ],
   },

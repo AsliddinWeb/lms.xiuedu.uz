@@ -36,6 +36,15 @@ export const authApi = {
     return data
   },
 
+  // Phase 15 — HEMIS OAuth2 callback (code + state)
+  async hemisOAuthCallback(code: string, state: string): Promise<TokenResponse> {
+    const { data } = await apiClient.post<TokenResponse>(
+      '/auth/hemis/oauth/callback',
+      { code, state },
+    )
+    return data
+  },
+
   // Phase 10g — HEMIS tutor (pedagog) login
   async loginHemisTutor(
     login: string,

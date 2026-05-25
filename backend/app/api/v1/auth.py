@@ -27,6 +27,11 @@ from app.modules.auth.hemis_login import (
     login_via_hemis_sso,
     login_via_hemis_tutor,
 )
+from app.modules.auth.hemis_oauth import (
+    build_authorize_url,
+    issue_state,
+    login_via_oauth,
+)
 from app.modules.auth.models import UserSession
 from app.modules.auth.schemas import (
     BackupCodesResponse,
@@ -183,6 +188,58 @@ async def login_hemis_tutor(
         tutor_password=data.password,
         recaptcha=data.recaptcha,
         ctx=ctx,
+    )
+    await db.commit()
+    _set_refresh_cookie(response, tokens.refresh_token)
+    return tokens
+
+
+@router.get(
+    "/hemis/oauth/start",
+    summary="HEMIS OAuth2 boshlash — authorize URL qaytaradi",
+)
+async def hemis_oauth_start(
+    role: str,
+    redis: RedisClient,
+) -> dict:
+    """Phase 15 — Standart OAuth2 oqimi boshlanishi.
+
+    `role=student` yoki `role=employee` bilan chaqiriladi.
+    Backend Redis'da state CSRF token saqlab, HEMIS authorize URL qaytaradi.
+    Frontend window.location.href = URL qiladi.
+    """
+    if role not in ("student", "employee"):
+        raise ForbiddenError("role 'student' yoki 'employee' bo'lishi kerak")
+    state = await issue_state(redis, role)
+    url = build_authorize_url(role, state)
+    return {"authorize_url": url, "state": state}
+
+
+from pydantic import BaseModel
+
+
+class HemisOAuthCallbackRequest(BaseModel):
+    """Code va state — frontend `?code=...&state=...` ni POST qiladi."""
+
+    code: str
+    state: str
+
+
+@router.post(
+    "/hemis/oauth/callback",
+    response_model=TokenResponse,
+    summary="HEMIS OAuth2 callback — code/state validate va LMS JWT",
+)
+async def hemis_oauth_callback(
+    data: HemisOAuthCallbackRequest,
+    response: Response,
+    ctx: ReqContext,
+    db: DbSession,
+    redis: RedisClient,
+) -> TokenResponse:
+    """Phase 15 — HEMIS code -> access_token -> userinfo -> LMS JWT."""
+    _user, tokens = await login_via_oauth(
+        db, redis, code=data.code, state=data.state, ctx=ctx
     )
     await db.commit()
     _set_refresh_cookie(response, tokens.refresh_token)

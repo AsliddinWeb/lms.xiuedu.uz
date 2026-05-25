@@ -86,6 +86,25 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  // Phase 15 — HEMIS OAuth callback: code+state ni LMS JWT'ga almashtirish
+  async function hemisOAuthCallback(code: string, state: string): Promise<User> {
+    loading.value = true
+    error.value = null
+    try {
+      const tokens = await authApi.hemisOAuthCallback(code, state)
+      _saveTokens(tokens.access_token, tokens.refresh_token)
+      const me = await authApi.me()
+      user.value = me
+      return me
+    } catch (err) {
+      error.value = extractErrorMessage(err, 'HEMIS OAuth callback xato')
+      _clearTokens()
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
   // Phase 10g — HEMIS pedagog login (reCAPTCHA bilan)
   async function loginHemisTutor(
     tutorLogin: string,
@@ -177,6 +196,7 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     loginHemis,
     ssoHemis,
+    hemisOAuthCallback,
     loginHemisTutor,
     register,
     logout,

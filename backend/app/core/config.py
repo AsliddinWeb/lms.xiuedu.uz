@@ -102,6 +102,28 @@ class Settings(BaseSettings):
     # Phase 10e — SSO callback uchun mavjud bo'lgan HEMIS target code
     HEMIS_SSO_TARGET: str = "lms"
 
+    # ------------------------------------------------------------------
+    # Phase 15 — HEMIS OAuth2 (standart authorization code flow)
+    # ------------------------------------------------------------------
+    # HEMIS admin panel'idan oAuth klient yarating:
+    #   Tizim → oAuth klientlar → yangi klient → CLIENT_ID + CLIENT_SECRET
+    # Redirect URI: https://lms.xiuedu.uz/auth/hemis/callback
+    # Talaba va xodim uchun ALOHIDA HEMIS subdomain'lar (universitetga qarab).
+    HEMIS_OAUTH_CLIENT_ID: str = ""
+    HEMIS_OAUTH_CLIENT_SECRET: str = ""
+    # Frontend callback URL (HEMIS shu URL'ga ?code=... bilan qaytadi)
+    HEMIS_OAUTH_REDIRECT_URI: str = ""
+    # Talaba HEMIS portal (student.xiuedu.uz)
+    HEMIS_OAUTH_STUDENT_AUTHORIZE_URL: str = ""
+    HEMIS_OAUTH_STUDENT_TOKEN_URL: str = ""
+    HEMIS_OAUTH_STUDENT_USERINFO_URL: str = ""
+    # Xodim HEMIS portal (alohida subdomain bo'lsa)
+    HEMIS_OAUTH_EMPLOYEE_AUTHORIZE_URL: str = ""
+    HEMIS_OAUTH_EMPLOYEE_TOKEN_URL: str = ""
+    HEMIS_OAUTH_EMPLOYEE_USERINFO_URL: str = ""
+    # State CSRF token Redis TTL (5 daqiqa)
+    HEMIS_OAUTH_STATE_TTL: int = 300
+
     # --- Live (Phase 5) — Native WebRTC via LiveKit (self-hosted, tashqi xizmatsiz) ---
     LIVE_DEFAULT_PROVIDER: Literal["native"] = "native"
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from 'axios'
-import { ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
@@ -9,6 +9,7 @@ import UiButton from '@shared/components/ui/UiButton.vue'
 import UiFormField from '@shared/components/ui/UiFormField.vue'
 import UiInput from '@shared/components/ui/UiInput.vue'
 import UiAuthLayout from '@shared/components/layout/UiAuthLayout.vue'
+import { apiClient } from '@shared/api/client'
 import { useAuthStore } from '@shared/stores/auth'
 
 const { t } = useI18n()
@@ -23,6 +24,26 @@ const remember = ref(false)
 
 const requires2FA = ref(false)
 const errorMsg = ref<string | null>(null)
+
+// Phase 15 — HEMIS OAuth dropdown
+const hemisDropdownOpen = ref(false)
+const hemisLoading = ref(false)
+const hemisRef = ref<HTMLElement | null>(null)
+
+function closeDropdownOnOutside(e: MouseEvent) {
+  if (!hemisRef.value) return
+  if (!hemisRef.value.contains(e.target as Node)) {
+    hemisDropdownOpen.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', closeDropdownOnOutside)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', closeDropdownOnOutside)
+})
 
 async function handleSubmit() {
   errorMsg.value = null
@@ -46,37 +67,38 @@ async function handleSubmit() {
     errorMsg.value = auth.error
   }
 }
+
+// Phase 15 — HEMIS OAuth boshlash
+async function startHemisOAuth(role: 'student' | 'employee') {
+  hemisDropdownOpen.value = false
+  hemisLoading.value = true
+  errorMsg.value = null
+  try {
+    const { data } = await apiClient.get<{ authorize_url: string }>(
+      '/auth/hemis/oauth/start',
+      { params: { role } },
+    )
+    // HEMIS portaliga redirect
+    window.location.href = data.authorize_url
+  } catch (e) {
+    hemisLoading.value = false
+    if (axios.isAxiosError(e)) {
+      errorMsg.value = e.response?.data?.detail || t('common.network_error')
+    } else {
+      errorMsg.value = t('common.network_error')
+    }
+  }
+}
 </script>
 
 <template>
   <UiAuthLayout :brand-title="t('brand.platform')">
-    <!-- LEFT SIDE: tagline + stats grid (wireframe 01) -->
+    <!-- LEFT SIDE: sodda brand tagline (statistika va 559-qaror olib tashlandi) -->
     <template #side>
       <h2 class="font-serif text-[40px] leading-[1.1] mb-6 max-w-md" v-html="t('brand.tagline_serif')"></h2>
-      <p class="opacity-70 max-w-sm leading-relaxed text-sm">
-        {{ t('brand.description') }}
+      <p class="opacity-70 max-w-md leading-relaxed text-sm">
+        {{ t('brand.login_side_text') }}
       </p>
-
-      <div class="grid grid-cols-3 gap-6 pt-8 mt-12 border-t border-white/10 max-w-md">
-        <div>
-          <div class="font-mono text-2xl font-semibold tabular-nums">120K+</div>
-          <div class="text-[11px] opacity-60 uppercase tracking-wider mt-1">
-            {{ t('brand.stat_students') }}
-          </div>
-        </div>
-        <div>
-          <div class="font-mono text-2xl font-semibold tabular-nums">85+</div>
-          <div class="text-[11px] opacity-60 uppercase tracking-wider mt-1">
-            {{ t('brand.stat_otm') }}
-          </div>
-        </div>
-        <div>
-          <div class="font-mono text-2xl font-semibold tabular-nums">99.9%</div>
-          <div class="text-[11px] opacity-60 uppercase tracking-wider mt-1">
-            {{ t('brand.stat_uptime') }}
-          </div>
-        </div>
-      </div>
     </template>
 
     <!-- RIGHT SIDE: form -->
@@ -88,28 +110,56 @@ async function handleSubmit() {
 
     <UiAlert v-if="errorMsg" variant="danger" class="mb-4">{{ errorMsg }}</UiAlert>
 
-    <!-- Phase 10d — HEMIS primary login (recommended for students) -->
-    <RouterLink :to="{ name: 'hemis-login' }" class="block mb-2.5">
-      <UiButton variant="primary" full-width type="button" size="lg">
+    <!-- Phase 15 — HEMIS OAuth dropdown (talaba / o'qituvchi) -->
+    <div ref="hemisRef" class="relative mb-2.5">
+      <UiButton
+        variant="primary"
+        full-width
+        type="button"
+        size="lg"
+        :loading="hemisLoading"
+        @click="hemisDropdownOpen = !hemisDropdownOpen"
+      >
         <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
           <rect x="2" y="4" width="16" height="12" rx="2" />
           <path d="M2 8h16" />
         </svg>
         {{ t('auth.with_hemis') }}
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 5l3 3 3-3" />
+        </svg>
       </UiButton>
-    </RouterLink>
+
+      <div
+        v-if="hemisDropdownOpen"
+        class="absolute z-10 mt-1.5 w-full bg-background border border-border rounded-md shadow-lg overflow-hidden"
+      >
+        <button
+          type="button"
+          class="w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors flex items-center gap-2.5 text-[14px]"
+          @click="startHemisOAuth('student')"
+        >
+          <span class="font-mono text-[11px] uppercase tracking-wider text-muted-foreground w-16">
+            {{ t('nav.role_student') }}
+          </span>
+          <span>{{ t('auth.hemis_role_student') }}</span>
+        </button>
+        <button
+          type="button"
+          class="w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors flex items-center gap-2.5 text-[14px] border-t border-border"
+          @click="startHemisOAuth('employee')"
+        >
+          <span class="font-mono text-[11px] uppercase tracking-wider text-muted-foreground w-16">
+            {{ t('nav.role_teacher') }}
+          </span>
+          <span>{{ t('auth.hemis_role_employee') }}</span>
+        </button>
+      </div>
+    </div>
+
     <p class="text-[12px] text-muted-foreground mb-4 text-center">
       {{ t('auth.hemis_recommended') }}
     </p>
-
-    <UiButton variant="outline" full-width class="mb-2.5" disabled>
-      <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
-        <circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="2" fill="none" />
-        <path d="M6 10h8M10 6v8" stroke="currentColor" stroke-width="2" />
-      </svg>
-      {{ t('auth.with_oneid') }}
-      <span class="font-mono text-[10px] text-muted-foreground ml-1">Ph.1e</span>
-    </UiButton>
 
     <!-- Divider — admin/staff email login -->
     <div class="flex items-center gap-3 my-6 text-muted-foreground">
@@ -179,12 +229,6 @@ async function handleSubmit() {
       >
         {{ t('auth.to_register') }} →
       </RouterLink>
-    </div>
-
-    <div
-      class="mt-8 font-mono text-[10px] text-muted-foreground text-center leading-relaxed uppercase tracking-wider"
-    >
-      {{ t('brand.footer_legal') }}
     </div>
   </UiAuthLayout>
 </template>
