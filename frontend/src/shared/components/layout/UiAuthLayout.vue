@@ -47,16 +47,17 @@ withDefaults(defineProps<Props>(), {
         </RouterLink>
 
         <slot name="side">
-          <div class="font-serif text-[40px] leading-[1.1] mb-6 max-w-md">
-            Bilim olishning yangi <em class="italic">raqamli</em> davri.
-          </div>
+          <div
+            class="font-serif text-[40px] leading-[1.1] mb-6 max-w-md"
+            v-html="$t('brand.tagline_serif')"
+          ></div>
         </slot>
       </div>
 
-      <!-- Bottom mono-tag (559-qaror, etc.) -->
+      <!-- Bottom mono-tag — default brand footer -->
       <div class="relative z-10 font-mono text-[11px] uppercase tracking-widest opacity-50">
         <slot name="side-bottom">
-          O'zR Vazirlar Mahkamasining 559-son qarori asosida
+          {{ $t('brand.footer_legal') }}
         </slot>
       </div>
     </aside>
