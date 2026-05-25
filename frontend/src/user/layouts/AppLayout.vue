@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
@@ -12,6 +12,13 @@ import UiSidebar, {
   type SidebarSection,
 } from '@shared/components/layout/UiSidebar.vue'
 import UiTopbar from '@shared/components/layout/UiTopbar.vue'
+import { assignmentsApi } from '@shared/api/assignments'
+import { certificatesApi } from '@shared/api/certificates'
+import { chatApi } from '@shared/api/chat'
+import { coursesApi } from '@shared/api/courses'
+import { examsApi } from '@shared/api/exams'
+import { gamificationApi } from '@shared/api/gamification'
+import { liveSessionsApi } from '@shared/api/live'
 import { useSidebar } from '@shared/composables/useSidebar'
 import { useAuthStore } from '@shared/stores/auth'
 
@@ -33,6 +40,78 @@ const initials = computed(() => {
 
 const isStudent = computed(() => !auth.hasPermission('course.create'))
 
+// Phase 17.1 — sidebar uchun counts (sanaladigan linklar)
+const counts = ref({
+  courses: 0,
+  assignments: 0,
+  exams: 0,
+  live: 0,
+  certificates: 0,
+  badges: 0,
+  chatUnread: 0,
+})
+
+async function loadSidebarCounts() {
+  if (!auth.user) return
+  const tasks: Promise<unknown>[] = []
+  if (isStudent.value) {
+    tasks.push(
+      coursesApi
+        .list({ enrolled_user_id: auth.user.id, page_size: 1 })
+        .then((r) => (counts.value.courses = r.total))
+        .catch(() => undefined),
+      assignmentsApi
+        .list({ mine: true, is_published: true, only_active: true, page_size: 1 })
+        .then((r) => (counts.value.assignments = r.total))
+        .catch(() => undefined),
+      examsApi
+        .my({ page_size: 1 })
+        .then((r) => (counts.value.exams = r.total))
+        .catch(() => undefined),
+      certificatesApi
+        .listMine()
+        .then((r) => (counts.value.certificates = r.length))
+        .catch(() => undefined),
+      gamificationApi
+        .myStats()
+        .then((r) => (counts.value.badges = r.badges_count))
+        .catch(() => undefined),
+      chatApi
+        .listConversations({ page_size: 100 })
+        .then((r) => {
+          counts.value.chatUnread = r.items.reduce(
+            (acc, c) => acc + (c.unread_count ?? 0),
+            0,
+          )
+        })
+        .catch(() => undefined),
+    )
+    if (auth.hasPermission('live.join')) {
+      tasks.push(
+        liveSessionsApi
+          .list({ status: 'scheduled', page_size: 1 })
+          .then((r) => (counts.value.live = r.total))
+          .catch(() => undefined),
+      )
+    }
+  } else {
+    // Pedagog
+    tasks.push(
+      coursesApi
+        .list({ primary_author_id: auth.user.id, page_size: 1 })
+        .then((r) => (counts.value.courses = r.total))
+        .catch(() => undefined),
+      assignmentsApi
+        .inbox({ status: 'submitted', page_size: 1 })
+        .then((r) => (counts.value.assignments = r.total))
+        .catch(() => undefined),
+    )
+  }
+  await Promise.all(tasks)
+}
+
+onMounted(loadSidebarCounts)
+
 /**
  * Talaba (wireframe 04): ASOSIY + BOSHQA + footer
  * Pedagog (wireframe 12): O'QITUVCHI + TAHLIL + footer
@@ -40,18 +119,34 @@ const isStudent = computed(() => !auth.hasPermission('course.create'))
  * Disabled (Ph.N badge) — kelajak fazalar uchun placeholder.
  * Profile + Security + Logout — topbar dropdown'ida.
  */
+// Count'ni label ichiga inline qo'shadi: "Kurslar (12)"
+function withCount(label: string, n: number): string {
+  if (n > 0) return `${label} (${n})`
+  return label
+}
+
 const sections = computed<SidebarSection[]>(() => {
   if (isStudent.value) {
     const main: SidebarNavItem[] = [
       { name: 'dashboard', icon: 'dashboard', label: t('nav.dashboard'), to: '/app/dashboard' },
-      { name: 'my-learning', icon: 'courses', label: t('nav.courses_student'), to: '/app/learning' },
-      { name: 'assignments', icon: 'assignments', label: t('nav.assignments'), to: '/app/assignments' },
+      {
+        name: 'my-learning',
+        icon: 'courses',
+        label: withCount(t('nav.courses_student'), counts.value.courses),
+        to: '/app/learning',
+      },
+      {
+        name: 'assignments',
+        icon: 'assignments',
+        label: withCount(t('nav.assignments'), counts.value.assignments),
+        to: '/app/assignments',
+      },
     ]
     if (auth.hasPermission('exam.attempt')) {
       main.push({
         name: 'my-exams',
         icon: 'exams',
-        label: t('nav.exams'),
+        label: withCount(t('nav.exams'), counts.value.exams),
         to: '/app/exams',
       })
     }
@@ -59,18 +154,39 @@ const sections = computed<SidebarSection[]>(() => {
       main.push({
         name: 'live-upcoming',
         icon: 'live',
-        label: t('nav.live_upcoming'),
+        label: withCount(t('nav.live_upcoming'), counts.value.live),
         to: '/app/live/upcoming',
       })
     }
-    main.push({ name: 'grades', icon: 'grades', label: t('nav.grades'), to: '/app/grades' })
+    main.push(
+      {
+        name: 'schedule',
+        icon: 'schedule',
+        label: t('nav.schedule'),
+        disabled: true,
+      },
+      { name: 'grades', icon: 'grades', label: t('nav.grades'), to: '/app/grades' },
+    )
 
-    // Phase 13 — payments LMS skopidan tashqarida (559-qaror), olib tashlandi.
-    // Communications/sertifikat/yutuqlar real sahifalar:
     const other: SidebarNavItem[] = [
-      { name: 'chat', icon: 'messages', label: t('nav.chat'), to: '/app/chat' },
-      { name: 'certificates', icon: 'certificates', label: t('nav.certificates'), to: '/app/certificates' },
-      { name: 'achievements', icon: 'achievements', label: t('nav.achievements'), to: '/app/achievements' },
+      {
+        name: 'chat',
+        icon: 'messages',
+        label: withCount(t('nav.chat'), counts.value.chatUnread),
+        to: '/app/chat',
+      },
+      {
+        name: 'certificates',
+        icon: 'certificates',
+        label: withCount(t('nav.certificates'), counts.value.certificates),
+        to: '/app/certificates',
+      },
+      {
+        name: 'achievements',
+        icon: 'achievements',
+        label: withCount(t('nav.achievements'), counts.value.badges),
+        to: '/app/achievements',
+      },
     ]
 
     return [
@@ -82,8 +198,18 @@ const sections = computed<SidebarSection[]>(() => {
   // Pedagog
   const main: SidebarNavItem[] = [
     { name: 'dashboard', icon: 'dashboard', label: t('nav.dashboard'), to: '/app/dashboard' },
-    { name: 'courses', icon: 'courses', label: t('nav.courses'), to: '/app/courses' },
-    { name: 'grading', icon: 'assignments', label: t('nav.assignments'), to: '/app/grading' },
+    {
+      name: 'courses',
+      icon: 'courses',
+      label: withCount(t('nav.courses'), counts.value.courses),
+      to: '/app/courses',
+    },
+    {
+      name: 'grading',
+      icon: 'assignments',
+      label: withCount(t('nav.assignments'), counts.value.assignments),
+      to: '/app/grading',
+    },
   ]
   if (auth.hasPermission('live.host')) {
     main.push({
@@ -98,12 +224,11 @@ const sections = computed<SidebarSection[]>(() => {
     icon: 'students',
     label: t('nav.students'),
     disabled: true,
-    badge: 'Ph.6',
   })
 
   const analytics: SidebarNavItem[] = [
-    { name: 'statistics', icon: 'analytics', label: t('nav.statistics'), disabled: true, badge: 'Ph.9' },
-    { name: 'reports', icon: 'audit', label: t('nav.reports'), disabled: true, badge: 'Ph.9' },
+    { name: 'statistics', icon: 'analytics', label: t('nav.statistics'), disabled: true },
+    { name: 'reports', icon: 'audit', label: t('nav.reports'), disabled: true },
   ]
 
   return [
@@ -112,8 +237,14 @@ const sections = computed<SidebarSection[]>(() => {
   ]
 })
 
-// Footer section — hozircha bo'sh (Yordam/Sozlamalar Phase 14+ ga ko'chirildi)
-const footerSection = computed<SidebarSection | undefined>(() => undefined)
+// Footer section: Yordam / Sozlamalar (sahifa hali ishlanmagan — disabled)
+const footerSection = computed<SidebarSection>(() => ({
+  title: '',
+  items: [
+    { name: 'help', icon: 'help', label: t('nav.help'), disabled: true },
+    { name: 'settings', icon: 'settings', label: t('nav.settings'), disabled: true },
+  ],
+}))
 
 // Topbar user dropdown items
 const userMenuItems = computed<UserMenuItem[]>(() => [

@@ -156,8 +156,8 @@ watch(() => route.fullPath, () => {
             :class="[
               'group relative flex items-center rounded-md text-[13px] font-medium text-foreground hover:bg-muted transition-colors no-underline',
               collapsed
-                ? 'lg:justify-center lg:px-0 lg:py-2.5 lg:mb-1 gap-2.5 px-2.5 py-2'
-                : 'gap-2.5 px-2.5 py-2',
+                ? 'lg:justify-center lg:px-0 lg:py-2.5 lg:mb-1 gap-3 px-3 py-2.5'
+                : 'gap-3 px-3 py-2.5',
             ]"
             active-class="!bg-foreground !text-background hover:!bg-foreground"
           >
@@ -185,10 +185,10 @@ watch(() => route.fullPath, () => {
             v-else
             :title="collapsed ? item.label : undefined"
             :class="[
-              'flex items-center rounded-md text-[13px] font-medium text-muted-foreground cursor-not-allowed',
+              'flex items-center rounded-md text-[14px] font-medium text-muted-foreground cursor-not-allowed',
               collapsed
-                ? 'lg:justify-center lg:px-0 lg:py-2.5 lg:mb-1 gap-2.5 px-2.5 py-2'
-                : 'gap-2.5 px-2.5 py-2',
+                ? 'lg:justify-center lg:px-0 lg:py-2.5 lg:mb-1 gap-3 px-3 py-2.5'
+                : 'gap-3 px-3 py-2.5',
             ]"
           >
             <UiNavIcon :name="item.icon" :size="18" />
@@ -214,10 +214,10 @@ watch(() => route.fullPath, () => {
             :to="item.to"
             :title="collapsed ? item.label : undefined"
             :class="[
-              'flex items-center rounded-md text-[13px] font-medium text-foreground hover:bg-muted transition-colors no-underline',
+              'flex items-center rounded-md text-[14px] font-medium text-foreground hover:bg-muted transition-colors no-underline',
               collapsed
-                ? 'lg:justify-center lg:px-0 lg:py-2.5 lg:mb-1 gap-2.5 px-2.5 py-2'
-                : 'gap-2.5 px-2.5 py-2',
+                ? 'lg:justify-center lg:px-0 lg:py-2.5 lg:mb-1 gap-3 px-3 py-2.5'
+                : 'gap-3 px-3 py-2.5',
             ]"
             active-class="!bg-foreground !text-background hover:!bg-foreground"
           >
@@ -228,10 +228,10 @@ watch(() => route.fullPath, () => {
             v-else
             :title="collapsed ? item.label : undefined"
             :class="[
-              'flex items-center rounded-md text-[13px] font-medium text-muted-foreground cursor-not-allowed',
+              'flex items-center rounded-md text-[14px] font-medium text-muted-foreground cursor-not-allowed',
               collapsed
-                ? 'lg:justify-center lg:px-0 lg:py-2.5 lg:mb-1 gap-2.5 px-2.5 py-2'
-                : 'gap-2.5 px-2.5 py-2',
+                ? 'lg:justify-center lg:px-0 lg:py-2.5 lg:mb-1 gap-3 px-3 py-2.5'
+                : 'gap-3 px-3 py-2.5',
             ]"
           >
             <UiNavIcon :name="item.icon" :size="18" />
