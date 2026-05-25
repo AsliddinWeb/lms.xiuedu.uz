@@ -18,15 +18,23 @@ import UiImagePlaceholder from '@shared/components/ui/UiImagePlaceholder.vue'
 import UiProgressBar from '@shared/components/ui/UiProgressBar.vue'
 import UiChartBar from '@shared/components/ui/UiChartBar.vue'
 import { assignmentsApi } from '@shared/api/assignments'
-import { coursesApi, progressApi } from '@shared/api/courses'
+import {
+  activityApi,
+  coursesApi,
+  progressApi,
+  type ActivityResponse,
+} from '@shared/api/courses'
 import { liveSessionsApi } from '@shared/api/live'
 import { certificatesApi } from '@shared/api/certificates'
 import {
   gamificationApi,
   type MyGamificationStats,
 } from '@shared/api/gamification'
+import { examsApi } from '@shared/api/exams'
+import { notificationsApi, type NotificationPublic } from '@shared/api/notifications'
 import { useAuthStore } from '@shared/stores/auth'
 import type { Course } from '@shared/types/courses'
+import type { Exam } from '@shared/types/exams'
 import type { LiveSession } from '@shared/types/live'
 
 const { t, locale } = useI18n()
@@ -53,16 +61,48 @@ const certificatesCount = ref(0)
 // Kurs progress map (course_id => percent)
 const courseProgress = ref<Record<number, number>>({})
 
-// Mock activity chart (7 kun) — real backend endpoint Phase 6+
-const weekActivity = computed(() => [
-  { label: t('dashboard.day_mon'), value: 45 },
-  { label: t('dashboard.day_tue'), value: 70 },
-  { label: t('dashboard.day_wed'), value: 85 },
-  { label: t('dashboard.day_thu'), value: 60 },
-  { label: t('dashboard.day_fri'), value: 92 },
-  { label: t('dashboard.day_sat'), value: 30 },
-  { label: t('dashboard.day_sun'), value: 25 },
-])
+// Phase 16 — real activity chart + period switcher
+const activityPeriod = ref<7 | 30 | 365>(7)
+const activityData = ref<ActivityResponse | null>(null)
+
+// Phase 16 — yaqin imtihonlar va top notifications
+const upcomingExams = ref<Exam[]>([])
+const topNotifications = ref<NotificationPublic[]>([])
+const unreadNotificationCount = ref(0)
+
+// Activity chart UI ma'lumotlari
+const weekActivity = computed(() => {
+  const days = activityData.value?.days ?? []
+  return days.map((d) => {
+    const date = new Date(d.date + 'T00:00:00')
+    const label = new Intl.DateTimeFormat(locale.value, {
+      weekday: 'short',
+    }).format(date)
+    return { label, value: d.time_minutes }
+  })
+})
+
+const totalHours = computed(() => {
+  const mins = activityData.value?.total_minutes ?? 0
+  return Math.round((mins / 60) * 10) / 10
+})
+
+const streakDays = computed(() => activityData.value?.streak_days ?? 0)
+
+const mostActiveLabel = computed(() => {
+  const iso = activityData.value?.most_active_label
+  if (!iso) return '—'
+  try {
+    const date = new Date(iso + 'T00:00:00')
+    return new Intl.DateTimeFormat(locale.value, {
+      weekday: 'short',
+      day: '2-digit',
+      month: 'short',
+    }).format(date)
+  } catch {
+    return iso
+  }
+})
 
 async function loadStudentData() {
   if (!auth.user) return
@@ -110,6 +150,48 @@ async function loadStudentData() {
     ])
     gamifStats.value = gamif
     certificatesCount.value = Array.isArray(certs) ? certs.length : 0
+
+    // Phase 16 — yangi widgetlar (parallel)
+    const [act, exams, notifs] = await Promise.all([
+      activityApi.my(activityPeriod.value).catch(() => null),
+      examsApi.my({ page_size: 20 }).catch(() => ({ items: [], total: 0 })),
+      notificationsApi.list({ unread_only: true, page: 1, page_size: 5 }).catch(
+        () => ({ items: [], total: 0, unread_count: 0 }),
+      ),
+    ])
+    activityData.value = act
+
+    // Yaqin imtihonlar: available_from <= +7d AND available_until > now
+    const now = Date.now()
+    const weekAhead = now + 7 * 24 * 60 * 60 * 1000
+    upcomingExams.value = exams.items
+      .filter((ex) => {
+        if (ex.status !== 'published') return false
+        const from = ex.available_from ? new Date(ex.available_from).getTime() : 0
+        const until = ex.available_until
+          ? new Date(ex.available_until).getTime()
+          : Infinity
+        return from <= weekAhead && until > now
+      })
+      .sort((a, b) => {
+        const av = a.available_from ? new Date(a.available_from).getTime() : 0
+        const bv = b.available_from ? new Date(b.available_from).getTime() : 0
+        return av - bv
+      })
+      .slice(0, 5)
+
+    topNotifications.value = notifs.items.slice(0, 5)
+    unreadNotificationCount.value = notifs.unread_count ?? notifs.items.length
+  } catch {
+    // ignore
+  }
+}
+
+// Phase 16 — period switcher
+async function changeActivityPeriod(p: 7 | 30 | 365) {
+  activityPeriod.value = p
+  try {
+    activityData.value = await activityApi.my(p)
   } catch {
     // ignore
   }
@@ -243,13 +325,6 @@ function progressOf(c: Course): number {
         </p>
       </div>
       <div class="flex items-center gap-2">
-        <UiButton variant="outline" size="sm" disabled>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="2" y="3" width="10" height="9" rx="1" />
-            <path d="M2 6h10M5 1v3M9 1v3" />
-          </svg>
-          {{ t('dashboard.btn_schedule') }}
-        </UiButton>
         <UiButton
           v-if="isTeacher"
           size="sm"
@@ -260,16 +335,21 @@ function progressOf(c: Course): number {
           </svg>
           {{ t('dashboard.btn_new_course') }}
         </UiButton>
-        <UiButton
-          v-else
-          size="sm"
-          @click="router.push({ name: 'my-learning' })"
-        >
-          {{ t('dashboard.btn_my_courses') }}
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 7h8M7 3l4 4-4 4" />
-          </svg>
-        </UiButton>
+        <template v-else>
+          <UiButton
+            variant="outline"
+            size="sm"
+            @click="router.push({ name: 'achievements' })"
+          >
+            ★ {{ t('nav.achievements') }}
+          </UiButton>
+          <UiButton size="sm" @click="router.push({ name: 'my-learning' })">
+            {{ t('dashboard.btn_my_courses') }}
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 7h8M7 3l4 4-4 4" />
+            </svg>
+          </UiButton>
+        </template>
       </div>
     </div>
   </div>
@@ -387,36 +467,60 @@ function progressOf(c: Course): number {
         </div>
       </UiCard>
 
-      <!-- Activity chart -->
+      <!-- Activity chart — real data, period switcher (Phase 16) -->
       <UiCard no-padding>
         <div class="px-5 py-4 border-b border-border flex items-center justify-between">
           <span class="text-sm font-semibold">{{ t('dashboard.activity_title') }}</span>
           <div class="flex gap-1">
-            <button class="px-2.5 py-1 rounded text-[11px] font-medium text-muted-foreground hover:bg-muted">
-              {{ t('dashboard.range_7d') }}
-            </button>
-            <button class="px-2.5 py-1 rounded text-[11px] font-medium bg-muted text-foreground">
-              {{ t('dashboard.range_30d') }}
-            </button>
-            <button class="px-2.5 py-1 rounded text-[11px] font-medium text-muted-foreground hover:bg-muted">
-              {{ t('dashboard.range_year') }}
+            <button
+              v-for="p in [7, 30, 365] as const"
+              :key="p"
+              type="button"
+              class="px-2.5 py-1 rounded text-[11px] font-medium transition-colors"
+              :class="
+                activityPeriod === p
+                  ? 'bg-muted text-foreground'
+                  : 'text-muted-foreground hover:bg-muted'
+              "
+              @click="changeActivityPeriod(p)"
+            >
+              {{
+                p === 7
+                  ? t('dashboard.range_7d')
+                  : p === 30
+                  ? t('dashboard.range_30d')
+                  : t('dashboard.range_year')
+              }}
             </button>
           </div>
         </div>
         <div class="p-5">
-          <UiChartBar :items="weekActivity" :height="180" />
-          <div class="mt-8 pt-4 border-t border-border flex justify-between text-[12px] text-muted-foreground">
+          <UiChartBar v-if="weekActivity.length > 0" :items="weekActivity" :height="180" />
+          <div
+            v-else
+            class="h-[180px] flex items-center justify-center text-[12px] text-muted-foreground"
+          >
+            {{ t('dashboard.no_activity') }}
+          </div>
+          <div class="mt-8 pt-4 border-t border-border flex flex-wrap gap-4 justify-between text-[12px] text-muted-foreground">
             <div>
               {{ t('dashboard.total') }}:
-              <span class="text-foreground font-mono font-medium">28 {{ t('dashboard.hours') }}</span>
+              <span class="text-foreground font-mono font-medium">
+                {{ totalHours }} {{ t('dashboard.hours') }}
+              </span>
             </div>
             <div>
               {{ t('dashboard.most_active') }}:
-              <span class="text-foreground font-mono font-medium">{{ t('dashboard.day_fri') }}</span>
+              <span class="text-foreground font-mono font-medium">{{ mostActiveLabel }}</span>
             </div>
             <div>
-              Streak:
-              <span class="text-success-600 font-mono font-medium">12 {{ t('dashboard.days') }} 🔥</span>
+              {{ t('dashboard.streak') }}:
+              <span
+                class="font-mono font-medium"
+                :class="streakDays > 0 ? 'text-success-600' : 'text-muted-foreground'"
+              >
+                {{ streakDays }} {{ t('dashboard.days') }} {{ streakDays >= 3 ? '🔥' : '' }}
+              </span>
             </div>
           </div>
         </div>
@@ -512,6 +616,71 @@ function progressOf(c: Course): number {
             </div>
           </div>
         </div>
+      </UiCard>
+
+      <!-- Phase 16 — Yaqin imtihonlar (talaba) -->
+      <UiCard
+        v-if="!isTeacher && upcomingExams.length > 0"
+        no-padding
+      >
+        <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+          <span class="text-sm font-semibold">{{ t('dashboard.upcoming_exams') }}</span>
+          <UiBadge>{{ upcomingExams.length }}</UiBadge>
+        </div>
+        <ul class="divide-y divide-border">
+          <li
+            v-for="ex in upcomingExams"
+            :key="ex.id"
+            class="px-5 py-3 cursor-pointer hover:bg-muted/40"
+            @click="router.push({ name: 'exam-lobby', params: { id: ex.id } })"
+          >
+            <div class="flex items-start justify-between gap-2 mb-1">
+              <span class="text-[13px] font-medium truncate">{{ ex.title }}</span>
+              <UiBadge :variant="ex.type === 'final' ? 'danger' : ex.type === 'midterm' ? 'warning' : 'default'">
+                {{ t(`exams.type_${ex.type}`) }}
+              </UiBadge>
+            </div>
+            <div class="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+              <span v-if="ex.available_from">
+                {{ t('dashboard.exam_starts', { date: fmtDeadline(ex.available_from) }) }}
+              </span>
+              <span v-else-if="ex.available_until">
+                {{ t('dashboard.exam_ends', { date: fmtDeadline(ex.available_until) }) }}
+              </span>
+              · {{ ex.duration_minutes }} {{ t('dashboard.min_short') }}
+            </div>
+          </li>
+        </ul>
+      </UiCard>
+
+      <!-- Phase 16 — So'nggi o'qilmagan bildirishnomalar (talaba) -->
+      <UiCard
+        v-if="!isTeacher && topNotifications.length > 0"
+        no-padding
+      >
+        <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+          <span class="text-sm font-semibold">{{ t('dashboard.unread_notifications') }}</span>
+          <button
+            type="button"
+            class="font-mono text-[12px] text-muted-foreground hover:text-foreground"
+            @click="router.push({ name: 'notifications' })"
+          >
+            {{ unreadNotificationCount }} →
+          </button>
+        </div>
+        <ul class="divide-y divide-border">
+          <li
+            v-for="n in topNotifications"
+            :key="n.id"
+            class="px-5 py-3 cursor-pointer hover:bg-muted/40"
+            @click="n.action_url && router.push(n.action_url)"
+          >
+            <div class="text-[13px] font-medium truncate mb-0.5">{{ n.title }}</div>
+            <div v-if="n.body" class="text-[12px] text-muted-foreground truncate">
+              {{ n.body }}
+            </div>
+          </li>
+        </ul>
       </UiCard>
 
       <!-- Phase 13 — yaqinda olingan nishonlar (faqat talaba) -->

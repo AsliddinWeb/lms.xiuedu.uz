@@ -175,3 +175,27 @@ export const gradebookApi = {
     return data
   },
 }
+
+// Phase 16 — Talaba activity agregati (dashboard chart)
+export interface ActivityDay {
+  date: string
+  completed_count: number
+  time_minutes: number
+}
+
+export interface ActivityResponse {
+  days: ActivityDay[]
+  total_minutes: number
+  total_completed: number
+  streak_days: number
+  most_active_label: string | null
+}
+
+export const activityApi = {
+  async my(days: 7 | 30 | 365 = 7): Promise<ActivityResponse> {
+    const { data } = await apiClient.get<ActivityResponse>('/me/activity', {
+      params: { days },
+    })
+    return data
+  },
+}

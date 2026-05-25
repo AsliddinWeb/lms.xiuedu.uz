@@ -669,3 +669,103 @@ async def my_gradebook(
 ) -> list[GradebookRow]:
     rows = await gradebook.get_my_gradebook(db, user_id=actor.id)
     return [GradebookRow(**r) for r in rows]
+
+
+# ============================================================================
+# Phase 16 — Talaba activity agregati (dashboard chart uchun)
+# ============================================================================
+
+
+class ActivityDay(BaseModel):
+    date: str  # YYYY-MM-DD
+    completed_count: int
+    time_minutes: int
+
+
+class ActivityResponse(BaseModel):
+    days: list[ActivityDay]
+    total_minutes: int
+    total_completed: int
+    streak_days: int
+    most_active_label: str | None  # YYYY-MM-DD eng faol kun
+
+
+@router.get("/me/activity", response_model=ActivityResponse)
+async def my_activity(
+    db: DbSession,
+    actor: CurrentUser,
+    days: int = Query(default=7, ge=1, le=365),
+) -> ActivityResponse:
+    """Phase 16 — talaba dashboard activity chart uchun.
+
+    Oxirgi N kun ichida:
+      - har kuni completed lessonlar soni
+      - har kuni o'qish vaqti (LessonProgress.time_spent_seconds, agar shu kunda tugatilgan bo'lsa)
+      - Streak — ketma-ket "kamida 1 ta dars tugatilgan" kunlar soni (bugundan boshlab)
+    """
+    from datetime import UTC, date, datetime, timedelta
+
+    from sqlalchemy import func, select
+
+    from app.modules.courses.models import LessonProgress
+
+    today_utc = datetime.now(UTC).date()
+    start = today_utc - timedelta(days=days - 1)
+
+    rows = (
+        await db.execute(
+            select(
+                func.date(LessonProgress.completed_at).label("d"),
+                func.count(LessonProgress.id).label("c"),
+                func.sum(LessonProgress.time_spent_seconds).label("t"),
+            )
+            .where(
+                LessonProgress.user_id == actor.id,
+                LessonProgress.completed_at.is_not(None),
+                func.date(LessonProgress.completed_at) >= start,
+            )
+            .group_by(func.date(LessonProgress.completed_at))
+        )
+    ).all()
+    by_date: dict[date, tuple[int, int]] = {}
+    for d, c, t in rows:
+        # `d` SQL DATE — Python date'ga aylanadi
+        by_date[d] = (int(c or 0), int(t or 0))
+
+    out_days: list[ActivityDay] = []
+    total_completed = 0
+    total_seconds = 0
+    most_active_day: date | None = None
+    most_active_minutes = -1
+    for i in range(days):
+        d = start + timedelta(days=i)
+        c, t = by_date.get(d, (0, 0))
+        mins = t // 60
+        out_days.append(
+            ActivityDay(date=d.isoformat(), completed_count=c, time_minutes=mins)
+        )
+        total_completed += c
+        total_seconds += t
+        if mins > most_active_minutes:
+            most_active_minutes = mins
+            most_active_day = d if mins > 0 else most_active_day
+
+    # Streak — bugundan orqaga ketma-ket dars tugatilgan kunlar
+    streak = 0
+    for d in sorted(by_date.keys(), reverse=True):
+        if d > today_utc:
+            continue
+        # Boshidan ketma-ketlik buzilmaganmi
+        expected = today_utc - timedelta(days=streak)
+        if d == expected:
+            streak += 1
+        else:
+            break
+
+    return ActivityResponse(
+        days=out_days,
+        total_minutes=total_seconds // 60,
+        total_completed=total_completed,
+        streak_days=streak,
+        most_active_label=most_active_day.isoformat() if most_active_day else None,
+    )
