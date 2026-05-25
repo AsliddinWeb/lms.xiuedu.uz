@@ -1,26 +1,25 @@
 <script setup lang="ts">
 /**
- * Wireframe `.topbar` — 12px 32px padding, 1px border-bottom, sticky.
- * Tarkibi:
- *   - search 400px max
- *   - actions (gap 8px ml-auto): icon-btn'lar + theme toggle + locale toggle + avatar+role pill
- * Avatar pill: 32x32 avatar + 12px ism + 10px mono role
+ * Topbar — Phase 17 (professional).
  *
- * Phase 8d — mobile: hamburger tugma chap tomonda (<lg), search yashirinadi
- * (kichik ekranda bo'sh joy yo'q), avatar pill'da faqat avatar qoladi.
+ * Burger tugmasi:
+ *   - Desktop (>=lg): sidebar collapse/expand toggle
+ *   - Mobile (<lg):   mobile drawer toggle
+ *
+ * Tarkibi: burger | search (md+) | actions slot | user-menu slot.
  */
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { useSidebar } from '@shared/composables/useSidebar'
+
 interface Props {
   searchPlaceholder?: string
   userName?: string
-  userRole?: string  // pill labelu, e.g. "3-KURS · CS"
-  initials?: string  // avatar bosh harflari
+  userRole?: string
+  initials?: string
   avatarColor?: 'foreground' | 'info' | 'destructive' | 'success'
   showSearch?: boolean
-  /** Hamburger tugmasini ko'rsatish (mobile drawer ochish uchun). */
-  showMobileToggle?: boolean
 }
 const props = withDefaults(defineProps<Props>(), {
   searchPlaceholder: '',
@@ -29,7 +28,6 @@ const props = withDefaults(defineProps<Props>(), {
   initials: '?',
   avatarColor: 'foreground',
   showSearch: true,
-  showMobileToggle: true,
 })
 
 const emit = defineEmits<{
@@ -38,6 +36,17 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const { toggleCollapsed, toggleMobile } = useSidebar()
+
+function onBurgerClick() {
+  // Mobile'da drawer ochiladi, desktop'da sidebar collapse/expand
+  if (window.matchMedia('(min-width: 1024px)').matches) {
+    toggleCollapsed()
+  } else {
+    toggleMobile()
+    emit('toggleMobile')
+  }
+}
 
 const avatarStyle = computed(() => {
   switch (props.avatarColor) {
@@ -55,31 +64,22 @@ const avatarStyle = computed(() => {
 
 <template>
   <header
-    class="bg-background border-b border-border px-4 lg:px-8 py-3 flex items-center gap-3 lg:gap-4 sticky top-0 z-40"
+    class="bg-background border-b border-border px-4 lg:px-6 h-[60px] flex items-center gap-3 lg:gap-4 sticky top-0 z-30"
   >
-    <!-- Mobile hamburger (faqat <lg) -->
+    <!-- Burger — har doim ko'rinadi (desktop: collapse, mobile: drawer) -->
     <button
-      v-if="showMobileToggle"
       type="button"
-      class="lg:hidden w-10 h-10 -ml-1 grid place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+      class="w-10 h-10 -ml-1 grid place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0"
       :aria-label="t('a11y.open_menu')"
-      @click="emit('toggleMobile')"
+      :title="t('a11y.open_menu')"
+      @click="onBurgerClick"
     >
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        aria-hidden="true"
-      >
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
         <path d="M3 6h18M3 12h18M3 18h18" />
       </svg>
     </button>
 
-    <!-- Search (yashiringan <md ekranlarda) -->
+    <!-- Search (md+) -->
     <div v-if="showSearch" class="hidden md:block flex-1 max-w-[400px] relative">
       <svg
         class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
@@ -103,35 +103,36 @@ const avatarStyle = computed(() => {
     <div v-else class="flex-1" />
     <div v-if="showSearch" class="md:hidden flex-1" />
 
-    <!-- Actions slot (notifications, messages, etc.) — ml-auto bilan o'ng tomonga itariladi -->
+    <!-- Actions (notifications, theme, locale) — ml-auto bilan o'ng tomonga -->
     <div class="ml-auto flex items-center gap-1.5">
       <slot name="actions" />
 
-      <slot name="toggles">
-        <!-- default toggles via slot inject — host uchun bo'sh -->
-      </slot>
+      <slot name="toggles" />
 
-      <!-- Separator before user pill — kichik ekranda yashirin -->
+      <!-- Separator -->
       <div
         v-if="$slots['user-menu'] || userName"
         class="hidden md:block w-px h-6 bg-border mx-1"
         aria-hidden="true"
       />
 
-      <!-- User pill slot — parent UiUserMenu (dropdown) ni shu yerga joylaydi.
-           Slot bo'lmasa, oddiy non-clickable pill ko'rsatiladi (backward-compat). -->
+      <!-- User pill slot -->
       <slot name="user-menu">
         <div v-if="userName" class="flex items-center gap-2.5 px-2 py-1">
           <div
             class="w-8 h-8 rounded-full bg-foreground text-background grid place-items-center text-[12px] font-semibold"
             :style="avatarStyle"
-          >{{ initials }}</div>
+          >
+            {{ initials }}
+          </div>
           <div class="hidden md:block text-[12px] leading-tight">
             <div class="font-medium">{{ userName }}</div>
             <div
               v-if="userRole"
               class="font-mono text-[10px] text-muted-foreground uppercase tracking-wider"
-            >{{ userRole }}</div>
+            >
+              {{ userRole }}
+            </div>
           </div>
         </div>
       </slot>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
@@ -12,6 +12,7 @@ import UiSidebar, {
   type SidebarSection,
 } from '@shared/components/layout/UiSidebar.vue'
 import UiTopbar from '@shared/components/layout/UiTopbar.vue'
+import { useSidebar } from '@shared/composables/useSidebar'
 import { useAuthStore } from '@shared/stores/auth'
 
 const { t } = useI18n()
@@ -81,21 +82,22 @@ async function onUserMenuSelect(item: UserMenuItem) {
   }
 }
 
-// Phase 8d — mobile sidebar drawer state
-const mobileSidebarOpen = ref(false)
+// Phase 17 — sidebar holati composable orqali
+const { collapsed: sidebarCollapsed } = useSidebar()
 </script>
 
 <template>
   <a href="#main-content" class="skip-link">{{ t('a11y.skip_to_main') }}</a>
-  <div class="min-h-screen bg-[var(--wireframe-bg)] lg:grid lg:grid-cols-[260px_1fr]">
+  <div
+    class="min-h-screen bg-[var(--wireframe-bg)] lg:grid transition-[grid-template-columns] duration-200"
+    :style="{ gridTemplateColumns: sidebarCollapsed ? '64px 1fr' : '260px 1fr' }"
+  >
     <UiSidebar
       :sections="sections"
       :footer-section="footerSection"
       logo-text="Admin Console"
       logo-icon="A"
       :logo-to="{ name: 'admin-dashboard' }"
-      :mobile-open="mobileSidebarOpen"
-      @close-mobile="mobileSidebarOpen = false"
     />
 
     <div class="flex flex-col min-h-screen">
@@ -105,7 +107,6 @@ const mobileSidebarOpen = ref(false)
         user-role="SUPER ADMIN"
         :initials="initials"
         avatar-color="destructive"
-        @toggle-mobile="mobileSidebarOpen = !mobileSidebarOpen"
       >
         <template #actions>
           <UiLocaleToggle />
