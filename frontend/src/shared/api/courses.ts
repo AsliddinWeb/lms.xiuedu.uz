@@ -169,9 +169,88 @@ export interface GradebookRow {
   grade_variant: 'success' | 'warning' | 'danger'
 }
 
+// Phase 18.2 — kurs pedagog'i public profili
+export interface CourseTeacher {
+  id: number
+  full_name: string
+  avatar_url: string | null
+  bio: string | null
+  courses_count: number
+}
+
+export const courseTeacherApi = {
+  async get(courseId: number): Promise<CourseTeacher> {
+    const { data } = await apiClient.get<CourseTeacher>(
+      `/courses/${courseId}/teacher`,
+    )
+    return data
+  },
+}
+
+// Phase 18.3 — kurs materiallari (lesson content_items)
+export interface CourseMaterial {
+  lesson_id: number
+  lesson_title: string
+  module_id: number
+  content_id: number | null
+  title: string | null
+  type: string | null
+  file_url: string | null
+  mime_type: string | null
+  file_size: number | null
+}
+
+export const courseMaterialsApi = {
+  async list(courseId: number): Promise<CourseMaterial[]> {
+    const { data } = await apiClient.get<CourseMaterial[]>(
+      `/courses/${courseId}/materials`,
+    )
+    return data
+  },
+}
+
 export const gradebookApi = {
   async myGradebook(): Promise<GradebookRow[]> {
     const { data } = await apiClient.get<GradebookRow[]>('/me/gradebook')
+    return data
+  },
+}
+
+// Phase 18.5 — Kurs detail right column: yaqin imtihonlar + live darslar
+export interface UpcomingExamItem {
+  id: number
+  title: string
+  type: string
+  duration_minutes: number
+  available_from: string | null
+  available_until: string | null
+  proctoring_enabled: boolean
+}
+
+export interface UpcomingLiveItem {
+  id: number
+  title: string
+  scheduled_start: string
+  scheduled_end: string
+  duration_minutes: number
+  status: string
+  host_user_id: number
+  host_full_name: string | null
+}
+
+export const courseUpcomingApi = {
+  async exams(courseId: number, limit = 5): Promise<UpcomingExamItem[]> {
+    const { data } = await apiClient.get<UpcomingExamItem[]>(
+      `/courses/${courseId}/upcoming-exams`,
+      { params: { limit } },
+    )
+    return data
+  },
+  async live(courseId: number, limit = 5): Promise<UpcomingLiveItem[]> {
+    const { data } = await apiClient.get<UpcomingLiveItem[]>(
+      `/courses/${courseId}/upcoming-live`,
+      { params: { limit } },
+    )
     return data
   },
 }

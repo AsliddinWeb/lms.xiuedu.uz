@@ -10,13 +10,14 @@ Group:
 
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from decimal import Decimal
 
 from fastapi import APIRouter, Depends, Query, Response, status
 from pydantic import BaseModel
 
 from app.core.csv_export import filename_with_timestamp, rows_to_csv
-from app.core.exceptions import ConflictError, ForbiddenError
+from app.core.exceptions import ConflictError, ForbiddenError, NotFoundError
 from app.modules.auth.dependencies import (
     CurrentUser,
     DbSession,
@@ -26,8 +27,8 @@ from app.modules.auth.dependencies import (
 from app.modules.courses import gradebook, service
 from app.modules.courses.schemas import (
     CourseCreateRequest,
-    CoursePublic,
     CourseProgressPublic,
+    CoursePublic,
     CourseUpdateRequest,
     EnrollmentCreateRequest,
     EnrollmentPublic,
@@ -136,6 +137,269 @@ async def get_course(
     _u: User = Depends(require_permission("course.read")),
 ) -> CoursePublic:
     return CoursePublic.model_validate(await service.get_course(db, course_id))
+
+
+class CourseMaterial(BaseModel):
+    """Phase 18.3 — kurs darslariga biriktirilgan content (downloadable)."""
+
+    lesson_id: int
+    lesson_title: str
+    module_id: int
+    content_id: int | None
+    title: str | None
+    type: str | None  # 'video', 'pdf', 'file', 'link', 'scorm', ...
+    file_url: str | None
+    mime_type: str | None
+    file_size: int | None
+
+
+@router.get(
+    "/courses/{course_id}/materials",
+    response_model=list[CourseMaterial],
+)
+async def list_course_materials(
+    course_id: int,
+    db: DbSession,
+    _u: User = Depends(require_permission("course.read")),
+) -> list[CourseMaterial]:
+    """Phase 18.3 — kurs darslaridagi content_items (sidebar uchun).
+
+    Faqat published bo'lgan kurs darslarining primary_content_id
+    bo'yicha content items qaytaradi.
+    """
+    from sqlalchemy import select
+
+    from app.modules.content.models import ContentItem
+    from app.modules.courses.models import Lesson, Module
+
+    rows = (
+        await db.execute(
+            select(
+                Lesson.id,
+                Lesson.title,
+                Lesson.module_id,
+                ContentItem.id,
+                ContentItem.title,
+                ContentItem.type,
+                ContentItem.file_url,
+                ContentItem.mime_type,
+                ContentItem.file_size,
+            )
+            .join(Module, Module.id == Lesson.module_id)
+            .outerjoin(ContentItem, ContentItem.id == Lesson.primary_content_id)
+            .where(Module.course_id == course_id)
+            .order_by(Module.order_index, Lesson.order_index)
+        )
+    ).all()
+    return [
+        CourseMaterial(
+            lesson_id=r[0],
+            lesson_title=r[1],
+            module_id=r[2],
+            content_id=r[3],
+            title=r[4],
+            type=r[5],
+            file_url=r[6],
+            mime_type=r[7],
+            file_size=r[8],
+        )
+        for r in rows
+    ]
+
+
+class TeacherPublic(BaseModel):
+    """Phase 18.2 — kurs pedagog'ining public profili."""
+
+    id: int
+    full_name: str
+    avatar_url: str | None
+    bio: str | None
+    courses_count: int  # shu pedagog yaratgan published kurslar soni
+
+
+@router.get("/courses/{course_id}/teacher", response_model=TeacherPublic)
+async def get_course_teacher(
+    course_id: int,
+    db: DbSession,
+    _u: User = Depends(require_permission("course.read")),
+) -> TeacherPublic:
+    """Phase 18.2 — kurs pedagog'ining public profili (avatar, bio, kurslar soni).
+
+    Talabada `users.read` permission yo'q, lekin kurs pedagog'ini bilish kerak —
+    shuning uchun shu cheklangan endpoint course.read permission'i bilan ishlaydi.
+    """
+    from sqlalchemy import func, select
+
+    from app.modules.courses.models import Course
+    from app.modules.users.models import Profile, User
+
+    course = await service.get_course(db, course_id)
+    if course.primary_author_id is None:
+        raise NotFoundError("Kurs uchun pedagog tayinlanmagan")
+
+    user = await db.get(User, course.primary_author_id)
+    if user is None:
+        raise NotFoundError("Pedagog topilmadi")
+
+    profile = (
+        await db.execute(select(Profile).where(Profile.user_id == user.id))
+    ).scalar_one_or_none()
+
+    count = (
+        await db.execute(
+            select(func.count(Course.id)).where(
+                Course.primary_author_id == user.id,
+                Course.status == "published",
+            )
+        )
+    ).scalar_one()
+
+    return TeacherPublic(
+        id=user.id,
+        full_name=user.full_name,
+        avatar_url=user.avatar_url,
+        bio=profile.bio if profile else None,
+        courses_count=int(count),
+    )
+
+
+# ----------------------------------------------------------------------------
+# Phase 18.5 — Upcoming exams / live (kurs detail right column widgetlari)
+# ----------------------------------------------------------------------------
+
+
+class UpcomingExamItem(BaseModel):
+    """Yaqinlashayotgan imtihon (talaba kurs detail uchun)."""
+
+    id: int
+    title: str
+    type: str
+    duration_minutes: int
+    available_from: datetime | None
+    available_until: datetime | None
+    proctoring_enabled: bool
+
+
+class UpcomingLiveItem(BaseModel):
+    """Yaqinlashayotgan live dars (talaba kurs detail uchun)."""
+
+    id: int
+    title: str
+    scheduled_start: datetime
+    scheduled_end: datetime
+    duration_minutes: int
+    status: str
+    host_user_id: int
+    host_full_name: str | None
+
+
+@router.get(
+    "/courses/{course_id}/upcoming-exams",
+    response_model=list[UpcomingExamItem],
+)
+async def list_course_upcoming_exams(
+    course_id: int,
+    db: DbSession,
+    _u: User = Depends(require_permission("course.read")),
+    limit: int = Query(default=5, ge=1, le=20),
+) -> list[UpcomingExamItem]:
+    """Phase 18.5 — kursning yaqin imtihonlari.
+
+    `status='published'` va `available_until` o'tmagan imtihonlar.
+    Tartib: available_from asc (NULL keyin), so'ng created_at asc.
+    """
+    from sqlalchemy import or_, select
+
+    from app.modules.exams.models import Exam
+
+    now = datetime.now(UTC)
+
+    rows = (
+        await db.execute(
+            select(Exam)
+            .where(
+                Exam.course_id == course_id,
+                Exam.status == "published",
+                Exam.deleted_at.is_(None),
+                or_(Exam.available_until.is_(None), Exam.available_until >= now),
+                Exam.closed_at.is_(None),
+            )
+            .order_by(Exam.available_from.asc().nulls_last(), Exam.created_at.asc())
+            .limit(limit)
+        )
+    ).scalars().all()
+
+    return [
+        UpcomingExamItem(
+            id=e.id,
+            title=e.title,
+            type=e.type,
+            duration_minutes=e.duration_minutes,
+            available_from=e.available_from,
+            available_until=e.available_until,
+            proctoring_enabled=e.proctoring_enabled,
+        )
+        for e in rows
+    ]
+
+
+@router.get(
+    "/courses/{course_id}/upcoming-live",
+    response_model=list[UpcomingLiveItem],
+)
+async def list_course_upcoming_live(
+    course_id: int,
+    db: DbSession,
+    _u: User = Depends(require_permission("course.read")),
+    limit: int = Query(default=5, ge=1, le=20),
+) -> list[UpcomingLiveItem]:
+    """Phase 18.5 — kursning yaqin live darslari.
+
+    `status in ('scheduled', 'live')` va `scheduled_end` o'tmagan sessiyalar.
+    Tartib: scheduled_start asc.
+    """
+    from sqlalchemy import or_, select
+
+    from app.modules.live.models import LiveSession
+
+    now = datetime.now(UTC)
+
+    rows = (
+        await db.execute(
+            select(LiveSession)
+            .where(
+                LiveSession.course_id == course_id,
+                LiveSession.status.in_(["scheduled", "live"]),
+                or_(LiveSession.scheduled_end >= now, LiveSession.status == "live"),
+            )
+            .order_by(LiveSession.scheduled_start.asc())
+            .limit(limit)
+        )
+    ).scalars().all()
+
+    host_ids = [r.host_user_id for r in rows]
+    host_names: dict[int, str] = {}
+    if host_ids:
+        hosts = (
+            await db.execute(
+                select(User.id, User.full_name).where(User.id.in_(host_ids))
+            )
+        ).all()
+        host_names = dict(hosts)
+
+    return [
+        UpcomingLiveItem(
+            id=s.id,
+            title=s.title,
+            scheduled_start=s.scheduled_start,
+            scheduled_end=s.scheduled_end,
+            duration_minutes=s.duration_minutes,
+            status=s.status,
+            host_user_id=s.host_user_id,
+            host_full_name=host_names.get(s.host_user_id),
+        )
+        for s in rows
+    ]
 
 
 @router.patch("/courses/{course_id}", response_model=CoursePublic)

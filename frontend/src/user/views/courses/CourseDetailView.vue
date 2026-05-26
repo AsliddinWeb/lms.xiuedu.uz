@@ -27,12 +27,22 @@ import UiImagePlaceholder from '@shared/components/ui/UiImagePlaceholder.vue'
 import UiProgressBar from '@shared/components/ui/UiProgressBar.vue'
 import UiTabs from '@shared/components/ui/UiTabs.vue'
 import {
+  courseMaterialsApi,
+  courseTeacherApi,
+  courseUpcomingApi,
   coursesApi,
   enrollmentsApi,
+  gradebookApi,
   lessonsApi,
   modulesApi,
   progressApi,
+  type CourseMaterial,
+  type CourseTeacher,
+  type GradebookRow,
+  type UpcomingExamItem,
+  type UpcomingLiveItem,
 } from '@shared/api/courses'
+import { forumApi, type ForumThreadPublic } from '@shared/api/forum'
 import { extractErrorMessage, isNotFound } from '@shared/api/client'
 import { useAuthStore } from '@shared/stores/auth'
 import type {
@@ -57,6 +67,13 @@ const courseProgress = ref<CourseProgress | null>(null)
 const lessonProgressByLesson = ref<Record<number, LessonProgress>>({})
 const isEnrolled = ref(false)
 const studentCount = ref<number | null>(null)
+const teacher = ref<CourseTeacher | null>(null)
+const materials = ref<CourseMaterial[]>([])
+const gradebookRow = ref<GradebookRow | null>(null)
+const upcomingExams = ref<UpcomingExamItem[]>([])
+const upcomingLive = ref<UpcomingLiveItem[]>([])
+const forumThreads = ref<ForumThreadPublic[]>([])
+const forumLoading = ref(false)
 
 const loading = ref(false)
 const enrolling = ref(false)
@@ -135,8 +152,11 @@ const tabs = computed(() => [
     label: t('course_detail.tab_modules'),
     count: modules.value.length,
   },
-  { id: 'syllabus', label: t('course_detail.tab_syllabus'), disabled: true },
-  { id: 'teacher', label: t('course_detail.tab_teacher'), disabled: true },
+  {
+    id: 'syllabus',
+    label: t('course_detail.tab_syllabus'),
+  },
+  { id: 'teacher', label: t('course_detail.tab_teacher') },
   // Phase 13.14 — Forum tabi kurs a'zolari uchun ochiq (RBAC backendda)
   {
     id: 'forum',
@@ -255,6 +275,42 @@ async function load() {
     } catch {
       studentCount.value = null
     }
+
+    // Phase 18.2 — kurs pedagog'i (xato bo'lsa yutamiz)
+    try {
+      teacher.value = await courseTeacherApi.get(courseId.value)
+    } catch {
+      teacher.value = null
+    }
+
+    // Phase 18.3 — kurs materiallari (lesson content_items)
+    try {
+      materials.value = await courseMaterialsApi.list(courseId.value)
+    } catch {
+      materials.value = []
+    }
+
+    // Phase 18.4 — gradebook (kurs avg / total ball)
+    try {
+      const rows = await gradebookApi.myGradebook()
+      gradebookRow.value =
+        rows.find((r) => r.course_id === courseId.value) ?? null
+    } catch {
+      gradebookRow.value = null
+    }
+
+    // Phase 18.5 — yaqin imtihonlar + live darslar (right column widgetlari)
+    try {
+      const [examsRes, liveRes] = await Promise.all([
+        courseUpcomingApi.exams(courseId.value, 5),
+        courseUpcomingApi.live(courseId.value, 5),
+      ])
+      upcomingExams.value = examsRes
+      upcomingLive.value = liveRes
+    } catch {
+      upcomingExams.value = []
+      upcomingLive.value = []
+    }
   } catch (e) {
     if (isNotFound(e)) {
       router.replace({ name: 'my-learning' })
@@ -264,6 +320,125 @@ async function load() {
   } finally {
     loading.value = false
   }
+}
+
+// Phase 18.3 — materiallar (faqat content_id'siz lessonlarni filtrlaymiz)
+const materialsWithContent = computed(() =>
+  materials.value.filter((m) => m.content_id !== null && m.file_url !== null),
+)
+
+// Phase 18.4 — Statistics card real qiymatlari
+const avgGradeDisplay = computed<string | null>(() => {
+  const row = gradebookRow.value
+  if (!row) return null
+  const total = parseFloat(row.total)
+  if (!isFinite(total) || total <= 0) return null
+  return `${total.toFixed(1)}%`
+})
+
+const timeSpentMinutes = computed<number>(() => {
+  let totalSeconds = 0
+  let hasTrackedTime = false
+  for (const lesson of flatLessons.value) {
+    const lp = lessonProgressByLesson.value[lesson.id]
+    if (!lp) continue
+    if (lp.time_spent_seconds > 0) {
+      totalSeconds += lp.time_spent_seconds
+      hasTrackedTime = true
+    } else if (lp.completed_at) {
+      totalSeconds += (lesson.estimated_minutes ?? 0) * 60
+    }
+  }
+  if (!hasTrackedTime && totalSeconds === 0) return 0
+  return Math.round(totalSeconds / 60)
+})
+
+const timeSpentDisplay = computed<string>(() => {
+  const m = timeSpentMinutes.value
+  if (m <= 0) return '0' + t('course_detail.min_short')
+  const h = Math.floor(m / 60)
+  const min = m % 60
+  if (h <= 0) return `${min}${t('course_detail.min_short')}`
+  if (min === 0) return `${h}${t('course_detail.hour_short')}`
+  return `${h}${t('course_detail.hour_short')} ${min}${t('course_detail.min_short')}`
+})
+
+const attendanceDisplay = computed<string>(() => {
+  const total = totalRequiredLessons.value
+  const done = completedLessonsCount.value
+  if (total <= 0) return '0%'
+  return `${Math.round((done / total) * 100)}%`
+})
+
+function materialIcon(type: string | null): string {
+  switch (type) {
+    case 'video':
+      return '🎬'
+    case 'pdf':
+      return '📄'
+    case 'link':
+      return '🔗'
+    case 'file':
+      return '📦'
+    case 'scorm':
+      return '🎓'
+    default:
+      return '📑'
+  }
+}
+
+function fmtExamDate(iso: string | null): string {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  if (isNaN(d.getTime())) return '—'
+  return d.toLocaleString(undefined, {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+function liveStatusLabel(status: string): string {
+  switch (status) {
+    case 'live':
+      return t('course_detail.live_status_live')
+    case 'scheduled':
+      return t('course_detail.live_status_scheduled')
+    default:
+      return status
+  }
+}
+
+function liveStatusVariant(status: string): 'info' | 'success' | 'warning' {
+  if (status === 'live') return 'success'
+  return 'info'
+}
+
+function downloadAllMaterials() {
+  const items = materialsWithContent.value
+  if (items.length === 0) return
+  items.forEach((m, idx) => {
+    if (!m.file_url) return
+    // Brauzerni ortiqcha yuklamaslik uchun har bir click'ni biroz kechiktiramiz
+    setTimeout(() => {
+      const a = document.createElement('a')
+      a.href = m.file_url as string
+      a.download = m.title || m.lesson_title || `material-${m.lesson_id}`
+      a.target = '_blank'
+      a.rel = 'noopener'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    }, idx * 250)
+  })
+}
+
+function fmtBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  if (bytes < 1024 * 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`
+  return `${(bytes / 1024 / 1024 / 1024).toFixed(1)} GB`
 }
 
 function toggleModule(m: Module) {
@@ -296,6 +471,38 @@ async function handleEnroll() {
   }
 }
 
+async function loadForumPreview() {
+  forumLoading.value = true
+  try {
+    const res = await forumApi.listThreads(courseId.value, { page: 1, page_size: 3 })
+    forumThreads.value = res.items ?? []
+  } catch {
+    forumThreads.value = []
+  } finally {
+    forumLoading.value = false
+  }
+}
+
+function fmtRelativeDate(iso: string | null): string {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  if (isNaN(d.getTime())) return '—'
+  const now = Date.now()
+  const diffMs = now - d.getTime()
+  const diffMin = Math.round(diffMs / 60000)
+  if (diffMin < 1) return t('course_detail.just_now')
+  if (diffMin < 60) return t('course_detail.minutes_ago', { n: diffMin })
+  const diffHr = Math.round(diffMin / 60)
+  if (diffHr < 24) return t('course_detail.hours_ago', { n: diffHr })
+  const diffDay = Math.round(diffHr / 24)
+  if (diffDay < 7) return t('course_detail.days_ago', { n: diffDay })
+  return d.toLocaleDateString(undefined, {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
 onMounted(load)
 
 watch(courseId, async () => {
@@ -303,7 +510,14 @@ watch(courseId, async () => {
   course.value = null
   modules.value = []
   lessonsByModule.value = {}
+  forumThreads.value = []
   await load()
+})
+
+watch(activeTab, (tab) => {
+  if (tab === 'forum' && forumThreads.value.length === 0 && !forumLoading.value) {
+    loadForumPreview()
+  }
 })
 </script>
 
@@ -398,9 +612,19 @@ watch(courseId, async () => {
             <UiButton class="w-full justify-center mb-2" @click="openPlayer()">
               ▶ {{ coursePercent > 0 ? t('course_detail.continue') : t('course_detail.start') }}
             </UiButton>
-            <UiButton variant="outline" class="w-full justify-center" disabled>
+            <UiButton
+              variant="outline"
+              class="w-full justify-center"
+              :disabled="materialsWithContent.length === 0"
+              @click="downloadAllMaterials"
+            >
               📥 {{ t('course_detail.download_materials') }}
-              <span class="font-mono text-[10px] text-muted-foreground ml-1">Ph.6</span>
+              <span
+                v-if="materialsWithContent.length"
+                class="font-mono text-[10px] text-muted-foreground ml-1"
+              >
+                ({{ materialsWithContent.length }})
+              </span>
             </UiButton>
           </template>
 
@@ -570,15 +794,116 @@ watch(courseId, async () => {
 
       <!-- Right sidebar: Materials + Statistics -->
       <aside class="flex flex-col gap-4">
+        <!-- Phase 18.3 — Materials real (lesson content_items) -->
         <UiCard no-padding>
           <div class="px-5 py-3 border-b border-border flex items-center justify-between">
             <span class="text-[13px] font-semibold">{{ t('course_detail.materials_title') }}</span>
-            <UiBadge>—</UiBadge>
+            <UiBadge>{{ materialsWithContent.length }}</UiBadge>
           </div>
-          <div class="text-center text-[12px] text-muted-foreground px-5 py-6">
-            {{ t('course_detail.materials_empty') }}
-            <div class="font-mono text-[10px] mt-1 uppercase tracking-wider">Phase 6+</div>
+          <div
+            v-if="materialsWithContent.length === 0"
+            class="text-center text-[12px] text-muted-foreground px-5 py-6"
+          >
+            {{ t('course_detail.materials_empty_real') }}
           </div>
+          <ul v-else class="divide-y divide-border max-h-[360px] overflow-y-auto">
+            <li v-for="m in materialsWithContent" :key="m.lesson_id" class="px-4 py-2.5">
+              <div class="flex items-start gap-2">
+                <span class="text-[16px] shrink-0 mt-0.5">{{ materialIcon(m.type) }}</span>
+                <div class="flex-1 min-w-0">
+                  <div class="text-[13px] font-medium truncate">
+                    {{ m.title || m.lesson_title }}
+                  </div>
+                  <div class="font-mono text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">
+                    {{ m.type }}
+                    <span v-if="m.file_size">· {{ fmtBytes(m.file_size) }}</span>
+                  </div>
+                </div>
+                <a
+                  v-if="m.file_url"
+                  :href="m.file_url"
+                  target="_blank"
+                  rel="noopener"
+                  class="text-muted-foreground hover:text-foreground shrink-0"
+                  :title="t('course_detail.material_download')"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <path d="M7 10l5 5 5-5" />
+                    <path d="M12 15V3" />
+                  </svg>
+                </a>
+              </div>
+            </li>
+          </ul>
+        </UiCard>
+
+        <!-- Phase 18.6 — Yaqin imtihonlar widget -->
+        <UiCard no-padding>
+          <div class="px-5 py-3 border-b border-border flex items-center justify-between">
+            <span class="text-[13px] font-semibold">{{ t('course_detail.upcoming_exams_title') }}</span>
+            <UiBadge v-if="upcomingExams.length">{{ upcomingExams.length }}</UiBadge>
+          </div>
+          <div
+            v-if="upcomingExams.length === 0"
+            class="text-center text-[12px] text-muted-foreground px-5 py-6"
+          >
+            {{ t('course_detail.upcoming_exams_empty') }}
+          </div>
+          <ul v-else class="divide-y divide-border">
+            <li v-for="e in upcomingExams" :key="e.id" class="px-4 py-2.5">
+              <div class="flex items-start gap-2">
+                <span class="text-[16px] shrink-0 mt-0.5">📝</span>
+                <div class="flex-1 min-w-0">
+                  <div class="text-[13px] font-medium truncate">{{ e.title }}</div>
+                  <div class="font-mono text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">
+                    {{ t(`course_detail.exam_type_${e.type}`, e.type) }}
+                    · {{ e.duration_minutes }}{{ t('course_detail.min_short') }}
+                  </div>
+                  <div class="text-[11px] text-muted-foreground mt-0.5">
+                    {{ t('course_detail.exam_available_from') }}: {{ fmtExamDate(e.available_from) }}
+                  </div>
+                </div>
+                <UiBadge v-if="e.proctoring_enabled" variant="warning">
+                  {{ t('course_detail.proctoring_short') }}
+                </UiBadge>
+              </div>
+            </li>
+          </ul>
+        </UiCard>
+
+        <!-- Phase 18.7 — Yaqin live darslar widget -->
+        <UiCard no-padding>
+          <div class="px-5 py-3 border-b border-border flex items-center justify-between">
+            <span class="text-[13px] font-semibold">{{ t('course_detail.upcoming_live_title') }}</span>
+            <UiBadge v-if="upcomingLive.length">{{ upcomingLive.length }}</UiBadge>
+          </div>
+          <div
+            v-if="upcomingLive.length === 0"
+            class="text-center text-[12px] text-muted-foreground px-5 py-6"
+          >
+            {{ t('course_detail.upcoming_live_empty') }}
+          </div>
+          <ul v-else class="divide-y divide-border">
+            <li v-for="s in upcomingLive" :key="s.id" class="px-4 py-2.5">
+              <div class="flex items-start gap-2">
+                <span class="text-[16px] shrink-0 mt-0.5">🎥</span>
+                <div class="flex-1 min-w-0">
+                  <div class="text-[13px] font-medium truncate">{{ s.title }}</div>
+                  <div class="text-[11px] text-muted-foreground mt-0.5 truncate">
+                    {{ s.host_full_name || t('course_detail.teacher_unknown') }}
+                  </div>
+                  <div class="font-mono text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">
+                    {{ fmtExamDate(s.scheduled_start) }}
+                    · {{ s.duration_minutes }}{{ t('course_detail.min_short') }}
+                  </div>
+                </div>
+                <UiBadge :variant="liveStatusVariant(s.status)">
+                  {{ liveStatusLabel(s.status) }}
+                </UiBadge>
+              </div>
+            </li>
+          </ul>
         </UiCard>
 
         <UiCard no-padding>
@@ -594,22 +919,219 @@ watch(courseId, async () => {
             </div>
             <div class="flex justify-between py-1.5 border-b border-border">
               <span class="text-muted-foreground">{{ t('course_detail.stats_avg_grade') }}</span>
-              <span class="font-mono font-semibold">— <span class="text-[10px]">Ph.6</span></span>
+              <span class="font-mono font-semibold tabular-nums">
+                {{ avgGradeDisplay ?? '—' }}
+              </span>
             </div>
             <div class="flex justify-between py-1.5 border-b border-border">
               <span class="text-muted-foreground">{{ t('course_detail.stats_time_spent') }}</span>
-              <span class="font-mono font-semibold">— <span class="text-[10px]">Ph.6</span></span>
+              <span class="font-mono font-semibold tabular-nums">
+                {{ timeSpentDisplay }}
+              </span>
             </div>
             <div class="flex justify-between py-1.5">
               <span class="text-muted-foreground">{{ t('course_detail.stats_attendance') }}</span>
-              <span class="font-mono font-semibold">— <span class="text-[10px]">Ph.6</span></span>
+              <span class="font-mono font-semibold tabular-nums">
+                {{ attendanceDisplay }}
+              </span>
             </div>
           </div>
         </UiCard>
       </aside>
     </div>
 
-    <!-- Phase 13.14 — Forum tab: kurs muhokamasi -->
+    <!-- Phase 18.1 — Sillabus tab: maqsadlar, ko'nikmalar, kurs xulosasi -->
+    <div
+      v-else-if="activeTab === 'syllabus'"
+      class="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6"
+    >
+      <div class="space-y-5">
+        <!-- Kurs haqida -->
+        <UiCard class="p-5">
+          <h2 class="text-[16px] font-semibold mb-3">
+            {{ t('course_detail.syllabus_about') }}
+          </h2>
+          <p
+            v-if="course.description"
+            class="text-[14px] leading-relaxed text-foreground whitespace-pre-line"
+          >
+            {{ course.description }}
+          </p>
+          <p
+            v-else
+            class="text-[13px] text-muted-foreground italic"
+          >
+            {{ t('course_detail.syllabus_about_empty') }}
+          </p>
+        </UiCard>
+
+        <!-- Maqsadlar (objectives) -->
+        <UiCard class="p-5">
+          <h2 class="text-[16px] font-semibold mb-3">
+            {{ t('course_detail.syllabus_objectives') }}
+          </h2>
+          <ul
+            v-if="course.objectives && course.objectives.length > 0"
+            class="space-y-2"
+          >
+            <li
+              v-for="(obj, i) in course.objectives"
+              :key="i"
+              class="flex items-start gap-3 text-[14px]"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="text-success-600 mt-0.5 shrink-0"
+              >
+                <path d="m9 12 2 2 4-4" />
+                <circle cx="12" cy="12" r="10" />
+              </svg>
+              <span>{{ obj }}</span>
+            </li>
+          </ul>
+          <p v-else class="text-[13px] text-muted-foreground italic">
+            {{ t('course_detail.syllabus_objectives_empty') }}
+          </p>
+        </UiCard>
+
+        <!-- Olinadigan ko'nikmalar (skills_gained) -->
+        <UiCard class="p-5">
+          <h2 class="text-[16px] font-semibold mb-3">
+            {{ t('course_detail.syllabus_skills') }}
+          </h2>
+          <div
+            v-if="course.skills_gained && course.skills_gained.length > 0"
+            class="flex flex-wrap gap-2"
+          >
+            <UiBadge
+              v-for="(skill, i) in course.skills_gained"
+              :key="i"
+              variant="default"
+              class="!text-[13px] !py-1 !px-2.5"
+            >
+              {{ skill }}
+            </UiBadge>
+          </div>
+          <p v-else class="text-[13px] text-muted-foreground italic">
+            {{ t('course_detail.syllabus_skills_empty') }}
+          </p>
+        </UiCard>
+      </div>
+
+      <!-- Right sidebar: course summary -->
+      <aside class="flex flex-col gap-4">
+        <UiCard class="p-5">
+          <h3 class="text-[13px] font-semibold mb-3 uppercase tracking-wider text-muted-foreground font-mono">
+            {{ t('course_detail.syllabus_summary') }}
+          </h3>
+          <dl class="space-y-3 text-[13px]">
+            <div v-if="course.duration_weeks" class="flex justify-between">
+              <dt class="text-muted-foreground">
+                {{ t('course_detail.duration') }}
+              </dt>
+              <dd class="font-mono font-medium">
+                {{ course.duration_weeks }} {{ t('course_detail.weeks') }}
+              </dd>
+            </div>
+            <div v-if="course.estimated_hours" class="flex justify-between">
+              <dt class="text-muted-foreground">
+                {{ t('course_detail.estimated_hours') }}
+              </dt>
+              <dd class="font-mono font-medium">
+                {{ course.estimated_hours }} {{ t('course_detail.hours') }}
+              </dd>
+            </div>
+            <div v-if="course.level" class="flex justify-between">
+              <dt class="text-muted-foreground">
+                {{ t('course_detail.level') }}
+              </dt>
+              <dd class="font-medium">
+                {{ t(`courses.level_${course.level}`) }}
+              </dd>
+            </div>
+            <div class="flex justify-between">
+              <dt class="text-muted-foreground">
+                {{ t('course_detail.language') }}
+              </dt>
+              <dd class="font-mono font-medium uppercase">
+                {{ course.language }}
+              </dd>
+            </div>
+            <div class="flex justify-between">
+              <dt class="text-muted-foreground">
+                {{ t('course_detail.lessons') }}
+              </dt>
+              <dd class="font-mono font-medium">
+                {{ flatLessons.length }}
+              </dd>
+            </div>
+            <div class="flex justify-between">
+              <dt class="text-muted-foreground">
+                {{ t('course_detail.modules_count') }}
+              </dt>
+              <dd class="font-mono font-medium">
+                {{ modules.length }}
+              </dd>
+            </div>
+          </dl>
+        </UiCard>
+      </aside>
+    </div>
+
+    <!-- Phase 18.2 — O'qituvchi tab -->
+    <div v-else-if="activeTab === 'teacher'" class="space-y-4">
+      <UiCard v-if="teacher" class="p-6">
+        <div class="flex items-start gap-5">
+          <!-- Avatar -->
+          <div class="shrink-0">
+            <img
+              v-if="teacher.avatar_url"
+              :src="teacher.avatar_url"
+              :alt="teacher.full_name"
+              class="w-24 h-24 rounded-full object-cover border-2 border-border"
+            />
+            <div
+              v-else
+              class="w-24 h-24 rounded-full bg-foreground text-background grid place-items-center text-[28px] font-semibold"
+            >
+              {{ teacher.full_name.split(' ').slice(0, 2).map((p) => p[0]?.toUpperCase()).join('') }}
+            </div>
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <div class="font-mono text-[11px] uppercase tracking-wider text-muted-foreground mb-1">
+              {{ t('course_detail.teacher_label') }}
+            </div>
+            <h2 class="text-[22px] font-semibold mb-2">{{ teacher.full_name }}</h2>
+
+            <div class="flex flex-wrap gap-2 mb-4">
+              <UiBadge variant="default">
+                📚 {{ t('course_detail.teacher_courses_count', { n: teacher.courses_count }) }}
+              </UiBadge>
+            </div>
+
+            <div v-if="teacher.bio" class="text-[14px] leading-relaxed whitespace-pre-line">
+              {{ teacher.bio }}
+            </div>
+            <p v-else class="text-[13px] text-muted-foreground italic">
+              {{ t('course_detail.teacher_bio_empty') }}
+            </p>
+          </div>
+        </div>
+      </UiCard>
+      <UiCard v-else class="p-8 text-center text-muted-foreground">
+        {{ t('course_detail.teacher_unknown') }}
+      </UiCard>
+    </div>
+
+    <!-- Phase 13.14 + 18.8 — Forum tab: oxirgi 3 mavzu preview -->
     <div v-else-if="activeTab === 'forum'" class="space-y-3">
       <div class="flex items-center justify-between mb-2">
         <div>
@@ -628,9 +1150,59 @@ watch(courseId, async () => {
           {{ t('course_detail.open_forum') }} →
         </UiButton>
       </div>
-      <UiCard class="p-6 text-center text-muted-foreground text-[13px]">
-        {{ t('course_detail.forum_hint') }}
+
+      <UiCard v-if="forumLoading" class="p-6 text-center text-muted-foreground text-[13px]">
+        {{ t('common.loading') }}
       </UiCard>
+
+      <UiCard
+        v-else-if="forumThreads.length === 0"
+        class="p-6 text-center text-muted-foreground text-[13px]"
+      >
+        {{ t('forum.empty_threads') }}
+      </UiCard>
+
+      <ul v-else class="space-y-2">
+        <li v-for="th in forumThreads" :key="th.id">
+          <button
+            type="button"
+            class="w-full text-left bg-card border border-border rounded-lg px-5 py-4 hover:border-primary-300 hover:bg-muted/30 transition-colors"
+            @click="router.push({ name: 'forum-thread', params: { courseId, threadId: th.id } })"
+          >
+            <div class="flex items-start gap-3">
+              <span class="text-[20px] shrink-0">
+                {{ th.is_announcement ? '📢' : th.is_pinned ? '📌' : '💬' }}
+              </span>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                  <UiBadge v-if="th.is_announcement" variant="info">
+                    {{ t('forum.announcement') }}
+                  </UiBadge>
+                  <UiBadge v-if="th.is_pinned" variant="warning">
+                    {{ t('forum.pinned') }}
+                  </UiBadge>
+                  <UiBadge v-if="th.is_locked" variant="danger">
+                    {{ t('forum.locked') }}
+                  </UiBadge>
+                </div>
+                <h3 class="text-[14px] font-semibold mb-1 truncate">{{ th.title }}</h3>
+                <p
+                  v-if="th.body"
+                  class="text-[12px] text-muted-foreground line-clamp-2 mb-2"
+                >
+                  {{ th.body }}
+                </p>
+                <div class="flex items-center gap-4 text-[11px] text-muted-foreground">
+                  <span>{{ th.author_name || t('comments.anonymous', { id: th.author_id ?? '?' }) }}</span>
+                  <span>· {{ t('forum.posts_count', { n: th.post_count }) }}</span>
+                  <span>· {{ t('forum.views_count', { n: th.view_count }) }}</span>
+                  <span class="ml-auto font-mono">{{ fmtRelativeDate(th.last_reply_at ?? th.created_at) }}</span>
+                </div>
+              </div>
+            </div>
+          </button>
+        </li>
+      </ul>
     </div>
 
     <!-- Other tabs — placeholders -->
