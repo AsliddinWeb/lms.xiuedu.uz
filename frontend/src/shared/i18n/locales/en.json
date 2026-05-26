@@ -614,7 +614,7 @@
     "mock_disclaimer": "This page currently shows demo data. The real grading system will connect to the gradebook backend in Phase 6+."
   },
   "course_detail": {
-    "status_active": "ACTIVE",
+    "status_active": "Active",
     "meta_teacher": "Teacher",
     "meta_duration": "Duration",
     "meta_level": "Level",
@@ -930,8 +930,8 @@
     "filter_draft": "Drafts",
     "filter_published": "Published",
     "filter_archived": "Archived",
-    "type_academic": "Academic",
-    "type_open": "Open",
+    "type_academic": "Academic course",
+    "type_open": "Open course",
     "type_micro": "Microlearning",
     "type_specialization": "Specialization",
     "level_beginner": "Beginner",

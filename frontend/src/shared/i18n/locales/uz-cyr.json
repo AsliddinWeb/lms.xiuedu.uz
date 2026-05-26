@@ -614,7 +614,7 @@
     "mock_disclaimer": "Бу саҳифа ҳозирча намуна маълумотлар билан кўрсатилган. Реал баҳолаш тизими Phase 6+ да gradebook backend билан уланади."
   },
   "course_detail": {
-    "status_active": "ФАОЛ",
+    "status_active": "Фаол",
     "meta_teacher": "Ўқитувчи",
     "meta_duration": "Давомийлиги",
     "meta_level": "Даража",
@@ -930,10 +930,10 @@
     "filter_draft": "Қораламалар",
     "filter_published": "Published",
     "filter_archived": "Архив",
-    "type_academic": "Академик",
-    "type_open": "Очиқ",
-    "type_micro": "Microlearning",
-    "type_specialization": "Specialization",
+    "type_academic": "Академик курс",
+    "type_open": "Очиқ курс",
+    "type_micro": "Микрокурс",
+    "type_specialization": "Мутахассислик",
     "level_beginner": "Бошланғич",
     "level_intermediate": "Ўрта",
     "level_advanced": "Юқори",

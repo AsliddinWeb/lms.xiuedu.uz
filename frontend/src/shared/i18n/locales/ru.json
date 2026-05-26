@@ -614,7 +614,7 @@
     "mock_disclaimer": "Страница пока показывает демо-данные. Реальная система оценивания будет подключена в Phase 6+ через gradebook backend."
   },
   "course_detail": {
-    "status_active": "АКТИВЕН",
+    "status_active": "Активен",
     "meta_teacher": "Преподаватель",
     "meta_duration": "Длительность",
     "meta_level": "Уровень",
@@ -930,10 +930,10 @@
     "filter_draft": "Черновики",
     "filter_published": "Published",
     "filter_archived": "Архив",
-    "type_academic": "Академический",
-    "type_open": "Открытый",
-    "type_micro": "Microlearning",
-    "type_specialization": "Specialization",
+    "type_academic": "Академический курс",
+    "type_open": "Открытый курс",
+    "type_micro": "Микрокурс",
+    "type_specialization": "Специализация",
     "level_beginner": "Начальный",
     "level_intermediate": "Средний",
     "level_advanced": "Продвинутый",

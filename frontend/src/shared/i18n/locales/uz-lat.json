@@ -614,7 +614,7 @@
     "mock_disclaimer": "Bu sahifa hozircha namuna ma'lumotlar bilan ko'rsatilgan. Real baholash tizimi Phase 6+ da gradebook backend bilan ulanadi."
   },
   "course_detail": {
-    "status_active": "FAOL",
+    "status_active": "Faol",
     "meta_teacher": "O'qituvchi",
     "meta_duration": "Davomiyligi",
     "meta_level": "Daraja",
@@ -930,10 +930,10 @@
     "filter_draft": "Qoralamalar",
     "filter_published": "Published",
     "filter_archived": "Arxiv",
-    "type_academic": "Akademik",
-    "type_open": "Open",
-    "type_micro": "Microlearning",
-    "type_specialization": "Specialization",
+    "type_academic": "Akademik kurs",
+    "type_open": "Ochiq kurs",
+    "type_micro": "Mikrokurs",
+    "type_specialization": "Mutaxassislik",
     "level_beginner": "Boshlang'ich",
     "level_intermediate": "O'rta",
     "level_advanced": "Yuqori",

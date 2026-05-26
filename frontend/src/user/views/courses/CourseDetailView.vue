@@ -111,12 +111,20 @@ const coursePercent = computed(() => {
 const heroBadges = computed(() => {
   const out: { label: string; variant?: 'info' | 'success' | 'warning' }[] = []
   if (course.value?.type) {
-    out.push({ label: t(`courses.type_${course.value.type}`).toUpperCase() })
+    out.push({ label: t(`courses.type_${course.value.type}`) })
   }
   if (course.value?.status === 'published') {
     out.push({ label: t('course_detail.status_active'), variant: 'info' })
   }
   return out
+})
+
+const courseLanguageLabel = computed(() => {
+  const lang = course.value?.language
+  if (!lang) return ''
+  const key = `locale.${lang}`
+  const translated = t(key)
+  return translated === key ? lang : translated
 })
 
 const metaItems = computed(() => {
@@ -561,7 +569,7 @@ watch(activeTab, (tab) => {
           >
             {{ b.label }}
           </UiBadge>
-          <UiBadge v-if="course.language">{{ course.language.toUpperCase() }}</UiBadge>
+          <UiBadge v-if="course.language">{{ courseLanguageLabel }}</UiBadge>
         </div>
         <h1
           class="text-[32px] font-semibold tracking-tightest leading-tight mb-3"
