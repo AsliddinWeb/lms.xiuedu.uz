@@ -44,6 +44,7 @@ import {
 } from '@shared/api/courses'
 import { forumApi, type ForumThreadPublic } from '@shared/api/forum'
 import { extractErrorMessage, isNotFound } from '@shared/api/client'
+import { usePermissions } from '@shared/composables/usePermissions'
 import { useAuthStore } from '@shared/stores/auth'
 import type {
   Course,
@@ -57,6 +58,7 @@ const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
+const { hasPermission } = usePermissions()
 
 const courseId = computed(() => Number(route.params.id))
 
@@ -269,10 +271,16 @@ async function load() {
       expandedModuleId.value = mods[0].id
     }
 
-    try {
-      const stData = await enrollmentsApi.listStudents(courseId.value, { page_size: 1 })
-      studentCount.value = stData.total
-    } catch {
+    // Faqat o'qituvchi/admin uchun (talabada `enrollment.read` permission yo'q,
+    // shu sababli 403 chiqib ketmasin)
+    if (hasPermission('enrollment.read')) {
+      try {
+        const stData = await enrollmentsApi.listStudents(courseId.value, { page_size: 1 })
+        studentCount.value = stData.total
+      } catch {
+        studentCount.value = null
+      }
+    } else {
       studentCount.value = null
     }
 
