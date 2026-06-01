@@ -23,7 +23,6 @@ import UiBadge from '@shared/components/ui/UiBadge.vue'
 import UiBreadcrumb from '@shared/components/ui/UiBreadcrumb.vue'
 import UiButton from '@shared/components/ui/UiButton.vue'
 import UiCard from '@shared/components/ui/UiCard.vue'
-import UiImagePlaceholder from '@shared/components/ui/UiImagePlaceholder.vue'
 import UiProgressBar from '@shared/components/ui/UiProgressBar.vue'
 import UiTabs from '@shared/components/ui/UiTabs.vue'
 import {
@@ -57,7 +56,7 @@ import type {
   Module,
 } from '@shared/types/courses'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
@@ -234,17 +233,37 @@ function fmtMinutes(min: number): string {
   return `${m}${t('course_detail.min_short')}`
 }
 
+// Oy nomlarini har bir til uchun aniq beramiz — Intl.DateTimeFormat uz-Latn'da
+// "M05" deb hech kim tushunmaydigan format chiqaradi.
+const MONTH_NAMES: Record<string, string[]> = {
+  'uz-lat': [
+    'Yan', 'Fev', 'Mar', 'Apr', 'May', 'Iyun',
+    'Iyul', 'Avg', 'Sen', 'Okt', 'Noy', 'Dek',
+  ],
+  'uz-cyr': [
+    'Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн',
+    'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек',
+  ],
+  ru: [
+    'янв', 'фев', 'мар', 'апр', 'мая', 'июня',
+    'июля', 'авг', 'сен', 'окт', 'ноя', 'дек',
+  ],
+  en: [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+  ],
+}
+
 function fmtDate(s: string | null): string {
   if (!s) return '—'
-  try {
-    return new Intl.DateTimeFormat('uz-Latn', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    }).format(new Date(s))
-  } catch {
-    return s
-  }
+  const d = new Date(s)
+  if (isNaN(d.getTime())) return '—'
+  const months = MONTH_NAMES[locale.value] ?? MONTH_NAMES.en
+  const day = d.getDate()
+  const month = months[d.getMonth()]
+  const year = d.getFullYear()
+  // "21 May 2026" — qisqa va o'qiladigan
+  return `${day} ${month} ${year}`
 }
 
 function lessonState(l: Lesson): 'done' | 'active' | 'locked' {
@@ -458,23 +477,46 @@ function liveStatusVariant(status: string): 'info' | 'success' | 'warning' {
   return 'info'
 }
 
-function downloadAllMaterials() {
+async function downloadAllMaterials() {
   const items = materialsWithContent.value
   if (items.length === 0) return
-  items.forEach((m, idx) => {
-    if (!m.file_url) return
-    // Brauzerni ortiqcha yuklamaslik uchun har bir click'ni biroz kechiktiramiz
-    setTimeout(() => {
-      const a = document.createElement('a')
-      a.href = m.file_url as string
-      a.download = m.title || m.lesson_title || `material-${m.lesson_id}`
-      a.target = '_blank'
-      a.rel = 'noopener'
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-    }, idx * 250)
-  })
+
+  // 1 ta fayl bo'lsa — to'g'ri'dan-to'g'ri yuklab olamiz
+  if (items.length === 1) {
+    await downloadOne(items[0])
+    return
+  }
+
+  // Bir nechta fayllarni navbat bilan blob orqali yuklab olamiz —
+  // brauzerda popup blok bo'lmasligi uchun
+  for (const m of items) {
+    try {
+      await downloadOne(m)
+    } catch {
+      // bitta fayl yuklab olinmasa — keyingilarini davom ettiramiz
+    }
+  }
+}
+
+async function downloadOne(m: CourseMaterial): Promise<void> {
+  if (!m.file_url) return
+  const filename = m.title || m.lesson_title || `material-${m.lesson_id}`
+  try {
+    const res = await fetch(m.file_url, { credentials: 'omit' })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  } catch {
+    // CORS yoki tarmoq xatosi bo'lsa — yangi tabda ochib qo'yamiz
+    window.open(m.file_url, '_blank', 'noopener')
+  }
 }
 
 function fmtBytes(bytes: number): string {
@@ -718,40 +760,82 @@ watch(activeTab, (tab) => {
       </div>
 
       <!-- Right card (sticky) -->
-      <UiCard no-padding class="self-start lg:sticky lg:top-6">
-        <UiImagePlaceholder label="COURSE COVER" aspect="16/9" class="rounded-t-lg" />
+      <UiCard no-padding class="self-start lg:sticky lg:top-6 overflow-hidden">
+        <!-- Cover yoki gradient placeholder -->
+        <div v-if="course.cover_image_url" class="aspect-video overflow-hidden">
+          <img
+            :src="course.cover_image_url"
+            :alt="course.title"
+            class="w-full h-full object-cover"
+          />
+        </div>
+        <div
+          v-else
+          class="aspect-video bg-gradient-to-br from-primary/15 via-primary/5 to-muted/30 flex items-center justify-center"
+        >
+          <svg
+            width="56"
+            height="56"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="text-primary/40"
+          >
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+          </svg>
+        </div>
+
         <div class="p-5">
           <template v-if="isEnrolled">
+            <!-- Progress block -->
             <div class="mb-4">
-              <div class="flex items-center justify-between mb-2">
+              <div class="flex items-baseline justify-between mb-2">
                 <span class="text-[13px] font-medium">{{ t('course_detail.your_progress') }}</span>
-                <span class="font-mono text-[13px] font-semibold tabular-nums">
-                  {{ coursePercent }}%
+                <span class="text-[22px] font-semibold tabular-nums leading-none">
+                  {{ coursePercent }}<span class="text-[12px] text-muted-foreground">%</span>
                 </span>
               </div>
               <UiProgressBar :value="coursePercent" />
-              <div class="text-[11px] text-muted-foreground mt-2">
+              <div class="text-[12px] text-muted-foreground mt-2">
                 {{ t('course_detail.lessons_done', {
                   done: completedLessonsCount,
                   total: totalRequiredLessons,
                 }) }}
               </div>
             </div>
+
             <UiButton class="w-full justify-center mb-2" @click="openPlayer()">
-              ▶ {{ coursePercent > 0 ? t('course_detail.continue') : t('course_detail.start') }}
+              <span class="inline-flex items-center gap-1.5">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+                {{ coursePercent > 0 ? t('course_detail.continue') : t('course_detail.start') }}
+              </span>
             </UiButton>
+
             <UiButton
               variant="outline"
               class="w-full justify-center"
               :disabled="materialsWithContent.length === 0"
               @click="downloadAllMaterials"
             >
-              📥 {{ t('course_detail.download_materials') }}
-              <span
-                v-if="materialsWithContent.length"
-                class="font-mono text-[10px] text-muted-foreground ml-1"
-              >
-                ({{ materialsWithContent.length }})
+              <span class="inline-flex items-center gap-1.5">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                {{ t('course_detail.download_materials') }}
+                <span
+                  v-if="materialsWithContent.length"
+                  class="font-mono text-[11px] text-muted-foreground"
+                >
+                  ({{ materialsWithContent.length }})
+                </span>
               </span>
             </UiButton>
           </template>
@@ -773,20 +857,39 @@ watch(activeTab, (tab) => {
             </UiButton>
           </template>
 
-          <div class="mt-5 pt-5 border-t border-border text-[12px] space-y-2">
-            <div class="flex justify-between">
-              <span class="text-muted-foreground">{{ t('course_detail.started_at') }}:</span>
-              <span class="font-mono">{{ fmtDate(course.published_at) }}</span>
+          <!-- Info grid (icon + label + value) -->
+          <div class="mt-5 pt-5 border-t border-border space-y-3 text-[13px]">
+            <div class="flex items-center gap-2.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground shrink-0">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              <span class="text-muted-foreground flex-1">{{ t('course_detail.started_at') }}</span>
+              <span class="font-medium">{{ fmtDate(course.published_at) }}</span>
             </div>
-            <div v-if="course.duration_weeks" class="flex justify-between">
-              <span class="text-muted-foreground">{{ t('course_detail.duration') }}:</span>
-              <span class="font-mono">
+
+            <div v-if="course.duration_weeks" class="flex items-center gap-2.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground shrink-0">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+              </svg>
+              <span class="text-muted-foreground flex-1">{{ t('course_detail.duration') }}</span>
+              <span class="font-medium">
                 {{ course.duration_weeks }} {{ t('course_detail.weeks') }}
               </span>
             </div>
-            <div class="flex justify-between">
-              <span class="text-muted-foreground">{{ t('course_detail.students') }}:</span>
-              <span class="font-mono">{{ studentCount ?? '—' }}</span>
+
+            <div v-if="studentCount !== null" class="flex items-center gap-2.5">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground shrink-0">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              <span class="text-muted-foreground flex-1">{{ t('course_detail.students') }}</span>
+              <span class="font-medium tabular-nums">{{ studentCount }}</span>
             </div>
           </div>
         </div>
