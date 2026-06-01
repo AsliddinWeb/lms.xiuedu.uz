@@ -1033,3 +1033,240 @@ async def my_activity(
         streak_days=streak,
         most_active_label=most_active_day.isoformat() if most_active_day else None,
     )
+
+
+# ============================================================================
+# Phase 19 — Course Reviews (talabaning kursga reytingi va sharhi)
+# ============================================================================
+
+
+class CourseReviewItem(BaseModel):
+    """Bitta sharh — yulduz + matn + muallif minimal info."""
+
+    id: int
+    user_id: int
+    user_full_name: str
+    user_avatar_url: str | None
+    rating: int
+    comment: str | None
+    created_at: datetime
+    updated_at: datetime
+
+
+class CourseReviewAggregate(BaseModel):
+    """Kurs reytingi umumiy ko'rsatkichi."""
+
+    avg_rating: float
+    total: int
+    distribution: dict[int, int]
+
+
+class CourseReviewListResponse(BaseModel):
+    items: list[CourseReviewItem]
+    aggregate: CourseReviewAggregate
+    my_review: CourseReviewItem | None
+
+
+class CourseReviewCreateRequest(BaseModel):
+    rating: int
+    comment: str | None = None
+
+
+@router.get(
+    "/courses/{course_id}/reviews",
+    response_model=CourseReviewListResponse,
+)
+async def list_course_reviews(
+    course_id: int,
+    db: DbSession,
+    actor: CurrentUser,
+    _u: User = Depends(require_permission("course.read")),
+) -> CourseReviewListResponse:
+    """Kurs sharhlari + aggregate (avg + distribution) + foydalanuvchining o'z sharhi."""
+    from sqlalchemy import desc, func, select
+
+    from app.modules.courses.models import Course, CourseReview
+    from app.modules.users.models import User as UserModel
+
+    # Kurs mavjudligini tekshiramiz (404 yoki access)
+    await service.get_course(db, course_id)
+
+    rows = (
+        await db.execute(
+            select(CourseReview, UserModel)
+            .join(UserModel, UserModel.id == CourseReview.user_id)
+            .where(CourseReview.course_id == course_id)
+            .order_by(desc(CourseReview.created_at))
+        )
+    ).all()
+
+    items = [
+        CourseReviewItem(
+            id=r.id,
+            user_id=u.id,
+            user_full_name=u.full_name,
+            user_avatar_url=u.avatar_url,
+            rating=r.rating,
+            comment=r.comment,
+            created_at=r.created_at,
+            updated_at=r.updated_at,
+        )
+        for r, u in rows
+    ]
+
+    total = len(items)
+    avg = (sum(i.rating for i in items) / total) if total > 0 else 0.0
+
+    dist = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+    for i in items:
+        if i.rating in dist:
+            dist[i.rating] += 1
+
+    my_review: CourseReviewItem | None = next(
+        (i for i in items if i.user_id == actor.id), None
+    )
+
+    return CourseReviewListResponse(
+        items=items,
+        aggregate=CourseReviewAggregate(
+            avg_rating=round(avg, 2), total=total, distribution=dist
+        ),
+        my_review=my_review,
+    )
+
+
+@router.post(
+    "/courses/{course_id}/reviews",
+    response_model=CourseReviewItem,
+    status_code=status.HTTP_201_CREATED,
+)
+async def create_course_review(
+    course_id: int,
+    payload: CourseReviewCreateRequest,
+    db: DbSession,
+    actor: CurrentUser,
+    _u: User = Depends(require_permission("course.read")),
+) -> CourseReviewItem:
+    """Talaba kursga sharh qoldiradi (faqat enrolled talabalar)."""
+    from sqlalchemy import select
+
+    from app.modules.courses.models import CourseReview
+
+    if not (1 <= payload.rating <= 5):
+        raise ConflictError("Reyting 1 dan 5 gacha bo'lishi kerak")
+
+    # Faqat shu kursga yozilgan talaba sharh qoldira oladi
+    enrollment = await service.get_enrollment(db, course_id, actor.id)
+    if enrollment is None:
+        raise ForbiddenError("Sharh qoldirish uchun kursga yozilgan bo'lishingiz kerak")
+
+    # Mavjud sharh bo'lsa, konflikt qaytaramiz (PATCH ishlatiladi)
+    existing = (
+        await db.execute(
+            select(CourseReview).where(
+                CourseReview.course_id == course_id,
+                CourseReview.user_id == actor.id,
+            )
+        )
+    ).scalar_one_or_none()
+    if existing is not None:
+        raise ConflictError("Siz allaqachon sharh qoldirgansiz")
+
+    review = CourseReview(
+        course_id=course_id,
+        user_id=actor.id,
+        rating=payload.rating,
+        comment=(payload.comment or "").strip() or None,
+    )
+    db.add(review)
+    await db.commit()
+    await db.refresh(review)
+
+    return CourseReviewItem(
+        id=review.id,
+        user_id=actor.id,
+        user_full_name=actor.full_name,
+        user_avatar_url=actor.avatar_url,
+        rating=review.rating,
+        comment=review.comment,
+        created_at=review.created_at,
+        updated_at=review.updated_at,
+    )
+
+
+@router.patch(
+    "/courses/{course_id}/reviews/me",
+    response_model=CourseReviewItem,
+)
+async def update_my_course_review(
+    course_id: int,
+    payload: CourseReviewCreateRequest,
+    db: DbSession,
+    actor: CurrentUser,
+    _u: User = Depends(require_permission("course.read")),
+) -> CourseReviewItem:
+    """O'z sharhini tahrirlash."""
+    from sqlalchemy import select
+
+    from app.modules.courses.models import CourseReview
+
+    if not (1 <= payload.rating <= 5):
+        raise ConflictError("Reyting 1 dan 5 gacha bo'lishi kerak")
+
+    review = (
+        await db.execute(
+            select(CourseReview).where(
+                CourseReview.course_id == course_id,
+                CourseReview.user_id == actor.id,
+            )
+        )
+    ).scalar_one_or_none()
+    if review is None:
+        raise NotFoundError("Siz hali sharh qoldirmagansiz")
+
+    review.rating = payload.rating
+    review.comment = (payload.comment or "").strip() or None
+    await db.commit()
+    await db.refresh(review)
+
+    return CourseReviewItem(
+        id=review.id,
+        user_id=actor.id,
+        user_full_name=actor.full_name,
+        user_avatar_url=actor.avatar_url,
+        rating=review.rating,
+        comment=review.comment,
+        created_at=review.created_at,
+        updated_at=review.updated_at,
+    )
+
+
+@router.delete(
+    "/courses/{course_id}/reviews/me",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_my_course_review(
+    course_id: int,
+    db: DbSession,
+    actor: CurrentUser,
+    _u: User = Depends(require_permission("course.read")),
+) -> Response:
+    """O'z sharhini o'chirish."""
+    from sqlalchemy import select
+
+    from app.modules.courses.models import CourseReview
+
+    review = (
+        await db.execute(
+            select(CourseReview).where(
+                CourseReview.course_id == course_id,
+                CourseReview.user_id == actor.id,
+            )
+        )
+    ).scalar_one_or_none()
+    if review is None:
+        raise NotFoundError("Sharh topilmadi")
+
+    await db.delete(review)
+    await db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

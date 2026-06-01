@@ -278,3 +278,64 @@ export const activityApi = {
     return data
   },
 }
+
+// Phase 19 — Course Reviews (talaba sharhlari va reytingi)
+export interface CourseReviewItem {
+  id: number
+  user_id: number
+  user_full_name: string
+  user_avatar_url: string | null
+  rating: number
+  comment: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface CourseReviewAggregate {
+  avg_rating: number
+  total: number
+  distribution: Record<string, number>
+}
+
+export interface CourseReviewListResponse {
+  items: CourseReviewItem[]
+  aggregate: CourseReviewAggregate
+  my_review: CourseReviewItem | null
+}
+
+export interface CourseReviewPayload {
+  rating: number
+  comment?: string | null
+}
+
+export const courseReviewsApi = {
+  async list(courseId: number): Promise<CourseReviewListResponse> {
+    const { data } = await apiClient.get<CourseReviewListResponse>(
+      `/courses/${courseId}/reviews`,
+    )
+    return data
+  },
+  async create(
+    courseId: number,
+    payload: CourseReviewPayload,
+  ): Promise<CourseReviewItem> {
+    const { data } = await apiClient.post<CourseReviewItem>(
+      `/courses/${courseId}/reviews`,
+      payload,
+    )
+    return data
+  },
+  async updateMine(
+    courseId: number,
+    payload: CourseReviewPayload,
+  ): Promise<CourseReviewItem> {
+    const { data } = await apiClient.patch<CourseReviewItem>(
+      `/courses/${courseId}/reviews/me`,
+      payload,
+    )
+    return data
+  },
+  async deleteMine(courseId: number): Promise<void> {
+    await apiClient.delete(`/courses/${courseId}/reviews/me`)
+  },
+}

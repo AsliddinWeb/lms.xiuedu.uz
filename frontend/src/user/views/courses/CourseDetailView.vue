@@ -28,6 +28,7 @@ import UiProgressBar from '@shared/components/ui/UiProgressBar.vue'
 import UiTabs from '@shared/components/ui/UiTabs.vue'
 import {
   courseMaterialsApi,
+  courseReviewsApi,
   courseTeacherApi,
   courseUpcomingApi,
   coursesApi,
@@ -37,6 +38,8 @@ import {
   modulesApi,
   progressApi,
   type CourseMaterial,
+  type CourseReviewAggregate,
+  type CourseReviewItem,
   type CourseTeacher,
   type GradebookRow,
   type UpcomingExamItem,
@@ -76,6 +79,20 @@ const upcomingExams = ref<UpcomingExamItem[]>([])
 const upcomingLive = ref<UpcomingLiveItem[]>([])
 const forumThreads = ref<ForumThreadPublic[]>([])
 const forumLoading = ref(false)
+
+// Phase 19 — Reviews
+const reviews = ref<CourseReviewItem[]>([])
+const reviewAggregate = ref<CourseReviewAggregate>({
+  avg_rating: 0,
+  total: 0,
+  distribution: { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 },
+})
+const myReview = ref<CourseReviewItem | null>(null)
+const reviewFormRating = ref(5)
+const reviewFormComment = ref('')
+const reviewFormBusy = ref(false)
+const reviewFormError = ref<string | null>(null)
+const reviewEditing = ref(false)
 
 const loading = ref(false)
 const enrolling = ref(false)
@@ -130,11 +147,14 @@ const courseLanguageLabel = computed(() => {
 const metaItems = computed(() => {
   const c = course.value
   if (!c) return []
+  const tch = teacher.value
   return [
     {
       label: t('course_detail.meta_teacher'),
-      value: t('course_detail.teacher_placeholder'),
-      sub: t('course_detail.teacher_role_placeholder'),
+      value: tch?.full_name ?? t('course_detail.teacher_placeholder'),
+      sub: tch
+        ? t('course_detail.teacher_courses_count', { n: tch.courses_count })
+        : t('course_detail.teacher_role_placeholder'),
     },
     {
       label: t('course_detail.meta_duration'),
@@ -146,7 +166,7 @@ const metaItems = computed(() => {
     {
       label: t('course_detail.meta_level'),
       value: c.level ? t(`courses.level_${c.level}`) : '—',
-      sub: t('course_detail.level_sub_placeholder'),
+      sub: courseLanguageLabel.value,
     },
     {
       label: t('course_detail.meta_certificate'),
@@ -173,7 +193,11 @@ const tabs = computed(() => [
     label: t('course_detail.tab_forum'),
     disabled: !isEnrolled.value,
   },
-  { id: 'reviews', label: t('course_detail.tab_reviews'), disabled: true },
+  {
+    id: 'reviews',
+    label: t('course_detail.tab_reviews'),
+    count: reviewAggregate.value.total,
+  },
 ])
 
 interface ModuleStats {
@@ -327,6 +351,9 @@ async function load() {
       upcomingExams.value = []
       upcomingLive.value = []
     }
+
+    // Phase 19 — Kurs sharhlari (aggregate + lenta + my_review)
+    await loadReviews()
   } catch (e) {
     if (isNotFound(e)) {
       router.replace({ name: 'my-learning' })
@@ -499,6 +526,82 @@ async function loadForumPreview() {
   }
 }
 
+// Phase 19 — Reviews loaders / handlers
+async function loadReviews() {
+  try {
+    const res = await courseReviewsApi.list(courseId.value)
+    reviews.value = res.items
+    reviewAggregate.value = res.aggregate
+    myReview.value = res.my_review
+    if (res.my_review) {
+      reviewFormRating.value = res.my_review.rating
+      reviewFormComment.value = res.my_review.comment ?? ''
+    } else {
+      reviewFormRating.value = 5
+      reviewFormComment.value = ''
+    }
+  } catch {
+    reviews.value = []
+    reviewAggregate.value = {
+      avg_rating: 0,
+      total: 0,
+      distribution: { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 },
+    }
+    myReview.value = null
+  }
+}
+
+async function submitReview() {
+  if (reviewFormBusy.value) return
+  reviewFormBusy.value = true
+  reviewFormError.value = null
+  try {
+    const payload = {
+      rating: reviewFormRating.value,
+      comment: reviewFormComment.value.trim() || null,
+    }
+    if (myReview.value) {
+      await courseReviewsApi.updateMine(courseId.value, payload)
+    } else {
+      await courseReviewsApi.create(courseId.value, payload)
+    }
+    reviewEditing.value = false
+    await loadReviews()
+  } catch (e) {
+    reviewFormError.value = extractErrorMessage(e, t('common.save_error'))
+  } finally {
+    reviewFormBusy.value = false
+  }
+}
+
+async function deleteMyReview() {
+  if (!myReview.value) return
+  if (!confirm(t('course_detail.review_delete_confirm'))) return
+  try {
+    await courseReviewsApi.deleteMine(courseId.value)
+    await loadReviews()
+  } catch (e) {
+    reviewFormError.value = extractErrorMessage(e, t('common.delete_error'))
+  }
+}
+
+function startEditingReview() {
+  if (!myReview.value) return
+  reviewFormRating.value = myReview.value.rating
+  reviewFormComment.value = myReview.value.comment ?? ''
+  reviewEditing.value = true
+}
+
+function cancelEditingReview() {
+  reviewEditing.value = false
+  if (myReview.value) {
+    reviewFormRating.value = myReview.value.rating
+    reviewFormComment.value = myReview.value.comment ?? ''
+  }
+}
+
+const ratingStars = computed(() => Math.round(reviewAggregate.value.avg_rating))
+
 function fmtRelativeDate(iso: string | null): string {
   if (!iso) return '—'
   const d = new Date(iso)
@@ -570,6 +673,15 @@ watch(activeTab, (tab) => {
             {{ b.label }}
           </UiBadge>
           <UiBadge v-if="course.language">{{ courseLanguageLabel }}</UiBadge>
+          <UiBadge v-if="reviewAggregate.total > 0" variant="warning">
+            <span class="inline-flex items-center gap-1">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" class="text-yellow-500">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+              {{ reviewAggregate.avg_rating.toFixed(1) }}
+              <span class="text-[11px] opacity-70">({{ reviewAggregate.total }})</span>
+            </span>
+          </UiBadge>
         </div>
         <h1
           class="text-[32px] font-semibold tracking-tightest leading-tight mb-3"
@@ -1221,17 +1333,229 @@ watch(activeTab, (tab) => {
       </ul>
     </div>
 
-    <!-- Other tabs — placeholders -->
-    <div
-      v-else
-      class="text-center py-16 border border-dashed border-border rounded-lg"
-    >
-      <div
-        class="font-mono text-[11px] uppercase tracking-widest text-muted-foreground mb-2"
-      >
-        Phase 6+
+    <!-- Phase 19 — Reviews tab -->
+    <div v-else-if="activeTab === 'reviews'" class="space-y-4">
+      <!-- Aggregate + my-review form -->
+      <UiCard>
+        <div class="grid md:grid-cols-[1fr_2fr] gap-6 p-5">
+          <!-- Left: overall rating -->
+          <div class="flex flex-col items-center justify-center text-center border-r border-border md:pr-6">
+            <div class="text-5xl font-semibold tracking-tight mb-1">
+              {{ reviewAggregate.avg_rating.toFixed(1) }}
+            </div>
+            <div class="flex gap-0.5 mb-2">
+              <svg
+                v-for="i in 5"
+                :key="i"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                :class="i <= ratingStars ? 'text-yellow-500' : 'text-muted/30'"
+              >
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+            </div>
+            <div class="text-sm text-muted-foreground">
+              {{ t('course_detail.reviews_total', { n: reviewAggregate.total }) }}
+            </div>
+          </div>
+
+          <!-- Right: distribution -->
+          <div class="space-y-1.5">
+            <div
+              v-for="star in [5, 4, 3, 2, 1]"
+              :key="star"
+              class="flex items-center gap-3 text-sm"
+            >
+              <span class="font-mono w-4 text-right">{{ star }}</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-yellow-500">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+              <div class="flex-1 h-2 bg-muted/30 rounded-full overflow-hidden">
+                <div
+                  class="h-full bg-yellow-500"
+                  :style="{
+                    width:
+                      reviewAggregate.total > 0
+                        ? `${((reviewAggregate.distribution[String(star)] || 0) / reviewAggregate.total) * 100}%`
+                        : '0%',
+                  }"
+                />
+              </div>
+              <span class="font-mono text-xs text-muted-foreground w-10">
+                {{ reviewAggregate.distribution[String(star)] || 0 }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </UiCard>
+
+      <!-- My review form (only if enrolled) -->
+      <UiCard v-if="isEnrolled" no-padding>
+        <div class="p-5">
+          <!-- Show existing review as read-only by default -->
+          <div v-if="myReview && !reviewEditing" class="space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="font-semibold">{{ t('course_detail.my_review') }}</h3>
+              <div class="flex items-center gap-2">
+                <button
+                  type="button"
+                  class="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
+                  @click="startEditingReview"
+                >
+                  {{ t('common.edit') }}
+                </button>
+                <button
+                  type="button"
+                  class="text-xs text-red-600 hover:text-red-700 underline underline-offset-2"
+                  @click="deleteMyReview"
+                >
+                  {{ t('common.delete') }}
+                </button>
+              </div>
+            </div>
+            <div class="flex gap-0.5">
+              <svg
+                v-for="i in 5"
+                :key="i"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                :class="i <= myReview.rating ? 'text-yellow-500' : 'text-muted/30'"
+              >
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+            </div>
+            <p v-if="myReview.comment" class="text-sm whitespace-pre-line">
+              {{ myReview.comment }}
+            </p>
+            <p v-else class="text-sm text-muted-foreground italic">
+              {{ t('course_detail.review_no_comment') }}
+            </p>
+          </div>
+
+          <!-- Form (new or edit) -->
+          <form v-else class="space-y-3" @submit.prevent="submitReview">
+            <h3 class="font-semibold">
+              {{ myReview ? t('course_detail.review_edit_title') : t('course_detail.review_create_title') }}
+            </h3>
+
+            <!-- Star picker -->
+            <div class="flex items-center gap-1">
+              <button
+                v-for="i in 5"
+                :key="i"
+                type="button"
+                class="p-1 hover:scale-110 transition-transform"
+                @click="reviewFormRating = i"
+              >
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  :class="i <= reviewFormRating ? 'text-yellow-500' : 'text-muted/40'"
+                >
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+              </button>
+              <span class="ml-2 text-sm text-muted-foreground">
+                {{ reviewFormRating }} / 5
+              </span>
+            </div>
+
+            <textarea
+              v-model="reviewFormComment"
+              :placeholder="t('course_detail.review_comment_placeholder')"
+              rows="3"
+              maxlength="1000"
+              class="w-full px-3 py-2 border border-border rounded-md text-sm resize-y focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+
+            <p v-if="reviewFormError" class="text-xs text-red-600">
+              {{ reviewFormError }}
+            </p>
+
+            <div class="flex gap-2">
+              <button
+                type="submit"
+                :disabled="reviewFormBusy"
+                class="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 disabled:opacity-50"
+              >
+                {{ myReview ? t('common.save') : t('course_detail.review_submit') }}
+              </button>
+              <button
+                v-if="reviewEditing"
+                type="button"
+                class="px-4 py-2 border border-border rounded-md text-sm hover:bg-muted/40"
+                @click="cancelEditingReview"
+              >
+                {{ t('common.cancel') }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </UiCard>
+      <UiCard v-else>
+        <p class="p-5 text-sm text-muted-foreground text-center">
+          {{ t('course_detail.review_enroll_required') }}
+        </p>
+      </UiCard>
+
+      <!-- Reviews list -->
+      <div v-if="reviews.length === 0" class="text-center py-12 border border-dashed border-border rounded-lg">
+        <p class="text-muted-foreground text-sm">
+          {{ t('course_detail.reviews_empty') }}
+        </p>
       </div>
-      <p class="text-muted-foreground">{{ t('course_detail.tab_coming_soon') }}</p>
+
+      <ul v-else class="space-y-3">
+        <li
+          v-for="r in reviews"
+          :key="r.id"
+          class="p-4 border border-border rounded-lg bg-card"
+        >
+          <div class="flex items-start gap-3">
+            <div
+              class="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm font-medium shrink-0 overflow-hidden"
+            >
+              <img
+                v-if="r.user_avatar_url"
+                :src="r.user_avatar_url"
+                :alt="r.user_full_name"
+                class="w-full h-full object-cover"
+              />
+              <span v-else>{{ r.user_full_name.charAt(0).toUpperCase() }}</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-3 mb-1">
+                <span class="font-medium text-sm truncate">{{ r.user_full_name }}</span>
+                <span class="text-xs text-muted-foreground shrink-0">
+                  {{ fmtRelativeDate(r.created_at) }}
+                </span>
+              </div>
+              <div class="flex gap-0.5 mb-2">
+                <svg
+                  v-for="i in 5"
+                  :key="i"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  :class="i <= r.rating ? 'text-yellow-500' : 'text-muted/30'"
+                >
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+              </div>
+              <p v-if="r.comment" class="text-sm whitespace-pre-line">
+                {{ r.comment }}
+              </p>
+            </div>
+          </div>
+        </li>
+      </ul>
     </div>
   </template>
 </template>

@@ -277,3 +277,29 @@ class LessonProgress(Base, IDMixin):
             f"<LessonProgress user={self.user_id} lesson={self.lesson_id} "
             f"{self.progress_percent}%>"
         )
+
+
+class CourseReview(Base, IDMixin, TimestampMixin):
+    """Talabaning kursga qoldirgan reytingi va sharhi (Phase 19)."""
+
+    __tablename__ = "course_reviews"
+    __table_args__ = (
+        UniqueConstraint("course_id", "user_id", name="uq_review_course_user"),
+        Index("ix_course_reviews_course_id", "course_id"),
+    )
+
+    course_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("courses.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    user_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    rating: Mapped[int] = mapped_column(Integer, nullable=False)
+    comment: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    def __repr__(self) -> str:
+        return f"<CourseReview course={self.course_id} user={self.user_id} {self.rating}★>"
