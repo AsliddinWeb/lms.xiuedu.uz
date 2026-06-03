@@ -12,9 +12,9 @@
  *
  * Player area:
  *   Top bar: DARS x/N mono tag + lesson title + prev/next btns
- *   Dark video block (#18181b) with placeholder + mock controls (Ph.6 real player)
- *   Tabs (Mavzu / Eslatmalar / Materiallar / Savol-javob / Transkript)
- *   Content grid 1fr + 280px notes panel (notes/AI panels mock — Ph.6)
+ *   Primary content (LessonContentViewer) — content-type aware: video/text/pdf/file/link
+ *   Tabs (Mavzu / Materiallar / Savol-javob)
+ *   Content grid 1fr + 280px notes panel (localStorage shaxsiy eslatmalar — Ph.20.4)
  *   Bottom action bar: "Bu darsni tugatdim" checkbox + prev/next
  */
 import { computed, onMounted, ref, watch } from 'vue'
@@ -28,7 +28,6 @@ import UiCard from '@shared/components/ui/UiCard.vue'
 import UiCheck from '@shared/components/ui/UiCheck.vue'
 import UiProgressBar from '@shared/components/ui/UiProgressBar.vue'
 import UiTabs from '@shared/components/ui/UiTabs.vue'
-import UiVideoPlaceholder from '@shared/components/ui/UiVideoPlaceholder.vue'
 import LessonCommentsPanel from '@user/components/LessonCommentsPanel.vue'
 import {
   coursesApi,
@@ -70,11 +69,37 @@ const activeContent = ref<ContentItem | null>(null)
 const contentLoading = ref(false)
 const lessonRecordings = ref<LiveSession[]>([])
 
+// Phase 20.3 — kurs bo'yicha yuklab olinadigan materiallar
+type Material = { lessonId: number; lessonTitle: string; content: ContentItem }
+const materials = ref<Material[]>([])
+const materialsLoading = ref(false)
+const materialsLoaded = ref(false)
+const DOWNLOADABLE_TYPES = ['pdf', 'file', 'link', 'video']
+
+// Phase 20.4 — dars eslatmalari (localStorage, shaxsiy)
+const noteText = ref('')
+const noteSaved = ref(false)
+
+function noteKey(lessonId: number): string {
+  return `lms.notes.${auth.user?.id ?? 'anon'}.${lessonId}`
+}
+
+function loadNote(lessonId: number) {
+  noteText.value = localStorage.getItem(noteKey(lessonId)) ?? ''
+  noteSaved.value = false
+}
+
+function saveNote() {
+  if (activeLessonId.value === null) return
+  localStorage.setItem(noteKey(activeLessonId.value), noteText.value)
+  noteSaved.value = true
+}
+
 const loading = ref(false)
 const error = ref<string | null>(null)
 const acting = ref<'start' | 'complete' | null>(null)
 
-type PlayerTab = 'topic' | 'notes' | 'materials' | 'qna' | 'transcript'
+type PlayerTab = 'topic' | 'materials' | 'qna'
 const activeTab = ref<PlayerTab>('topic')
 
 const flatLessons = computed(() => {
@@ -132,10 +157,8 @@ const totalLessons = computed(() => flatLessons.value.length)
 
 const tabs = computed(() => [
   { id: 'topic', label: t('player.tab_topic') },
-  { id: 'notes', label: t('player.tab_notes'), disabled: true },
   { id: 'materials', label: t('player.tab_materials') },
-  { id: 'qna', label: t('player.tab_qna'), disabled: true },
-  { id: 'transcript', label: t('player.tab_transcript'), disabled: true },
+  { id: 'qna', label: t('player.tab_qna') },
 ])
 
 function lessonState(l: Lesson): 'empty' | 'done' | 'locked' {
@@ -145,8 +168,10 @@ function lessonState(l: Lesson): 'empty' | 'done' | 'locked' {
 }
 
 function lessonMetaLabel(l: Lesson): string {
-  const minutes = l.estimated_minutes ? `${l.estimated_minutes}:00` : '—'
-  return `${minutes} · ${t('player.content_video')}`
+  if (l.estimated_minutes) return t('player.estimated_minutes', { n: l.estimated_minutes })
+  return l.is_required_for_completion
+    ? t('player.lesson_required')
+    : t('player.lesson_optional')
 }
 
 async function loadCourseStructure() {
@@ -200,6 +225,7 @@ async function selectLesson(lessonId: number) {
   activeContent.value = null
   lessonRecordings.value = []
   activeTab.value = 'topic'
+  loadNote(lessonId)
   contentLoading.value = true
   try {
     const lesson = flatLessons.value.find((l) => l.id === lessonId)
@@ -232,6 +258,38 @@ async function selectLesson(lessonId: number) {
   } finally {
     contentLoading.value = false
   }
+}
+
+async function loadMaterials() {
+  if (materialsLoaded.value || materialsLoading.value) return
+  materialsLoading.value = true
+  try {
+    const withContent = flatLessons.value.filter((l) => l.primary_content_id)
+    const results = await Promise.all(
+      withContent.map(async (l) => {
+        try {
+          const c = await contentApi.get(l.primary_content_id as number)
+          return { lessonId: l.id, lessonTitle: l.title, content: c }
+        } catch {
+          return null
+        }
+      }),
+    )
+    materials.value = results.filter(
+      (m): m is Material =>
+        !!m && !!m.content.file_url && DOWNLOADABLE_TYPES.includes(m.content.type),
+    )
+    materialsLoaded.value = true
+  } finally {
+    materialsLoading.value = false
+  }
+}
+
+function fileSizeLabel(bytes: number | null | undefined): string {
+  if (!bytes) return ''
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`
 }
 
 function fmtRecordingDate(s: string, locale: string): string {
@@ -272,9 +330,15 @@ function goBackToCourse() {
 
 onMounted(loadCourseStructure)
 
+watch(activeTab, (tab) => {
+  if (tab === 'materials') loadMaterials()
+})
+
 watch(courseId, async () => {
   activeLessonId.value = null
   activeContent.value = null
+  materials.value = []
+  materialsLoaded.value = false
   await loadCourseStructure()
 })
 </script>
@@ -407,44 +471,7 @@ watch(courseId, async () => {
         {{ t('player.complete_course_done') }}
       </UiAlert>
 
-      <!-- Video block (dark) -->
-      <div class="bg-[#18181b] px-6 lg:px-8 py-8 grid place-items-center">
-        <div class="w-full max-w-[1000px]">
-          <div class="rounded-t-md overflow-hidden">
-            <UiVideoPlaceholder label="VIDEO PLAYER · HLS · 1080p" />
-          </div>
-          <!-- Mock controls bar (Ph.6 real player) -->
-          <div
-            class="bg-[#27272a] px-4 py-3 flex items-center gap-4 rounded-b-md"
-          >
-            <button
-              type="button"
-              class="w-9 h-9 rounded-full bg-white text-black grid place-items-center"
-              :title="t('player.play')"
-            >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
-                <path d="M3 2v10l9-5z" />
-              </svg>
-            </button>
-            <div class="font-mono text-[12px] text-white/70 tabular-nums">12:34 / 28:00</div>
-            <div class="flex-1 h-1 bg-white/10 rounded-full relative">
-              <div
-                class="absolute left-0 top-0 h-full bg-white rounded-full"
-                style="width: 45%"
-              ></div>
-              <div
-                class="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full"
-                style="left: 45%"
-              ></div>
-            </div>
-            <span class="font-mono text-[11px] text-white/70">1080p</span>
-            <span class="font-mono text-[11px] text-white/70">1.0x</span>
-            <span class="font-mono text-[11px] text-white/70">CC</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Below video: tabs + content + notes panel -->
+      <!-- Tabs + content + notes panel -->
       <div class="px-6 lg:px-8 py-8 w-full max-w-[1320px] mx-auto">
         <UiTabs v-model="activeTab" :tabs="tabs" />
 
@@ -529,50 +556,85 @@ watch(courseId, async () => {
               </section>
             </template>
 
-            <!-- MATERIALS TAB (Phase 6 — content list mock) -->
+            <!-- MATERIALS TAB (Phase 20.3) — kurs bo'yicha yuklab olinadigan resurslar -->
             <template v-else-if="activeTab === 'materials'">
-              <div class="text-center py-16 border border-dashed border-border rounded-lg">
-                <div class="font-mono text-[11px] uppercase tracking-widest text-muted-foreground mb-2">
-                  Phase 6+
-                </div>
-                <p class="text-muted-foreground">{{ t('player.tab_coming_soon') }}</p>
+              <div v-if="materialsLoading" class="text-center py-12 text-muted-foreground">
+                {{ t('common.loading') }}
               </div>
+              <div
+                v-else-if="materials.length === 0"
+                class="text-center py-16 border border-dashed border-border rounded-lg text-muted-foreground"
+              >
+                {{ t('player.materials_empty') }}
+              </div>
+              <ul v-else class="space-y-2.5">
+                <li v-for="m in materials" :key="m.content.id">
+                  <a
+                    :href="m.content.file_url ?? '#'"
+                    :download="m.content.type !== 'link' ? '' : undefined"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex items-center gap-3 px-4 py-3 border border-border rounded-md hover:bg-muted/40 transition-colors"
+                  >
+                    <UiBadge variant="default">
+                      {{ t(`content_picker.type_${m.content.type}`) }}
+                    </UiBadge>
+                    <div class="min-w-0 flex-1">
+                      <div class="text-[13px] font-medium truncate">{{ m.content.title }}</div>
+                      <div class="font-mono text-[11px] text-muted-foreground truncate">
+                        {{ m.lessonTitle }}
+                      </div>
+                    </div>
+                    <span
+                      v-if="m.content.file_size"
+                      class="font-mono text-[11px] text-muted-foreground shrink-0"
+                    >
+                      {{ fileSizeLabel(m.content.file_size) }}
+                    </span>
+                  </a>
+                </li>
+              </ul>
+            </template>
+
+            <!-- Q&A TAB (Phase 20.2) — dars izohlari/savol-javoblar -->
+            <template v-else-if="activeTab === 'qna'">
+              <LessonCommentsPanel v-if="activeLessonId" :lesson-id="activeLessonId" />
             </template>
           </div>
 
-          <!-- Notes panel -->
+          <!-- Notes panel (Phase 20.4 — localStorage, shaxsiy) -->
           <aside class="space-y-4">
             <UiCard no-padding>
               <div class="px-4 py-3 border-b border-border flex items-center justify-between">
                 <span class="text-[13px] font-semibold">{{ t('player.notes_title') }}</span>
-                <UiButton variant="ghost" size="sm" disabled>+ {{ t('player.notes_add') }}</UiButton>
+                <span
+                  v-if="noteSaved"
+                  class="font-mono text-[10px] text-success uppercase tracking-wider"
+                >
+                  {{ t('player.notes_saved') }}
+                </span>
               </div>
-              <div class="px-4 py-4 text-[12px] text-muted-foreground">
-                {{ t('player.notes_empty') }}
-                <div class="font-mono text-[10px] mt-1 uppercase tracking-wider">Phase 6+</div>
-              </div>
-            </UiCard>
-
-            <UiCard no-padding>
-              <div class="px-4 py-3 border-b border-border">
-                <span class="text-[13px] font-semibold">{{ t('player.ai_title') }}</span>
-              </div>
-              <div class="px-4 py-4 space-y-2">
-                <div class="text-[12px] text-muted-foreground mb-2">
-                  {{ t('player.ai_subtitle') }}
-                </div>
-                <UiButton variant="outline" size="sm" class="w-full justify-center" disabled>
-                  {{ t('player.ai_summarize') }}
+              <div class="p-3">
+                <textarea
+                  v-model="noteText"
+                  :disabled="activeLessonId === null"
+                  :placeholder="t('player.notes_placeholder')"
+                  rows="9"
+                  class="w-full resize-y rounded-md border border-border bg-background px-3 py-2 text-[13px] leading-relaxed focus:outline-none focus:ring-1 focus:ring-foreground/30 disabled:opacity-50"
+                  @input="noteSaved = false"
+                  @blur="saveNote"
+                ></textarea>
+                <UiButton
+                  size="sm"
+                  class="w-full justify-center mt-2"
+                  :disabled="activeLessonId === null"
+                  @click="saveNote"
+                >
+                  {{ t('player.notes_save') }}
                 </UiButton>
-                <UiButton variant="outline" size="sm" class="w-full justify-center" disabled>
-                  {{ t('player.ai_quiz') }}
-                </UiButton>
-                <UiButton variant="outline" size="sm" class="w-full justify-center" disabled>
-                  {{ t('player.ai_explain_code') }}
-                </UiButton>
-                <div class="font-mono text-[10px] text-muted-foreground uppercase tracking-wider text-center mt-2">
-                  Phase 6+
-                </div>
+                <p class="font-mono text-[10px] text-muted-foreground mt-2 leading-relaxed">
+                  {{ t('player.notes_local_hint') }}
+                </p>
               </div>
             </UiCard>
           </aside>
@@ -607,11 +669,6 @@ watch(courseId, async () => {
               {{ nextLesson?.title ?? t('player.next_lesson') }} →
             </UiButton>
           </div>
-        </div>
-
-        <!-- Phase 11c — Lesson comments -->
-        <div v-if="activeLessonId" class="px-6 lg:px-8 py-6 border-t border-border">
-          <LessonCommentsPanel :lesson-id="activeLessonId" />
         </div>
       </div>
     </div>

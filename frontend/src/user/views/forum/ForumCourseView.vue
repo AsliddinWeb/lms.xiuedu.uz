@@ -18,6 +18,7 @@ import UiCard from '@shared/components/ui/UiCard.vue'
 import UiInput from '@shared/components/ui/UiInput.vue'
 import UiSkeleton from '@shared/components/ui/UiSkeleton.vue'
 import { forumApi, type ForumThreadPublic } from '@shared/api/forum'
+import { coursesApi } from '@shared/api/courses'
 import { extractErrorMessage } from '@shared/api/client'
 import { useAuthStore } from '@shared/stores/auth'
 
@@ -30,6 +31,7 @@ const courseId = computed(() => Number(route.params.courseId))
 
 const threads = ref<ForumThreadPublic[]>([])
 const total = ref(0)
+const courseTitle = ref('')
 const loading = ref(true)
 const error = ref<string | null>(null)
 
@@ -47,9 +49,13 @@ async function load() {
   loading.value = true
   error.value = null
   try {
-    const data = await forumApi.listThreads(courseId.value, { page_size: 50 })
+    const [data, course] = await Promise.all([
+      forumApi.listThreads(courseId.value, { page_size: 50 }),
+      coursesApi.get(courseId.value).catch(() => null),
+    ])
     threads.value = data.items
     total.value = data.total
+    courseTitle.value = course?.title ?? ''
   } catch (e) {
     error.value = extractErrorMessage(e, t('common.load_error'))
   } finally {
@@ -100,7 +106,7 @@ onMounted(load)
   <div class="mb-6 flex items-end justify-between gap-4 flex-wrap">
     <div>
       <h1 class="page-title mb-1.5">{{ t('forum.course_threads') }}</h1>
-      <p class="page-subtitle">{{ t('forum.title') }} · course #{{ courseId }}</p>
+      <p class="page-subtitle">{{ courseTitle || t('forum.title') }}</p>
     </div>
     <UiButton @click="showCreate = !showCreate">
       + {{ t('forum.new_thread') }}
@@ -175,13 +181,13 @@ onMounted(load)
           <div class="flex items-start gap-3">
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-1 flex-wrap">
-                <UiBadge v-if="th.is_pinned" variant="default">
+                <UiBadge v-if="th.is_pinned" variant="info">
                   {{ t('forum.pinned') }}
                 </UiBadge>
-                <UiBadge v-if="th.is_announcement" variant="default">
+                <UiBadge v-if="th.is_announcement" variant="warning">
                   {{ t('forum.announcement') }}
                 </UiBadge>
-                <UiBadge v-if="th.is_locked" variant="default">
+                <UiBadge v-if="th.is_locked" variant="danger">
                   {{ t('forum.locked') }}
                 </UiBadge>
                 <span class="text-[14px] font-medium">{{ th.title }}</span>

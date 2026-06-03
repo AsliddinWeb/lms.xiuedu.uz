@@ -21,6 +21,7 @@ import {
   type ForumPostPublic,
   type ForumThreadPublic,
 } from '@shared/api/forum'
+import { coursesApi } from '@shared/api/courses'
 import { extractErrorMessage } from '@shared/api/client'
 import { useAuthStore } from '@shared/stores/auth'
 
@@ -33,6 +34,7 @@ const threadId = computed(() => Number(route.params.threadId))
 
 const thread = ref<ForumThreadPublic | null>(null)
 const posts = ref<ForumPostPublic[]>([])
+const courseTitle = ref('')
 const loading = ref(true)
 const error = ref<string | null>(null)
 const reply = ref('')
@@ -56,6 +58,12 @@ async function load() {
     ])
     thread.value = th
     posts.value = postsData.items
+    if (th.course_id) {
+      coursesApi
+        .get(th.course_id)
+        .then((c) => (courseTitle.value = c.title))
+        .catch(() => undefined)
+    }
   } catch (e) {
     error.value = extractErrorMessage(e, t('common.load_error'))
   } finally {
@@ -161,19 +169,19 @@ onMounted(load)
     <div class="mb-4 flex items-start justify-between gap-4 flex-wrap">
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-2 mb-2 flex-wrap">
-          <UiBadge v-if="thread.is_pinned" variant="default">
+          <UiBadge v-if="thread.is_pinned" variant="info">
             {{ t('forum.pinned') }}
           </UiBadge>
-          <UiBadge v-if="thread.is_announcement" variant="default">
+          <UiBadge v-if="thread.is_announcement" variant="warning">
             {{ t('forum.announcement') }}
           </UiBadge>
-          <UiBadge v-if="thread.is_locked" variant="default">
+          <UiBadge v-if="thread.is_locked" variant="danger">
             {{ t('forum.locked') }}
           </UiBadge>
         </div>
         <h1 class="page-title mb-1.5">{{ thread.title }}</h1>
         <p class="page-subtitle">
-          course #{{ thread.course_id }} ·
+          {{ courseTitle || t('forum.title') }} ·
           {{ t('forum.posts_count', { n: thread.post_count }) }}
         </p>
       </div>
