@@ -17,8 +17,16 @@ const textBody = computed(() => {
   const data = props.content?.content_data ?? {}
   if (typeof data.plain === 'string') return data.plain
   if (typeof data.body === 'string') return data.body
-  // Fallback: show JSON (Phase 3a/3b dan oldindan kelgan)
-  return Object.keys(data).length === 0 ? '' : JSON.stringify(data, null, 2)
+  // HTML rich-text — teglarni tozalab o'qiladigan matnga aylantiramiz
+  if (typeof data.html === 'string') {
+    return data.html
+      .replace(/<\/(p|div|h[1-6]|li|br)\s*\/?>/gi, '\n')
+      .replace(/<[^>]+>/g, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim()
+  }
+  // Boshqa noma'lum struktura — xom JSON ko'rsatmaymiz
+  return ''
 })
 
 function fileSizeLabel(bytes: number | null | undefined): string {

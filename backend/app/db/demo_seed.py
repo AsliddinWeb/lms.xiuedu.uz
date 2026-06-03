@@ -436,7 +436,14 @@ async def seed_courses(
                         else None
                     ),
                     content_data=(
-                        {"html": f"<h2>{l_title}</h2><p>Ushbu darsda {l_title.lower()} mavzusini ko'rib chiqamiz.</p>"}
+                        {
+                            "plain": (
+                                f"{l_title}\n\n"
+                                f"Ushbu darsda \"{l_title}\" mavzusini batafsil ko'rib chiqamiz. "
+                                f"Nazariy qism, amaliy misollar va mustaqil mashqlar bilan tanishasiz.\n\n"
+                                f"Dars yakunida mavzu bo'yicha qisqa savol-javob va topshiriq beriladi."
+                            )
+                        }
                         if ctype == "text"
                         else {}
                     ),
