@@ -344,8 +344,49 @@ DEMO_USERS: list[dict] = [
         "role": "dean",
         "is_verified": True,
     },
-    # Eslatma: `otm-admin@xiuedu.uz` olib tashlandi — single-tenant XIU only.
-    # `super_admin` (`admin@xiuedu.uz`) shu vazifani bajaradi.
+    {
+        "email": "otm-admin@xiuedu.uz",
+        "password": "OtmAdmin!2026",
+        "full_name": "Demo OTM Administrator",
+        "role": "otm_admin",
+        "is_verified": True,
+    },
+    {
+        "email": "dep-head@xiuedu.uz",
+        "password": "DepHead!2026",
+        "full_name": "Demo Kafedra mudiri",
+        "role": "department_head",
+        "is_verified": True,
+    },
+    {
+        "email": "ext-teacher@xiuedu.uz",
+        "password": "ExtTeacher!2026",
+        "full_name": "Demo Xorijiy pedagog",
+        "role": "external_teacher",
+        "is_verified": True,
+    },
+    {
+        "email": "tsdin@xiuedu.uz",
+        "password": "Tsdin!2026",
+        "full_name": "Demo TSDIN nazoratchisi",
+        "role": "tsdin_inspector",
+        "is_verified": True,
+    },
+    {
+        "email": "support@xiuedu.uz",
+        "password": "Support!2026",
+        "full_name": "Demo Texnik qo'llab-quvvatlash",
+        "role": "support",
+        "is_verified": True,
+    },
+    {
+        "email": "guest@xiuedu.uz",
+        "password": "Guest!2026",
+        "full_name": "Demo Mehmon",
+        "role": "guest",
+        "is_verified": True,
+    },
+    # Eslatma: `super_admin` (`admin@xiuedu.uz`) seed_super_admin orqali alohida yaratiladi.
 ]
 
 
