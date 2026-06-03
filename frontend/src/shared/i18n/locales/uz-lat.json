@@ -1057,7 +1057,22 @@
     "enroll": "Yozilish",
     "enrolled": "Yozilgansiz",
     "open_course": "Kursni ochish",
-    "self_enroll_only": "Faqat self-enroll kurslarga yozila olasiz"
+    "self_enroll_only": "Faqat self-enroll kurslarga yozila olasiz",
+    "go_my_learning": "Mening kurslarim",
+    "filter_all_levels": "Hamma darajalar",
+    "sort_label": "Saralash",
+    "sort_newest": "Avval yangi",
+    "sort_oldest": "Avval eski",
+    "sort_title": "Sarlavha (A-Z)",
+    "weeks": "hafta",
+    "empty_hint": "Tez orada yangi kurslar qo'shiladi.",
+    "no_results": "Hech narsa topilmadi",
+    "no_results_hint": "Filtr yoki qidiruv so'rovini o'zgartiring.",
+    "self_enroll_badge": "Ochiq yozilish",
+    "manual_enroll_badge": "Qo'lda yozilish",
+    "enrolling": "Yozilmoqda…",
+    "details": "Batafsil",
+    "enrolled_success": "Kursga muvaffaqiyatli yozildingiz"
   },
   "learning": {
     "tag": "KURSLARIM",

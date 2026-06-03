@@ -1057,7 +1057,22 @@
     "enroll": "Ёзилиш",
     "enrolled": "Ёзилгансиз",
     "open_course": "Курсни очиш",
-    "self_enroll_only": "Фақат self-enroll курсларга ёзила оласиз"
+    "self_enroll_only": "Фақат self-enroll курсларга ёзила оласиз",
+    "go_my_learning": "Менинг курсларим",
+    "filter_all_levels": "Ҳамма даражалар",
+    "sort_label": "Саралаш",
+    "sort_newest": "Аввал янги",
+    "sort_oldest": "Аввал эски",
+    "sort_title": "Сарлавҳа (А-Я)",
+    "weeks": "ҳафта",
+    "empty_hint": "Тез орада янги курслар қўшилади.",
+    "no_results": "Ҳеч нарса топилмади",
+    "no_results_hint": "Фильтр ёки қидирув сўровини ўзгартиринг.",
+    "self_enroll_badge": "Очиқ ёзилиш",
+    "manual_enroll_badge": "Қўлда ёзилиш",
+    "enrolling": "Ёзилмоқда…",
+    "details": "Батафсил",
+    "enrolled_success": "Курсга муваффақиятли ёзилдингиз"
   },
   "learning": {
     "tag": "КУРСЛАРИМ",

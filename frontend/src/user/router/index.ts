@@ -144,6 +144,12 @@ const routes: RouteRecordRaw[] = [
         meta: { requiresPermission: 'enrollment.self' },
       },
       {
+        path: 'catalog',
+        name: 'course-catalog',
+        component: () => import('@user/views/courses/CourseCatalogView.vue'),
+        meta: { requiresPermission: 'enrollment.self' },
+      },
+      {
         path: 'course/:id',
         name: 'course-detail',
         component: () => import('@user/views/courses/CourseDetailView.vue'),

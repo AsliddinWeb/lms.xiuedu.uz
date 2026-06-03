@@ -306,7 +306,7 @@ function courseCategory(c: Course): string {
     :description="t('learning.no_courses_hint')"
   >
     <template #action>
-      <UiButton variant="outline" size="sm" disabled>
+      <UiButton variant="outline" size="sm" @click="router.push({ name: 'course-catalog' })">
         {{ t('learning.browse_catalog') }}
       </UiButton>
     </template>

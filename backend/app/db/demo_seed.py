@@ -373,6 +373,52 @@ COURSES_SPEC = [
             ]),
         ],
     },
+    # --- Kashf qilinadigan kurslar (asosiy talaba yozilmagan — katalog uchun) ---
+    {
+        "slug": "git-github-asoslari",
+        "code": "GIT101",
+        "subject": "WEB202",
+        "title": "Git va GitHub asoslari",
+        "description": "Versiyalarni boshqarish: commit, branch, merge, pull request va jamoaviy ishlash.",
+        "level": "beginner",
+        "type": "open",
+        "duration_weeks": 4,
+        "estimated_hours": 18,
+        "objectives": ["Git bilan ishlash", "Branch va merge", "GitHub'da hamkorlik"],
+        "skills_gained": ["Git", "GitHub", "Versiya nazorati"],
+        "modules": [
+            ("Git asoslari", [
+                ("Git nima va nega kerak?", "text", 10),
+                ("Commit va tarix", "video", 14),
+            ]),
+            ("Hamkorlik", [
+                ("Branch va merge", "video", 16),
+                ("Pull request oqimi", "text", 12),
+            ]),
+        ],
+    },
+    {
+        "slug": "python-data-analiz",
+        "code": "PYDATA1",
+        "subject": "PY101",
+        "title": "Python bilan ma'lumotlar tahlili",
+        "description": "Pandas va NumPy yordamida ma'lumotlarni tozalash, tahlil qilish va vizualizatsiya.",
+        "level": "intermediate",
+        "type": "micro",
+        "duration_weeks": 5,
+        "estimated_hours": 25,
+        "objectives": ["Pandas DataFrame", "Ma'lumot tozalash", "Vizualizatsiya"],
+        "skills_gained": ["Pandas", "NumPy", "Data analysis"],
+        "modules": [
+            ("Pandas asoslari", [
+                ("DataFrame va Series", "video", 18),
+                ("Ma'lumot tozalash", "text", 15),
+            ]),
+            ("Vizualizatsiya", [
+                ("Matplotlib bilan grafiklar", "video", 20),
+            ]),
+        ],
+    },
 ]
 
 
@@ -395,7 +441,7 @@ async def seed_courses(
             description=spec["description"],
             subject_id=subjects[spec["subject"]].id,
             organization_id=org.id,
-            type="academic",
+            type=spec.get("type", "academic"),
             level=spec["level"],
             language="uz-lat",
             duration_weeks=spec["duration_weeks"],
@@ -902,10 +948,14 @@ async def main() -> None:
         courses = await seed_courses(db, org, teacher, subjects)
 
         # 4. Enrollment + progress
-        progress_plan = [1.0, 0.6, 0.25, 0.0]  # main student har kurs bo'yicha
+        # Birinchi 4 kurs — asosiy talaba yozilgan; oxirgi 2 kurs katalogda
+        # "kashf qilinadigan" (hech kim yozilmagan) bo'lib qoladi.
+        progress_plan = [1.0, 0.6, 0.25, 0.0]  # main student shu kurslar bo'yicha
         for c_idx, course in enumerate(courses):
+            if c_idx >= len(progress_plan):
+                continue  # kashf qilinadigan kurslar — enrollmentsiz
             lessons = await course_lessons(db, course)
-            # Asosiy talaba — barcha kursga
+            # Asosiy talaba
             status = "completed" if progress_plan[c_idx] >= 1.0 else "in_progress"
             enr = await enroll(db, course, main_student, status=status)
             if status == "completed" and enr.completed_at is None:

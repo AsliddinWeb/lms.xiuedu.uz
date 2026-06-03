@@ -136,6 +136,12 @@ const sections = computed<SidebarSection[]>(() => {
         to: '/app/learning',
       },
       {
+        name: 'course-catalog',
+        icon: 'courses',
+        label: t('nav.catalog'),
+        to: '/app/catalog',
+      },
+      {
         name: 'assignments',
         icon: 'assignments',
         label: withCount(t('nav.assignments'), counts.value.assignments),

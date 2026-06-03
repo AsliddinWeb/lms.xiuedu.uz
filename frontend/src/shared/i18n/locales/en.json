@@ -1057,7 +1057,22 @@
     "enroll": "Enroll",
     "enrolled": "Enrolled",
     "open_course": "Open course",
-    "self_enroll_only": "You can only self-enroll into self-enrollment courses"
+    "self_enroll_only": "You can only self-enroll into self-enrollment courses",
+    "go_my_learning": "My Learning",
+    "filter_all_levels": "All levels",
+    "sort_label": "Sort",
+    "sort_newest": "Newest first",
+    "sort_oldest": "Oldest first",
+    "sort_title": "Title (A-Z)",
+    "weeks": "wk",
+    "empty_hint": "New courses will be added soon.",
+    "no_results": "Nothing found",
+    "no_results_hint": "Try changing the filter or search query.",
+    "self_enroll_badge": "Open enrollment",
+    "manual_enroll_badge": "Manual enrollment",
+    "enrolling": "Enrolling…",
+    "details": "Details",
+    "enrolled_success": "Successfully enrolled in the course"
   },
   "learning": {
     "tag": "MY COURSES",

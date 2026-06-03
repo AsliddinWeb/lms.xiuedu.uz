@@ -1057,7 +1057,22 @@
     "enroll": "Записаться",
     "enrolled": "Вы записаны",
     "open_course": "Открыть курс",
-    "self_enroll_only": "Записаться можно только на курсы с self-enroll"
+    "self_enroll_only": "Записаться можно только на курсы с self-enroll",
+    "go_my_learning": "Мои курсы",
+    "filter_all_levels": "Все уровни",
+    "sort_label": "Сортировка",
+    "sort_newest": "Сначала новые",
+    "sort_oldest": "Сначала старые",
+    "sort_title": "Название (А-Я)",
+    "weeks": "нед.",
+    "empty_hint": "Скоро появятся новые курсы.",
+    "no_results": "Ничего не найдено",
+    "no_results_hint": "Измените фильтр или поисковый запрос.",
+    "self_enroll_badge": "Открытая запись",
+    "manual_enroll_badge": "Ручная запись",
+    "enrolling": "Запись…",
+    "details": "Подробнее",
+    "enrolled_success": "Вы успешно записались на курс"
   },
   "learning": {
     "tag": "МОИ КУРСЫ",
