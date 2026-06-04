@@ -75,6 +75,7 @@ const emit = defineEmits<{
   participants: [list: ParticipantState[]]
   chat: [msg: ChatMessage]
   qualityChanged: [quality: ConnectionQuality]
+  rtt: [ms: number | null]  // Real WebRTC RTT (candidate-pair), null = noma'lum
   audioLevel: [level: number]  // Phase 5b.3 — lokal mic level (0–1)
   reaction: [data: ReactionEvent]  // Phase 5b.6
   handRaise: [data: HandRaiseEvent]  // Phase 5b.6
@@ -138,6 +139,7 @@ async function connect() {
       refreshParticipants()
     })
     r.on(RoomEvent.Disconnected, () => {
+      stopRtt()
       emit('disconnected')
     })
     r.on(RoomEvent.ConnectionStateChanged, (state: ConnectionState) => {
@@ -194,6 +196,12 @@ async function connect() {
 
     await r.connect(props.url, props.token)
     room.value = r
+
+    // Real WebRTC RTT pollingni boshlaymiz (har 3s)
+    stopRtt()
+    rttTimer = setInterval(() => {
+      readRtt().then((ms) => emit('rtt', ms))
+    }, 3000)
 
     if (props.autoPublish) {
       try {
@@ -303,9 +311,62 @@ function startLocalAudioMeter() {
   }
 }
 
+// ---- Real WebRTC RTT (candidate-pair currentRoundTripTime) ----
+let rttTimer: ReturnType<typeof setInterval> | null = null
+
+function stopRtt() {
+  if (rttTimer) {
+    clearInterval(rttTimer)
+    rttTimer = null
+  }
+}
+
+async function readRtt(): Promise<number | null> {
+  const r = room.value
+  if (!r) return null
+  try {
+    // Mavjud trackni topamiz (lokal yoki remote) va WebRTC statistikasini o'qiymiz
+    let track: unknown = null
+    for (const pub of r.localParticipant.trackPublications.values()) {
+      const tr = (pub as { track?: unknown }).track
+      if (tr) { track = tr; break }
+    }
+    if (!track) {
+      outer: for (const rp of r.remoteParticipants.values()) {
+        for (const pub of rp.trackPublications.values()) {
+          const tr = (pub as { track?: unknown }).track
+          if (tr) { track = tr; break outer }
+        }
+      }
+    }
+    const getReport = (
+      track as { getRTCStatsReport?: () => Promise<RTCStatsReport | undefined> } | null
+    )?.getRTCStatsReport
+    if (!track || typeof getReport !== 'function') return null
+    const report = await getReport.call(track)
+    if (!report) return null
+    let rtt: number | null = null
+    report.forEach(
+      (s: { type?: string; state?: string; currentRoundTripTime?: number }) => {
+        if (
+          s.type === 'candidate-pair' &&
+          s.state === 'succeeded' &&
+          typeof s.currentRoundTripTime === 'number'
+        ) {
+          rtt = Math.round(s.currentRoundTripTime * 1000)
+        }
+      },
+    )
+    return rtt
+  } catch {
+    return null
+  }
+}
+
 async function disconnect() {
   if (!room.value) return
   stopLocalAudioMeter()
+  stopRtt()
   try {
     await room.value.disconnect()
   } catch {

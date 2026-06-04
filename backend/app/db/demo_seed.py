@@ -65,7 +65,7 @@ from app.modules.gamification.models import (
     UserBadge,
     UserPoints,
 )
-from app.modules.live.models import LiveAttendance, LiveSession
+from app.modules.live.models import LiveAttendance, LiveRecording, LiveSession
 from app.modules.notifications.models import Notification
 from app.modules.rbac.models import Role, UserRole
 from app.modules.users.models import Profile, User
@@ -1067,6 +1067,32 @@ async def seed_live(
                     is_counted=True,
                 )
             )
+        await db.flush()
+
+        # Demo yozuv (MinIO'ga oldindan yuklangan video) — playback oqimini ko'rsatish uchun.
+        # GET'da recording_url avtomatik presigned URL bilan almashtiriladi (Phase 7b).
+        rec_key = "live-recordings/demo/intro.mp4"
+        rec_url = "http://localhost:8212/lms-files/live-recordings/demo/intro.mp4"
+        rec_size = 114452
+        rec_dur = 8
+        past.recording_url = rec_url
+        past.recording_size_bytes = rec_size
+        past.recording_duration_seconds = rec_dur
+        past.recording_mime_type = "video/mp4"
+        db.add(
+            LiveRecording(
+                session_id=past.id,
+                recorded_by=teacher.id,
+                status="finalized",
+                object_key=rec_key,
+                url=rec_url,
+                mime_type="video/mp4",
+                started_at=pstart + timedelta(minutes=2),
+                finalized_at=pstart + timedelta(minutes=58),
+                duration_seconds=rec_dur,
+                file_size_bytes=rec_size,
+            )
+        )
         await db.flush()
 
 

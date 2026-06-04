@@ -336,15 +336,14 @@ const connRtt = ref<number | null>(null)
 let qualityPollTimer: ReturnType<typeof setInterval> | null = null
 
 function pollQualityStats() {
-  // Resolution: NativeRoom orqali olamiz
+  // Resolution: NativeRoom orqali olamiz. RTT esa real WebRTC stats orqali
+  // NativeRoom'dan `@rtt` event bilan keladi (onRtt).
   const settings = nativeRoomRef.value?.getLocalVideoSettings?.()
   videoResolution.value = settings ?? null
-  // RTT: hozircha quality bucket asosida simulyatsiya
-  // (haqiqiy RTT WebRTC stats orqali olinishi mumkin, kelajakda yangilash)
-  if (connQuality.value === 'excellent') connRtt.value = 20 + Math.floor(Math.random() * 20)
-  else if (connQuality.value === 'good') connRtt.value = 50 + Math.floor(Math.random() * 30)
-  else if (connQuality.value === 'poor') connRtt.value = 200 + Math.floor(Math.random() * 100)
-  else connRtt.value = null
+}
+
+function onRtt(ms: number | null) {
+  connRtt.value = ms
 }
 
 const resolutionLabel = computed(() => {
@@ -895,6 +894,7 @@ function initials(name: string): string {
         @participants="onParticipants"
         @chat="onChat"
         @quality-changed="onQualityChanged"
+        @rtt="onRtt"
         @audio-level="onAudioLevel"
         @reaction="onReaction"
         @hand-raise="onHandRaise"
