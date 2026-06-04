@@ -35,7 +35,13 @@ from app.modules.academic.models import (
     Specialty,
     Subject,
 )
-from app.modules.assignments.models import Assignment, Submission
+from app.modules.assignments.models import (
+    Assignment,
+    GradeAppeal,
+    PeerReview,
+    Rubric,
+    Submission,
+)
 from app.modules.certificates.models import Certificate
 from app.modules.communications.models import ForumPost, ForumThread
 from app.modules.content.models import ContentItem
@@ -583,19 +589,27 @@ async def set_progress(
 # ---------------------------------------------------------------------------
 
 
+async def _get_assignment(db: AsyncSession, course_id: int, title: str):
+    return (
+        await db.execute(
+            select(Assignment).where(
+                Assignment.course_id == course_id, Assignment.title == title
+            )
+        )
+    ).scalar_one_or_none()
+
+
 async def seed_assignments(
-    db: AsyncSession, courses: list[Course], teacher: User, main_student: User
+    db: AsyncSession,
+    courses: list[Course],
+    teacher: User,
+    main_student: User,
+    extra_students: list[User],
 ):
+    # --- (a) Har kursga oddiy fayl topshirig'i; 1-kursda baholangan ish ---
     for idx, course in enumerate(courses[:3]):
         title = f"{course.title} — amaliy topshiriq"
-        existing = (
-            await db.execute(
-                select(Assignment).where(
-                    Assignment.course_id == course.id, Assignment.title == title
-                )
-            )
-        ).scalar_one_or_none()
-        if existing:
+        if await _get_assignment(db, course.id, title):
             continue
         due = now() + timedelta(days=7 - idx * 3)
         assignment = Assignment(
@@ -616,24 +630,181 @@ async def seed_assignments(
         db.add(assignment)
         await db.flush()
 
-        # Birinchi kurs uchun baholangan topshirilgan ish
         if idx == 0:
+            db.add(
+                Submission(
+                    assignment_id=assignment.id,
+                    user_id=main_student.id,
+                    attempt_number=1,
+                    content="Topshiriq yechimi ilova qilingan faylda.",
+                    files=[{"name": "yechim.pdf", "url": "https://cdn.xiuedu.uz/demo/yechim.pdf", "mime": "application/pdf", "size": 102400}],
+                    status="graded",
+                    score=Decimal("88"),
+                    final_score=Decimal("88"),
+                    grade_letter="B",
+                    feedback="Yaxshi ish! Kod tuzilishi toza, lekin izohlar yetishmaydi.",
+                    graded_by=teacher.id,
+                    graded_at=now() - timedelta(days=2),
+                )
+            )
+            await db.flush()
+
+    # --- (b) Insho (essay) topshirig'i — talaba yozishi uchun (draft demo) ---
+    essay_title = f"{courses[0].title} — insho topshirig'i"
+    if not await _get_assignment(db, courses[0].id, essay_title):
+        db.add(
+            Assignment(
+                course_id=courses[0].id,
+                title=essay_title,
+                description="Python tilida o'zgaruvchilar va ma'lumot turlari haqida qisqa insho (200-300 so'z).",
+                instructions="Mavzu: \"Nega Python o'rganish oson?\" — kamida 3 ta dalil keltiring.",
+                type="essay",
+                available_from=now() - timedelta(days=3),
+                due_date=now() + timedelta(days=10),
+                max_score=Decimal("100"),
+                pass_score=Decimal("60"),
+                weight_percent=Decimal("15"),
+                max_attempts=2,
+                late_submission_allowed=True,
+                late_penalty_per_day=Decimal("5"),
+                is_published=True,
+                created_by=teacher.id,
+            )
+        )
+        await db.flush()
+
+    # --- (c) Rubrika + rubrika bo'yicha baholangan ish + apellyatsiya ---
+    rubric = (
+        await db.execute(
+            select(Rubric).where(Rubric.title == "SQL topshirig'i — baholash mezonlari")
+        )
+    ).scalar_one_or_none()
+    if rubric is None:
+        rubric = Rubric(
+            title="SQL topshirig'i — baholash mezonlari",
+            description="So'rovlarni baholash uchun standart mezonlar.",
+            total_points=Decimal("100"),
+            criteria=[
+                {"key": "correctness", "name": "To'g'rilik", "max_points": 40,
+                 "levels": [{"label": "A'lo", "points": 40}, {"label": "Yaxshi", "points": 28}, {"label": "Past", "points": 12}]},
+                {"key": "optimization", "name": "Optimizatsiya", "max_points": 30,
+                 "levels": [{"label": "A'lo", "points": 30}, {"label": "Yaxshi", "points": 20}, {"label": "Past", "points": 8}]},
+                {"key": "style", "name": "Kod uslubi", "max_points": 30,
+                 "levels": [{"label": "A'lo", "points": 30}, {"label": "Yaxshi", "points": 20}, {"label": "Past", "points": 8}]},
+            ],
+            organization_id=courses[1].organization_id,
+            created_by=teacher.id,
+        )
+        db.add(rubric)
+        await db.flush()
+
+    rubric_title = f"{courses[1].title} — SQL so'rovlari (rubrika)"
+    rub_assignment = await _get_assignment(db, courses[1].id, rubric_title)
+    if rub_assignment is None:
+        rub_assignment = Assignment(
+            course_id=courses[1].id,
+            title=rubric_title,
+            description="Berilgan sxema bo'yicha SQL so'rovlarini yozing va .sql fayl sifatida yuklang.",
+            instructions="3 ta so'rov: (1) JOIN, (2) agregat, (3) sub-query.",
+            type="file",
+            available_from=now() - timedelta(days=8),
+            due_date=now() - timedelta(days=2),
+            max_score=Decimal("100"),
+            pass_score=Decimal("60"),
+            weight_percent=Decimal("25"),
+            allowed_file_types=["sql", "txt", "zip"],
+            is_published=True,
+            rubric_id=rubric.id,
+            created_by=teacher.id,
+        )
+        db.add(rub_assignment)
+        await db.flush()
+
+        graded_sub = Submission(
+            assignment_id=rub_assignment.id,
+            user_id=main_student.id,
+            attempt_number=1,
+            files=[{"name": "sql_yechim.sql", "url": "https://cdn.xiuedu.uz/demo/sql_yechim.sql", "mime": "text/plain", "size": 2048}],
+            status="graded",
+            score=Decimal("82"),
+            final_score=Decimal("82"),
+            grade_letter="B",
+            feedback="JOIN'lar to'g'ri, lekin indeks haqida o'ylash kerak edi.",
+            rubric_scores={"correctness": 34, "optimization": 22, "style": 26},
+            graded_by=teacher.id,
+            graded_at=now() - timedelta(days=1),
+        )
+        db.add(graded_sub)
+        await db.flush()
+
+        # Apellyatsiya (pending) — talaba optimizatsiya ballini qayta ko'rishni so'raydi
+        db.add(
+            GradeAppeal(
+                submission_id=graded_sub.id,
+                student_id=main_student.id,
+                reason="Optimizatsiya ballini qayta ko'rib chiqishingizni so'rayman — so'rovga indeks qo'shgan edim.",
+                status="pending",
+            )
+        )
+        await db.flush()
+
+    # --- (d) Peer review topshirig'i — asosiy talabaga 2 ta review biriktiriladi ---
+    pr_title = f"{courses[1].title} — o'zaro baholash topshirig'i"
+    pr_assignment = await _get_assignment(db, courses[1].id, pr_title)
+    if pr_assignment is None:
+        pr_assignment = Assignment(
+            course_id=courses[1].id,
+            title=pr_title,
+            description="Ma'lumotlar bazasi dizayni haqida insho yozing — keyin 2 ta kursdosh ishini baholaysiz.",
+            instructions="Insho topshirgach, sizga 2 ta anonim ish baholash uchun biriktiriladi.",
+            type="essay",
+            available_from=now() - timedelta(days=9),
+            due_date=now() - timedelta(days=1),
+            max_score=Decimal("100"),
+            pass_score=Decimal("60"),
+            weight_percent=Decimal("10"),
+            is_published=True,
+            peer_review_enabled=True,
+            peer_reviews_per_submission=2,
+            created_by=teacher.id,
+        )
+        db.add(pr_assignment)
+        await db.flush()
+
+        # Kursdoshlar topshiriqlari (asosiy talaba shularni baholaydi)
+        reviewees = extra_students[:2]
+        peer_subs: list[Submission] = []
+        for s in reviewees:
             sub = Submission(
-                assignment_id=assignment.id,
-                user_id=main_student.id,
+                assignment_id=pr_assignment.id,
+                user_id=s.id,
                 attempt_number=1,
-                content="Topshiriq yechimi ilova qilingan faylda.",
-                files=[{"name": "yechim.pdf", "url": "https://cdn.xiuedu.uz/demo/yechim.pdf", "mime": "application/pdf", "size": 102400}],
-                status="graded",
-                score=Decimal("88"),
-                final_score=Decimal("88"),
-                grade_letter="B",
-                feedback="Yaxshi ish! Kod tuzilishi toza, lekin izohlar yetishmaydi.",
-                graded_by=teacher.id,
-                graded_at=now() - timedelta(days=2),
+                content="Normalizatsiya 3NF gacha amalga oshiriladi, bu ortiqchalikni kamaytiradi…",
+                status="submitted",
             )
             db.add(sub)
-            await db.flush()
+            peer_subs.append(sub)
+        # Asosiy talabaning o'z ishi ham
+        db.add(
+            Submission(
+                assignment_id=pr_assignment.id,
+                user_id=main_student.id,
+                attempt_number=1,
+                content="Ma'lumotlar bazasi dizaynida birlamchi va begona kalitlar muhim rol o'ynaydi…",
+                status="submitted",
+            )
+        )
+        await db.flush()
+
+        # Asosiy talaba — 2 ta kursdosh ishiga reviewer (pending: submitted_at=None)
+        for sub in peer_subs:
+            db.add(
+                PeerReview(
+                    submission_id=sub.id,
+                    reviewer_id=main_student.id,
+                )
+            )
+        await db.flush()
 
 
 # ---------------------------------------------------------------------------
@@ -996,7 +1167,7 @@ async def main() -> None:
         await db.flush()
 
         # 6-10
-        await seed_assignments(db, courses, teacher, main_student)
+        await seed_assignments(db, courses, teacher, main_student, extra_students)
         await seed_live(db, courses, teacher, all_students)
         await seed_forum(db, courses[0], teacher, all_students)
         await seed_certificate(db, courses[0], main_student)
