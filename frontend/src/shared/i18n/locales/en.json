@@ -1051,7 +1051,11 @@
     "empty_hint": "No events scheduled for the coming days",
     "type_live": "Live class",
     "type_exam": "Exam",
-    "type_assignment": "Assignment due"
+    "type_assignment": "Assignment due",
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "yesterday": "Yesterday",
+    "events_count": "{n} events"
   },
   "catalog": {
     "tag": "CATALOG",

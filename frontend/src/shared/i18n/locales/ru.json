@@ -1051,7 +1051,11 @@
     "empty_hint": "На ближайшие дни нет запланированных событий",
     "type_live": "Онлайн-занятие",
     "type_exam": "Экзамен",
-    "type_assignment": "Срок задания"
+    "type_assignment": "Срок задания",
+    "today": "Сегодня",
+    "tomorrow": "Завтра",
+    "yesterday": "Вчера",
+    "events_count": "{n} событий"
   },
   "catalog": {
     "tag": "КАТАЛОГ",

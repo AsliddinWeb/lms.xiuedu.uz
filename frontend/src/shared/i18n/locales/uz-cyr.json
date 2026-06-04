@@ -1051,7 +1051,11 @@
     "empty_hint": "Яқин кунларда режалаштирилган тадбирлар йўқ",
     "type_live": "Жонли дарс",
     "type_exam": "Имтиҳон",
-    "type_assignment": "Топшириқ муддати"
+    "type_assignment": "Топшириқ муддати",
+    "today": "Бугун",
+    "tomorrow": "Эртага",
+    "yesterday": "Кеча",
+    "events_count": "{n} та тадбир"
   },
   "catalog": {
     "tag": "КАТАЛОГ",

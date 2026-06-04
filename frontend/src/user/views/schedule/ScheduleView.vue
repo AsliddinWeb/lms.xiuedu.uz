@@ -124,12 +124,9 @@ const typeMeta: Record<
   assignment: { label: 'schedule.type_assignment', variant: 'warning', icon: '🟡' },
 }
 
-function fmtDateTime(s: string): string {
+function fmtTime(s: string): string {
   try {
     return new Intl.DateTimeFormat(locale.value, {
-      weekday: 'short',
-      day: '2-digit',
-      month: 'short',
       hour: '2-digit',
       minute: '2-digit',
     }).format(new Date(s))
@@ -137,6 +134,54 @@ function fmtDateTime(s: string): string {
     return s
   }
 }
+
+function startOfDay(d: Date): number {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+}
+
+interface DayGroup {
+  key: string
+  label: string
+  isPast: boolean
+  events: ScheduleEvent[]
+}
+
+// Eventlar (saralangan) kunlar bo'yicha guruhlanadi; sarlavhada nisbiy kun nomi.
+const groupedDays = computed<DayGroup[]>(() => {
+  const map = new Map<string, ScheduleEvent[]>()
+  for (const ev of events.value) {
+    const d = new Date(ev.start)
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    if (!map.has(key)) map.set(key, [])
+    map.get(key)!.push(ev)
+  }
+  const todayMs = startOfDay(new Date())
+  const oneDay = 86_400_000
+  const groups: DayGroup[] = []
+  for (const [key, evs] of map) {
+    const d = new Date(evs[0].start)
+    const dayMs = startOfDay(d)
+    const diff = Math.round((dayMs - todayMs) / oneDay)
+    let label: string
+    if (diff === 0) label = t('schedule.today')
+    else if (diff === 1) label = t('schedule.tomorrow')
+    else if (diff === -1) label = t('schedule.yesterday')
+    else {
+      try {
+        label = new Intl.DateTimeFormat(locale.value, {
+          weekday: 'long',
+          day: '2-digit',
+          month: 'long',
+        }).format(d)
+      } catch {
+        label = key
+      }
+    }
+    groups.push({ key, label, isPast: dayMs < todayMs, events: evs })
+  }
+  groups.sort((a, b) => a.key.localeCompare(b.key))
+  return groups
+})
 
 const hasEvents = computed(() => events.value.length > 0)
 
@@ -171,29 +216,45 @@ function open(ev: ScheduleEvent) {
     :description="t('schedule.empty_hint')"
   />
 
-  <!-- EVENT LIST (23.1 — sodda; agenda guruhlash 23.2) -->
-  <div v-else class="space-y-2.5">
-    <article
-      v-for="ev in events"
-      :key="ev.id"
-      class="border border-border rounded-lg bg-card hover:border-border-strong transition-colors cursor-pointer p-4 flex items-center gap-4"
-      @click="open(ev)"
-    >
-      <div class="text-[18px] shrink-0">{{ typeMeta[ev.type].icon }}</div>
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 mb-1 flex-wrap">
-          <UiBadge :variant="typeMeta[ev.type].variant">
-            {{ t(typeMeta[ev.type].label) }}
-          </UiBadge>
-          <span v-if="ev.courseTitle" class="font-mono text-[11px] text-muted-foreground truncate">
-            {{ ev.courseTitle }}
-          </span>
-        </div>
-        <h3 class="font-semibold text-[14px] truncate">{{ ev.title }}</h3>
+  <!-- AGENDA — kunlar bo'yicha guruhlangan (23.2) -->
+  <div v-else class="space-y-6">
+    <section v-for="g in groupedDays" :key="g.key" :class="g.isPast ? 'opacity-60' : ''">
+      <!-- Kun sarlavhasi -->
+      <div class="flex items-center gap-3 mb-2.5">
+        <h2 class="text-[13px] font-semibold capitalize">{{ g.label }}</h2>
+        <div class="flex-1 h-px bg-border"></div>
+        <span class="font-mono text-[11px] text-muted-foreground">
+          {{ t('schedule.events_count', { n: g.events.length }) }}
+        </span>
       </div>
-      <div class="shrink-0 text-right font-mono text-[12px] text-muted-foreground">
-        {{ fmtDateTime(ev.start) }}
+
+      <!-- Shu kun eventlari -->
+      <div class="space-y-2">
+        <article
+          v-for="ev in g.events"
+          :key="ev.id"
+          class="border border-border rounded-lg bg-card hover:border-border-strong transition-colors cursor-pointer p-3.5 flex items-center gap-4"
+          @click="open(ev)"
+        >
+          <div class="shrink-0 w-[52px] text-center font-mono text-[13px] font-semibold tabular-nums">
+            {{ fmtTime(ev.start) }}
+          </div>
+          <div class="w-px self-stretch bg-border"></div>
+          <div class="text-[16px] shrink-0">{{ typeMeta[ev.type].icon }}</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-0.5 flex-wrap">
+              <UiBadge :variant="typeMeta[ev.type].variant">
+                {{ t(typeMeta[ev.type].label) }}
+              </UiBadge>
+              <span v-if="ev.courseTitle" class="font-mono text-[11px] text-muted-foreground truncate">
+                {{ ev.courseTitle }}
+              </span>
+            </div>
+            <h3 class="font-semibold text-[14px] truncate">{{ ev.title }}</h3>
+          </div>
+          <span class="shrink-0 text-muted-foreground">→</span>
+        </article>
       </div>
-    </article>
+    </section>
   </div>
 </template>

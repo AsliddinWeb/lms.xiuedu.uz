@@ -1051,7 +1051,11 @@
     "empty_hint": "Yaqin kunlarda rejalashtirilgan tadbirlar yo'q",
     "type_live": "Jonli dars",
     "type_exam": "Imtihon",
-    "type_assignment": "Topshiriq muddati"
+    "type_assignment": "Topshiriq muddati",
+    "today": "Bugun",
+    "tomorrow": "Ertaga",
+    "yesterday": "Kecha",
+    "events_count": "{n} ta tadbir"
   },
   "catalog": {
     "tag": "KATALOG",
