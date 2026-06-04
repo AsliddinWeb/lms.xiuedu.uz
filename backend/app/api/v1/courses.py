@@ -935,6 +935,39 @@ async def my_gradebook(
     return [GradebookRow(**r) for r in rows]
 
 
+@router.get("/me/gradebook.csv", summary="Talaba transcripti CSV ko'rinishida")
+async def my_gradebook_csv(
+    db: DbSession,
+    actor: CurrentUser,
+) -> Response:
+    rows = await gradebook.get_my_gradebook(db, user_id=actor.id)
+    cols = ["Fan", "O'qituvchi", "Kredit", "Joriy", "Oraliq", "Yakuniy", "Umumiy", "Baho"]
+    csv_rows = [
+        {
+            "Fan": r["title"],
+            "O'qituvchi": r["teacher"],
+            "Kredit": r["credits"],
+            "Joriy": r["current_avg"],
+            "Oraliq": r["midterm"],
+            "Yakuniy": r["final"],
+            "Umumiy": r["total"],
+            "Baho": (
+                f"{r['grade_letter']} ({r['grade_number']})"
+                if r["grade_number"]
+                else r["grade_letter"]
+            ),
+        }
+        for r in rows
+    ]
+    csv_text = rows_to_csv(cols, csv_rows)
+    fname = filename_with_timestamp(f"transcript_{actor.id}")
+    return Response(
+        content=csv_text,
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f"attachment; filename={fname}"},
+    )
+
+
 # ============================================================================
 # Phase 16 — Talaba activity agregati (dashboard chart uchun)
 # ============================================================================

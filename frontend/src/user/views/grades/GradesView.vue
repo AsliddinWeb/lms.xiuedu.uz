@@ -28,6 +28,7 @@ import {
   type LeaderboardResponse,
 } from '@shared/api/gamification'
 import { useAuthStore } from '@shared/stores/auth'
+import { downloadBlob, timestampedFilename } from '@shared/utils/download'
 import type { AcademicCalendar } from '@shared/types/academic'
 
 const { t } = useI18n()
@@ -136,6 +137,19 @@ function fmtDate(iso: string): string {
   return new Date(iso).toLocaleDateString()
 }
 
+const downloading = ref(false)
+async function downloadTranscript() {
+  downloading.value = true
+  try {
+    const blob = await gradebookApi.downloadCsv()
+    downloadBlob(blob, timestampedFilename('transcript'))
+  } catch {
+    // ignore
+  } finally {
+    downloading.value = false
+  }
+}
+
 onMounted(async () => {
   await Promise.all([loadGradebook(), loadCertificates(), loadLeaderboard()])
   if (auth.user?.tenant_id) {
@@ -162,16 +176,14 @@ onMounted(async () => {
           {{ auth.user?.full_name }}
         </p>
       </div>
-      <div class="flex items-center gap-2">
-        <UiButton variant="outline" size="sm" disabled>
-          📥 {{ t('grades.btn_download_transcript') }}
-          <span class="font-mono text-[10px] text-muted-foreground ml-1">Ph.6</span>
-        </UiButton>
-        <UiButton variant="outline" size="sm" disabled>
-          📊 {{ t('grades.btn_pdf') }}
-          <span class="font-mono text-[10px] text-muted-foreground ml-1">Ph.6</span>
-        </UiButton>
-      </div>
+      <UiButton
+        variant="outline"
+        size="sm"
+        :loading="downloading"
+        @click="downloadTranscript"
+      >
+        📥 {{ t('grades.btn_download_transcript') }}
+      </UiButton>
     </div>
   </div>
 

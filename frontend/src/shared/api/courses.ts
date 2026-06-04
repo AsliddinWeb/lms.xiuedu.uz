@@ -214,6 +214,12 @@ export const gradebookApi = {
     const { data } = await apiClient.get<GradebookRow[]>('/me/gradebook')
     return data
   },
+  async downloadCsv(): Promise<Blob> {
+    const { data } = await apiClient.get<Blob>('/me/gradebook.csv', {
+      responseType: 'blob',
+    })
+    return data
+  },
 }
 
 // Phase 18.5 — Kurs detail right column: yaqin imtihonlar + live darslar
