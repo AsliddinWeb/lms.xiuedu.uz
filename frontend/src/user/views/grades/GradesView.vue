@@ -23,6 +23,10 @@ import {
   type CertificateMyItem,
 } from '@shared/api/certificates'
 import { calendarsApi } from '@shared/api/academic'
+import {
+  gamificationApi,
+  type LeaderboardResponse,
+} from '@shared/api/gamification'
 import { useAuthStore } from '@shared/stores/auth'
 import type { AcademicCalendar } from '@shared/types/academic'
 
@@ -77,11 +81,12 @@ const semesterBars = computed(() => {
 
 const currentGrades = ref<GradebookRow[]>([])
 const myCertificates = ref<CertificateMyItem[]>([])
+const leaderboard = ref<LeaderboardResponse | null>(null)
 
 const tabs = computed(() => [
   { id: 'current', label: t('grades.tab_current') },
   { id: 'history', label: t('grades.tab_history'), disabled: true },
-  { id: 'ranking', label: t('grades.tab_ranking'), disabled: true },
+  { id: 'ranking', label: t('grades.tab_ranking') },
   // Phase 13.20 — sertifikatlar tabi real ma'lumotlardan
   { id: 'certificates', label: t('grades.tab_certificates') },
 ])
@@ -119,12 +124,20 @@ async function loadCertificates() {
   }
 }
 
+async function loadLeaderboard() {
+  try {
+    leaderboard.value = await gamificationApi.leaderboard('total', 20)
+  } catch {
+    leaderboard.value = null
+  }
+}
+
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleDateString()
 }
 
 onMounted(async () => {
-  await Promise.all([loadGradebook(), loadCertificates()])
+  await Promise.all([loadGradebook(), loadCertificates(), loadLeaderboard()])
   if (auth.user?.tenant_id) {
     calendarsApi
       .getCurrent(auth.user.tenant_id)
@@ -371,7 +384,69 @@ onMounted(async () => {
     </table>
   </div>
 
-  <!-- Other tabs — disabled placeholders (history/ranking — Phase 14+) -->
+  <!-- RANKING — gamifikatsiya leaderboard -->
+  <div
+    v-else-if="activeTab === 'ranking'"
+    class="bg-card border border-border rounded-lg overflow-hidden"
+  >
+    <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+      <span class="text-sm font-semibold">{{ t('grades.ranking') }}</span>
+      <span
+        v-if="leaderboard?.me_rank"
+        class="font-mono text-[11px] text-muted-foreground uppercase tracking-wider"
+      >
+        {{ t('grades.my_rank') }}: #{{ leaderboard.me_rank }}
+      </span>
+    </div>
+    <div
+      v-if="!leaderboard || leaderboard.items.length === 0"
+      class="py-12 text-center text-[13px] text-muted-foreground"
+    >
+      {{ t('grades.empty') }}
+    </div>
+    <table v-else class="w-full text-[13px]">
+      <thead>
+        <tr class="bg-muted">
+          <th class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground w-20">
+            {{ t('grades.col_rank') }}
+          </th>
+          <th class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+            {{ t('grades.col_student') }}
+          </th>
+          <th class="text-right px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+            {{ t('grades.col_points') }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="it in leaderboard.items"
+          :key="it.user_id"
+          class="border-t border-border"
+          :class="it.user_id === auth.user?.id ? 'bg-foreground/5 font-semibold' : 'hover:bg-muted/30'"
+        >
+          <td class="px-4 py-3 font-mono tabular-nums">
+            <span v-if="it.rank === 1">🥇</span>
+            <span v-else-if="it.rank === 2">🥈</span>
+            <span v-else-if="it.rank === 3">🥉</span>
+            <span v-else>{{ it.rank }}</span>
+          </td>
+          <td class="px-4 py-3">
+            {{ it.full_name }}
+            <span
+              v-if="it.user_id === auth.user?.id"
+              class="ml-1.5 font-mono text-[10px] text-muted-foreground"
+            >
+              ({{ t('grades.you') }})
+            </span>
+          </td>
+          <td class="px-4 py-3 text-right font-mono font-semibold tabular-nums">{{ it.points }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- History tab — disabled placeholder (Phase 14+) -->
   <div
     v-else
     class="text-center py-16 border border-dashed border-border rounded-lg"
