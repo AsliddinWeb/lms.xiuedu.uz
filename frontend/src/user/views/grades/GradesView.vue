@@ -77,7 +77,7 @@ const currentSemesterName = computed(() => {
 const semesterBars = computed(() => {
   // Hozircha faqat joriy semestr ko'rsatiladi — tarix Phase 14
   if (semesterAvg.value === null) return []
-  return [{ label: 'S1', value: Math.round(semesterAvg.value) }]
+  return [{ label: 'S1', value: semesterAvg.value }]
 })
 
 const currentGrades = ref<GradebookRow[]>([])
@@ -323,7 +323,7 @@ onMounted(async () => {
             <td class="px-4 py-3 font-mono font-semibold">{{ g.total }}</td>
             <td class="px-4 py-3">
               <UiBadge :variant="g.grade_variant">
-                {{ g.grade_letter }} · {{ g.grade_number }}
+                {{ g.grade_letter }}<template v-if="g.grade_number"> · {{ g.grade_number }}</template>
               </UiBadge>
             </td>
             <td class="px-4 py-3 text-right">
