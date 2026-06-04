@@ -707,6 +707,9 @@
   },
   "assignment_detail": {
     "instructions": "Yo'riqnoma",
+    "peer_review_title": "O'zaro baholash (peer review)",
+    "peer_review_info": "Bu topshiriqda o'zaro baholash yoqilgan — sizga {n} ta kursdoshingiz ishini baholash biriktiriladi.",
+    "peer_review_cta": "Peer review topshiriqlari",
     "tips_title": "Maslahatlar",
     "tip_attempts": "Har bir urinish jurnalda saqlanadi — diqqat bilan tekshiring.",
     "tip_late_allowed": "Muddatdan keyin topshirish ruxsat — har kun {pct}% jarima.",

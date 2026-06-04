@@ -707,6 +707,9 @@
   },
   "assignment_detail": {
     "instructions": "Instructions",
+    "peer_review_title": "Peer review",
+    "peer_review_info": "Peer review is enabled for this assignment — you will be assigned {n} classmates' submissions to review.",
+    "peer_review_cta": "Peer review tasks",
     "tips_title": "Tips",
     "tip_attempts": "Every attempt is logged — double-check before submitting.",
     "tip_late_allowed": "Late submission allowed — {pct}% penalty per day.",

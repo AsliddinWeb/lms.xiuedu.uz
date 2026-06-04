@@ -12,7 +12,7 @@ import UiSidebar, {
   type SidebarSection,
 } from '@shared/components/layout/UiSidebar.vue'
 import UiTopbar from '@shared/components/layout/UiTopbar.vue'
-import { assignmentsApi } from '@shared/api/assignments'
+import { assignmentsApi, peerReviewsApi } from '@shared/api/assignments'
 import { certificatesApi } from '@shared/api/certificates'
 import { chatApi } from '@shared/api/chat'
 import { coursesApi } from '@shared/api/courses'
@@ -49,6 +49,7 @@ const counts = ref({
   certificates: 0,
   badges: 0,
   chatUnread: 0,
+  peerReviews: 0,
 })
 
 async function loadSidebarCounts() {
@@ -91,6 +92,14 @@ async function loadSidebarCounts() {
         liveSessionsApi
           .list({ status: 'scheduled', page_size: 1 })
           .then((r) => (counts.value.live = r.total))
+          .catch(() => undefined),
+      )
+    }
+    if (auth.hasPermission('peer.review')) {
+      tasks.push(
+        peerReviewsApi
+          .listMine(true)
+          .then((r) => (counts.value.peerReviews = r.length))
           .catch(() => undefined),
       )
     }
@@ -148,6 +157,14 @@ const sections = computed<SidebarSection[]>(() => {
         to: '/app/assignments',
       },
     ]
+    if (auth.hasPermission('peer.review')) {
+      main.push({
+        name: 'my-peer-reviews',
+        icon: 'assignments',
+        label: withCount(t('nav.peer_reviews'), counts.value.peerReviews),
+        to: '/app/peer-reviews',
+      })
+    }
     if (auth.hasPermission('exam.attempt')) {
       main.push({
         name: 'my-exams',
