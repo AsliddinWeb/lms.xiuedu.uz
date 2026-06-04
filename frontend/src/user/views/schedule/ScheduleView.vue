@@ -10,8 +10,8 @@
  *
  * Ikki ko'rinish: Agenda (kunlar bo'yicha) va oylik Kalendar.
  */
-import { computed, onMounted, ref } from 'vue'
-import { useRouter, type RouteLocationRaw } from 'vue-router'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter, type RouteLocationRaw } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 import UiAlert from '@shared/components/ui/UiAlert.vue'
@@ -31,6 +31,7 @@ import LiveCalendarButton from '@user/components/live/LiveCalendarButton.vue'
 
 const { t, locale } = useI18n()
 const router = useRouter()
+const route = useRoute()
 const auth = useAuthStore()
 
 type ScheduleType = 'live' | 'exam' | 'assignment'
@@ -59,6 +60,36 @@ const activeTypes = ref<Record<ScheduleType, boolean>>({
   assignment: true,
 })
 const calendar = ref<AcademicCalendar | null>(null)
+
+// ---- Filtr/ko'rinish holatini URL query bilan sinxronlash (ulashsa bo'ladigan link) ----
+const ALL_TYPES: ScheduleType[] = ['live', 'exam', 'assignment']
+
+function activeTypeList(): ScheduleType[] {
+  return ALL_TYPES.filter((ty) => activeTypes.value[ty])
+}
+
+// Dastlabki holatni URL'dan o'qiymiz
+const qView = route.query.view
+if (qView === 'calendar' || qView === 'agenda') viewMode.value = qView
+const qTypes = route.query.types
+if (typeof qTypes === 'string') {
+  const set = new Set(qTypes.split(',').filter(Boolean))
+  activeTypes.value = {
+    live: set.has('live'),
+    exam: set.has('exam'),
+    assignment: set.has('assignment'),
+  }
+}
+
+// O'zgarishni URL'ga yozamiz (history to'lib ketmasligi uchun replace)
+watch(
+  () => `${viewMode.value}|${activeTypeList().join(',')}`,
+  () => {
+    router.replace({
+      query: { view: viewMode.value, types: activeTypeList().join(',') },
+    })
+  },
+)
 
 async function load() {
   if (!auth.user) return
