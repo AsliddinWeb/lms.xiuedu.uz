@@ -12,8 +12,6 @@ import type {
   PaginatedAppeals,
   PaginatedAssignments,
   PaginatedRubrics,
-  PeerReview,
-  PeerReviewSubmitPayload,
   PlagiarismCheckResult,
   Rubric,
   Submission,
@@ -129,24 +127,6 @@ export const submissionsApi = {
 
   async createAppeal(id: number, payload: AppealCreatePayload): Promise<Appeal> {
     return (await apiClient.post<Appeal>(`/submissions/${id}/appeal`, payload)).data
-  },
-}
-
-// ============================================================================
-// Peer review (Phase 4e)
-// ============================================================================
-
-export const peerReviewsApi = {
-  async listMine(onlyPending: boolean = true): Promise<PeerReview[]> {
-    return (
-      await apiClient.get<PeerReview[]>('/peer-reviews/my', {
-        params: { only_pending: onlyPending },
-      })
-    ).data
-  },
-
-  async submit(id: number, payload: PeerReviewSubmitPayload): Promise<PeerReview> {
-    return (await apiClient.post<PeerReview>(`/peer-reviews/${id}/submit`, payload)).data
   },
 }
 

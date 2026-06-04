@@ -53,8 +53,6 @@ class AssignmentCreateRequest(BaseModel):
     plagiarism_threshold: Decimal = Field(
         default=Decimal("30"), ge=Decimal("0"), le=Decimal("100")
     )
-    peer_review_enabled: bool = False
-    peer_reviews_per_submission: int = Field(default=3, ge=1, le=10)
 
     @model_validator(mode="after")
     def _check_dates_and_pass(self) -> "AssignmentCreateRequest":
@@ -104,8 +102,6 @@ class AssignmentUpdateRequest(BaseModel):
     plagiarism_threshold: Decimal | None = Field(
         default=None, ge=Decimal("0"), le=Decimal("100")
     )
-    peer_review_enabled: bool | None = None
-    peer_reviews_per_submission: int | None = Field(default=None, ge=1, le=10)
 
 
 class AssignmentPublishRequest(BaseModel):
@@ -143,8 +139,6 @@ class AssignmentPublic(BaseModel):
 
     plagiarism_check_enabled: bool
     plagiarism_threshold: Decimal
-    peer_review_enabled: bool
-    peer_reviews_per_submission: int
 
     created_by: int
     created_at: datetime
@@ -377,45 +371,6 @@ class PlagiarismCheckResult(BaseModel):
     plagiarism_report_url: str | None
     plagiarism_flagged: bool
     plagiarism_checked_at: datetime | None
-
-
-# ============================================================================
-# Peer review (Phase 4e)
-# ============================================================================
-
-
-class PeerReviewSubmitRequest(BaseModel):
-    score: Decimal | None = Field(default=None, ge=Decimal("0"))
-    rubric_scores: dict[str, Decimal] | None = None
-    feedback: str | None = None
-
-    @model_validator(mode="after")
-    def _check_one_provided(self) -> "PeerReviewSubmitRequest":
-        if self.score is None and not self.rubric_scores:
-            raise ValueError("score yoki rubric_scores (kamida bittasi) majburiy")
-        return self
-
-
-class PeerReviewPublic(BaseModel):
-    """Peer review — talabaga (anonim, submission egasi yashirin)."""
-
-    id: int
-    submission_id: int
-    # Reviewer'ning o'zi sifatida ko'radi — boshqa talabaga ko'rinmaydi
-    reviewer_id: int
-    score: Decimal | None
-    feedback: str | None
-    rubric_scores: dict[str, Any]
-    submitted_at: datetime | None
-    created_at: datetime
-
-    model_config = ConfigDict(from_attributes=True)
-
-
-class PeerReviewStartResponse(BaseModel):
-    assignment_id: int
-    created: int
-    total: int
 
 
 # ============================================================================

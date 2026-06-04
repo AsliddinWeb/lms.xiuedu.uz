@@ -167,18 +167,6 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@user/views/assignments/AssignmentDetailView.vue'),
         meta: { requiresPermission: 'assignment.submit' },
       },
-      {
-        path: 'peer-reviews',
-        name: 'my-peer-reviews',
-        component: () => import('@user/views/peer_review/PeerReviewListView.vue'),
-        meta: { requiresPermission: 'peer.review' },
-      },
-      {
-        path: 'peer-reviews/:id',
-        name: 'peer-review-submit',
-        component: () => import('@user/views/peer_review/PeerReviewSubmitView.vue'),
-        meta: { requiresPermission: 'peer.review' },
-      },
 
       // ==========================================================
       // LIVE (Phase 5) — host (pedagog), student (talaba), shared room

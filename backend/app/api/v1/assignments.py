@@ -36,9 +36,6 @@ from app.modules.assignments.schemas import (
     PaginatedAssignments,
     PaginatedRubrics,
     PaginatedSubmissions,
-    PeerReviewPublic,
-    PeerReviewStartResponse,
-    PeerReviewSubmitRequest,
     PlagiarismCheckResult,
     RubricCreateRequest,
     RubricPublic,
@@ -521,28 +518,11 @@ async def get_submission(
 ) -> SubmissionPublic:
     s = await service.get_submission(db, submission_id)
 
-    # Ruxsat: o'z submissioni / kurs muallifi / admin / peer reviewer biriktirilgan
+    # Ruxsat: o'z submissioni / kurs muallifi / admin
     if s.user_id != actor.id:
         a = await service.get_assignment(db, s.assignment_id)
         if not await _can_manage_assignment_course(db, redis, actor, a.course_id):
-            # Peer reviewer biriktirilganmi tekshiramiz
-            from sqlalchemy import select
-            from app.modules.assignments.models import PeerReview
-
-            pr_stmt = select(PeerReview).where(
-                PeerReview.submission_id == submission_id,
-                PeerReview.reviewer_id == actor.id,
-            )
-            is_reviewer = (await db.execute(pr_stmt)).scalar_one_or_none() is not None
-            if not is_reviewer:
-                raise ForbiddenError("Bu submissionni ko'rish huquqi yo'q")
-            # Peer reviewer uchun anonim — submission egasi yashirin (name/email yo'q)
-            base = SubmissionPublic.model_validate(s).model_dump()
-            base["user_id"] = 0  # 0 — anonim marker
-            base["user_full_name"] = None
-            base["user_email"] = None
-            base["graded_by_full_name"] = None
-            return SubmissionPublic.model_validate(base)
+            raise ForbiddenError("Bu submissionni ko'rish huquqi yo'q")
     return await _submission_to_public(db, s)
 
 
@@ -720,85 +700,6 @@ async def check_plagiarism(
         plagiarism_flagged=s.plagiarism_flagged,
         plagiarism_checked_at=s.plagiarism_checked_at,
     )
-
-
-# ============================================================================
-# Peer review (Phase 4e)
-# ============================================================================
-
-
-@router.post(
-    "/assignments/{assignment_id}/peer-review/start",
-    response_model=PeerReviewStartResponse,
-    summary="Peer review reviewerlarini biriktirish (pedagog)",
-)
-async def start_peer_review(
-    assignment_id: int,
-    db: DbSession,
-    actor: CurrentUser,
-    redis: RedisClient,
-    _u: User = Depends(require_permission("assignment.grade")),
-    seed: int | None = Query(None, description="Test'lar uchun reproducible seed"),
-) -> PeerReviewStartResponse:
-    a = await service.get_assignment(db, assignment_id)
-    if not await _can_manage_assignment_course(db, redis, actor, a.course_id):
-        raise ForbiddenError("Bu topshiriqqa peer review boshlash huquqi yo'q")
-    created = await service.start_peer_review_round(db, assignment_id, seed=seed)
-    await db.commit()
-
-    # Total mavjud peer reviews — informatsiya uchun
-    from sqlalchemy import func, select
-    from app.modules.assignments.models import PeerReview, Submission
-
-    total_stmt = (
-        select(func.count())
-        .select_from(PeerReview)
-        .join(Submission, Submission.id == PeerReview.submission_id)
-        .where(Submission.assignment_id == assignment_id)
-    )
-    total = (await db.execute(total_stmt)).scalar_one()
-
-    return PeerReviewStartResponse(
-        assignment_id=assignment_id,
-        created=len(created),
-        total=int(total),
-    )
-
-
-@router.get(
-    "/peer-reviews/my",
-    response_model=list[PeerReviewPublic],
-    summary="Talabaning peer review zimmasidagi vazifalari",
-)
-async def list_my_peer_reviews(
-    db: DbSession,
-    actor: CurrentUser,
-    _u: User = Depends(require_permission("peer.review")),
-    only_pending: bool = Query(True),
-) -> list[PeerReviewPublic]:
-    items = await service.list_my_peer_reviews(
-        db, reviewer_id=actor.id, only_pending=only_pending
-    )
-    return [PeerReviewPublic.model_validate(p) for p in items]
-
-
-@router.post(
-    "/peer-reviews/{peer_review_id}/submit",
-    response_model=PeerReviewPublic,
-    summary="Peer review topshirish",
-)
-async def submit_peer_review(
-    peer_review_id: int,
-    data: PeerReviewSubmitRequest,
-    db: DbSession,
-    actor: CurrentUser,
-    _u: User = Depends(require_permission("peer.review")),
-) -> PeerReviewPublic:
-    pr = await service.submit_peer_review(
-        db, peer_review_id, data, actor_id=actor.id
-    )
-    await db.commit()
-    return PeerReviewPublic.model_validate(pr)
 
 
 # ============================================================================

@@ -24,7 +24,6 @@ from app.modules.assignments import plagiarism as plagiarism_module
 from app.modules.assignments.models import (
     Assignment,
     GradeAppeal,
-    PeerReview,
     Rubric,
     Submission,
 )
@@ -35,7 +34,6 @@ from app.modules.assignments.schemas import (
     AssignmentCreateRequest,
     AssignmentUpdateRequest,
     GradeRequest,
-    PeerReviewSubmitRequest,
     RubricCreateRequest,
     RubricUpdateRequest,
     SubmissionCreateRequest,
@@ -655,135 +653,6 @@ async def run_plagiarism_check(
     await db.flush()
     await db.refresh(s)
     return s
-
-
-# ============================================================================
-# Peer review (Phase 4e)
-# ============================================================================
-
-
-async def get_peer_review(db: AsyncSession, peer_review_id: int) -> PeerReview:
-    pr = await db.get(PeerReview, peer_review_id)
-    if pr is None:
-        raise NotFoundError("Peer review topilmadi")
-    return pr
-
-
-async def start_peer_review_round(
-    db: AsyncSession, assignment_id: int, *, seed: int | None = None
-) -> list[PeerReview]:
-    """Submitted bo'lgan submissionlarga reviewerlarni biriktiradi.
-
-    Algoritm: barcha submitted submissionlar to'plamidan, har biri uchun
-    `peer_reviews_per_submission` ta tasodifiy boshqa talaba (boshqa submission
-    muallifi) reviewerga biriktiriladi. Reviewer hech qachon o'z submission'ini
-    baholay olmaydi. Allaqachon yaratilgan PeerReview yo'q bo'lsa, yangi qator
-    yaratiladi (idempotent — qayta chaqirsa duplicate qo'shmaydi).
-    """
-    a = await get_assignment(db, assignment_id)
-    if not a.peer_review_enabled:
-        raise ConflictError("Bu topshiriqqa peer review yoqilmagan")
-
-    n = a.peer_reviews_per_submission
-
-    # Submitted submissionlar
-    stmt = select(Submission).where(
-        Submission.assignment_id == assignment_id,
-        Submission.status == "submitted",
-    )
-    submissions = list((await db.execute(stmt)).scalars().all())
-    if len(submissions) < 2:
-        raise ConflictError(
-            "Peer review uchun kamida 2 ta talaba topshiriqi kerak"
-        )
-
-    # Mavjud reviewlar ro'yxati (idempotency uchun)
-    exist_stmt = select(PeerReview.submission_id, PeerReview.reviewer_id).where(
-        PeerReview.submission_id.in_([s.id for s in submissions])
-    )
-    existing = {(r[0], r[1]) for r in (await db.execute(exist_stmt)).all()}
-
-    rng = random.Random(seed) if seed is not None else random.Random()
-    user_ids = list({s.user_id for s in submissions})
-    created: list[PeerReview] = []
-
-    for sub in submissions:
-        # Reviewerlar — submission egasi emas
-        candidates = [u for u in user_ids if u != sub.user_id]
-        rng.shuffle(candidates)
-        target_n = min(n, len(candidates))
-        chosen = []
-        for r in candidates:
-            if len(chosen) >= target_n:
-                break
-            if (sub.id, r) in existing:
-                continue
-            chosen.append(r)
-
-        for reviewer_id in chosen:
-            pr = PeerReview(
-                submission_id=sub.id,
-                reviewer_id=reviewer_id,
-                rubric_scores={},
-            )
-            db.add(pr)
-            existing.add((sub.id, reviewer_id))
-            created.append(pr)
-
-    await db.flush()
-    return created
-
-
-async def list_my_peer_reviews(
-    db: AsyncSession, *, reviewer_id: int, only_pending: bool
-) -> list[PeerReview]:
-    stmt = select(PeerReview).where(PeerReview.reviewer_id == reviewer_id)
-    if only_pending:
-        stmt = stmt.where(PeerReview.submitted_at.is_(None))
-    stmt = stmt.order_by(PeerReview.id)
-    return list((await db.execute(stmt)).scalars().all())
-
-
-async def submit_peer_review(
-    db: AsyncSession,
-    peer_review_id: int,
-    data: PeerReviewSubmitRequest,
-    *,
-    actor_id: int,
-) -> PeerReview:
-    pr = await get_peer_review(db, peer_review_id)
-    if pr.reviewer_id != actor_id:
-        raise ForbiddenError("Bu peer review sizga biriktirilmagan")
-    if pr.submitted_at is not None:
-        raise ConflictError("Bu peer review allaqachon topshirilgan")
-
-    s = await get_submission(db, pr.submission_id)
-    a = await get_assignment(db, s.assignment_id)
-
-    if data.rubric_scores:
-        if a.rubric_id is None:
-            raise ValidationError(
-                "Bu topshiriqqa rubric yo'q — to'g'ridan score bering"
-            )
-        rubric = await get_rubric(db, a.rubric_id)
-        score = _resolve_score_from_rubric(rubric, data.rubric_scores)
-        pr.rubric_scores = {k: float(v) for k, v in data.rubric_scores.items()}
-    else:
-        if data.score is None:
-            raise ValidationError("score yoki rubric_scores majburiy")
-        score = Decimal(data.score).quantize(Decimal("0.01"))
-
-    if score > a.max_score:
-        raise ValidationError(
-            f"Ball ({score}) max_score ({a.max_score}) dan oshmasin"
-        )
-
-    pr.score = score
-    pr.feedback = data.feedback
-    pr.submitted_at = _now()
-    await db.flush()
-    await db.refresh(pr)
-    return pr
 
 
 # ============================================================================

@@ -77,8 +77,7 @@ PERMISSIONS: list[tuple[str, str, str]] = [
     ("assignment.grade", "Topshiriq baholash", "assignment"),
     ("rubric.read", "Rubric ko'rish", "assignment"),
     ("rubric.manage", "Rubric yaratish/tahrirlash", "assignment"),
-    # Phase 4e: peer review + appeals
-    ("peer.review", "Peer review qilish (talaba)", "assignment"),
+    # Phase 4e: appeals
     ("appeal.create", "Bahoga apellyatsiya berish (talaba)", "assignment"),
     ("appeal.review", "Apellyatsiyalarga javob berish (pedagog)", "assignment"),
     # Exam
@@ -200,7 +199,7 @@ ROLES: list[dict] = [
             "course.read", "enrollment.self", "progress.write",
             "content.read",
             "assignment.read", "assignment.submit",
-            "rubric.read", "peer.review", "appeal.create",
+            "rubric.read", "appeal.create",
             "exam.attempt",
             "live.read", "live.join",
             "profile.edit", "payment.view",

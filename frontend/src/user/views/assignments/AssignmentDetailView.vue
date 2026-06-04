@@ -6,7 +6,6 @@ import { useI18n } from 'vue-i18n'
 import UiAlert from '@shared/components/ui/UiAlert.vue'
 import UiBadge from '@shared/components/ui/UiBadge.vue'
 import UiBreadcrumb from '@shared/components/ui/UiBreadcrumb.vue'
-import UiButton from '@shared/components/ui/UiButton.vue'
 import UiCard from '@shared/components/ui/UiCard.vue'
 import { appealsApi, assignmentsApi, rubricsApi } from '@shared/api/assignments'
 import { coursesApi } from '@shared/api/courses'
@@ -271,26 +270,6 @@ function onSubmitted(s: Submission) {
                 max {{ c.max_points }}
               </span>
             </div>
-          </div>
-        </UiCard>
-
-        <!-- Peer review (Phase 21.2) — agar topshiriqda yoqilgan bo'lsa -->
-        <UiCard v-if="assignment.peer_review_enabled" no-padding>
-          <div class="px-5 py-3 border-b border-border">
-            <span class="text-[13px] font-semibold">{{ t('assignment_detail.peer_review_title') }}</span>
-          </div>
-          <div class="px-5 py-3 space-y-2.5">
-            <p class="text-[12px] text-muted-foreground leading-relaxed">
-              {{ t('assignment_detail.peer_review_info', { n: assignment.peer_reviews_per_submission }) }}
-            </p>
-            <UiButton
-              variant="outline"
-              size="sm"
-              class="w-full justify-center"
-              @click="router.push({ name: 'my-peer-reviews' })"
-            >
-              {{ t('assignment_detail.peer_review_cta') }} →
-            </UiButton>
           </div>
         </UiCard>
 

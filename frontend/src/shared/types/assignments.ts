@@ -27,8 +27,6 @@ export interface Assignment {
   rubric_id: number | null
   plagiarism_check_enabled: boolean
   plagiarism_threshold: string
-  peer_review_enabled: boolean
-  peer_reviews_per_submission: number
   created_by: number
   created_at: string
   updated_at: string
@@ -61,8 +59,6 @@ export interface AssignmentPayload {
   rubric_id?: number | null
   plagiarism_check_enabled?: boolean
   plagiarism_threshold?: string | number
-  peer_review_enabled?: boolean
-  peer_reviews_per_submission?: number
 }
 
 export interface SubmissionFile {
@@ -98,27 +94,6 @@ export interface Submission {
   graded_by: number | null
   graded_by_full_name: string | null
   graded_at: string | null
-}
-
-// ============================================================================
-// Peer review (Phase 4e)
-// ============================================================================
-
-export interface PeerReview {
-  id: number
-  submission_id: number
-  reviewer_id: number
-  score: string | null
-  feedback: string | null
-  rubric_scores: Record<string, number>
-  submitted_at: string | null
-  created_at: string
-}
-
-export interface PeerReviewSubmitPayload {
-  score?: string | number
-  rubric_scores?: Record<string, number>
-  feedback?: string | null
 }
 
 // ============================================================================

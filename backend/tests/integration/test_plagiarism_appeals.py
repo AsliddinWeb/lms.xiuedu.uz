@@ -1,10 +1,8 @@
-"""Phase 4e — Plagiat + Peer review + Apellyatsiya tests.
+"""Phase 4e — Plagiat + Apellyatsiya tests.
 
 Coverage:
   - Plagiarism: deterministic score, auto-trigger on submit, threshold flag,
     manual re-check
-  - Peer review: start round (idempotent), reviewer != owner, anonim list,
-    submit (rubric or score), one-shot
   - Appeals: student-only, must be graded, no duplicate pending, teacher
     approve with new_score updates submission, reject path
 """
@@ -33,7 +31,6 @@ from app.modules.academic.models import (
 from app.modules.assignments.models import (
     Assignment,
     GradeAppeal,
-    PeerReview,
     Rubric,
     Submission,
 )
@@ -62,7 +59,6 @@ STUDENT_PASSWORD = "Student!2026"
 async def clean_phase4e():
     async with SessionLocal() as db:
         await db.execute(delete(GradeAppeal))
-        await db.execute(delete(PeerReview))
         await db.execute(delete(Submission))
         await db.execute(delete(Assignment))
         await db.execute(delete(Rubric))
@@ -167,7 +163,6 @@ async def _create_essay(
     *,
     course_id: int,
     plagiarism: bool = False,
-    peer_review: bool = False,
     threshold: str = "30",
 ) -> int:
     body: dict = {
@@ -180,8 +175,6 @@ async def _create_essay(
     if plagiarism:
         body["plagiarism_check_enabled"] = True
         body["plagiarism_threshold"] = threshold
-    if peer_review:
-        body["peer_review_enabled"] = True
     r = await c.post(
         "/api/v1/assignments",
         json=body,
@@ -279,172 +272,6 @@ async def test_plagiarism_manual_check(client: AsyncClient) -> None:
     body = r.json()
     assert body["plagiarism_score"] is not None
     assert body["plagiarism_report_url"]
-
-
-# ----------------------------------------------------------------------------
-# Peer review
-# ----------------------------------------------------------------------------
-
-
-async def _enroll_and_submit(
-    c: AsyncClient, *, course_id: int, assignment_id: int, n: int
-) -> list[tuple[str, int]]:
-    """N ta yangi talaba yaratib, kursga yozib, topshiriq topshiradi."""
-    out: list[tuple[str, int]] = []
-    for _ in range(n):
-        token, uid = await _new_student(c)
-        await _enroll(c, token, course_id)
-        await c.post(
-            f"/api/v1/assignments/{assignment_id}/submissions",
-            json={"content": f"submission by {uid}"},
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        out.append((token, uid))
-    return out
-
-
-async def test_peer_review_start_distributes(client: AsyncClient) -> None:
-    teacher = await _teacher(client)
-    cid = await _setup_course(client, teacher)
-    aid = await _create_essay(client, teacher, course_id=cid, peer_review=True)
-
-    # 4 ta talaba topshiradi (har submissionga 3 reviewer = 4*3=12)
-    students = await _enroll_and_submit(
-        client, course_id=cid, assignment_id=aid, n=4
-    )
-
-    r = await client.post(
-        f"/api/v1/assignments/{aid}/peer-review/start?seed=42",
-        headers={"Authorization": f"Bearer {teacher}"},
-    )
-    assert r.status_code == 200
-    body = r.json()
-    # 4 talaba × 3 review = 12
-    assert body["total"] == 12
-    assert body["created"] == 12
-
-
-async def test_peer_review_idempotent(client: AsyncClient) -> None:
-    """Qayta chaqirilganda yangi review qo'shilmaydi."""
-    teacher = await _teacher(client)
-    cid = await _setup_course(client, teacher)
-    aid = await _create_essay(client, teacher, course_id=cid, peer_review=True)
-    await _enroll_and_submit(client, course_id=cid, assignment_id=aid, n=4)
-
-    r1 = await client.post(
-        f"/api/v1/assignments/{aid}/peer-review/start?seed=1",
-        headers={"Authorization": f"Bearer {teacher}"},
-    )
-    r2 = await client.post(
-        f"/api/v1/assignments/{aid}/peer-review/start?seed=1",
-        headers={"Authorization": f"Bearer {teacher}"},
-    )
-    assert r1.json()["created"] == 12
-    assert r2.json()["created"] == 0
-    assert r2.json()["total"] == 12
-
-
-async def test_peer_review_owner_excluded(client: AsyncClient) -> None:
-    """Talabaga o'z submissioni biriktirilmasligi."""
-    teacher = await _teacher(client)
-    cid = await _setup_course(client, teacher)
-    aid = await _create_essay(client, teacher, course_id=cid, peer_review=True)
-    students = await _enroll_and_submit(
-        client, course_id=cid, assignment_id=aid, n=3
-    )
-
-    await client.post(
-        f"/api/v1/assignments/{aid}/peer-review/start?seed=7",
-        headers={"Authorization": f"Bearer {teacher}"},
-    )
-
-    # Har talaba uchun zimmasidagi reviewlar — birortasi o'z submissioniga emas
-    for token, uid in students:
-        r = await client.get(
-            "/api/v1/peer-reviews/my",
-            headers={"Authorization": f"Bearer {token}"},
-        )
-        assert r.status_code == 200
-        items = r.json()
-        assert len(items) > 0
-        # Submissionlarni tekshirib chiqish — ularning user_id'si reviewer'idan farq qiladi
-        for pr in items:
-            sub = await client.get(
-                f"/api/v1/submissions/{pr['submission_id']}",
-                headers={"Authorization": f"Bearer {token}"},
-            )
-            # Submissionga reviewer kira oladi (ko'rib baholash uchun) yoki 403?
-            # Hozirgi implementatsiyada faqat o'z sub yoki kurs muallifi ko'radi —
-            # peer review case'i quydagi sub-faza'da kengaytiriladi. Hozir
-            # peer_review.submission_id != reviewer.user_id ekanini bilamiz.
-            assert pr['reviewer_id'] == uid
-
-
-async def test_peer_review_submit(client: AsyncClient) -> None:
-    teacher = await _teacher(client)
-    cid = await _setup_course(client, teacher)
-    aid = await _create_essay(client, teacher, course_id=cid, peer_review=True)
-    students = await _enroll_and_submit(
-        client, course_id=cid, assignment_id=aid, n=3
-    )
-    await client.post(
-        f"/api/v1/assignments/{aid}/peer-review/start?seed=11",
-        headers={"Authorization": f"Bearer {teacher}"},
-    )
-
-    student_token, _sid = students[0]
-    pending = await client.get(
-        "/api/v1/peer-reviews/my",
-        headers={"Authorization": f"Bearer {student_token}"},
-    )
-    pr_id = pending.json()[0]["id"]
-
-    r = await client.post(
-        f"/api/v1/peer-reviews/{pr_id}/submit",
-        json={"score": "75", "feedback": "Yaxshi insho"},
-        headers={"Authorization": f"Bearer {student_token}"},
-    )
-    assert r.status_code == 200, r.text
-    body = r.json()
-    assert Decimal(body["score"]) == Decimal("75.00")
-    assert body["submitted_at"] is not None
-
-    # Qayta topshirish — 409
-    r2 = await client.post(
-        f"/api/v1/peer-reviews/{pr_id}/submit",
-        json={"score": "80"},
-        headers={"Authorization": f"Bearer {student_token}"},
-    )
-    assert r2.status_code == 409
-
-
-async def test_peer_review_only_assigned_can_submit(client: AsyncClient) -> None:
-    teacher = await _teacher(client)
-    cid = await _setup_course(client, teacher)
-    aid = await _create_essay(client, teacher, course_id=cid, peer_review=True)
-    students = await _enroll_and_submit(
-        client, course_id=cid, assignment_id=aid, n=3
-    )
-    await client.post(
-        f"/api/v1/assignments/{aid}/peer-review/start?seed=22",
-        headers={"Authorization": f"Bearer {teacher}"},
-    )
-
-    s1_token = students[0][0]
-    s2_token = students[1][0]
-
-    pending = await client.get(
-        "/api/v1/peer-reviews/my",
-        headers={"Authorization": f"Bearer {s1_token}"},
-    )
-    pr_id = pending.json()[0]["id"]
-
-    r = await client.post(
-        f"/api/v1/peer-reviews/{pr_id}/submit",
-        json={"score": "80"},
-        headers={"Authorization": f"Bearer {s2_token}"},
-    )
-    assert r.status_code == 403
 
 
 # ----------------------------------------------------------------------------

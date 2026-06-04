@@ -51,7 +51,6 @@ from app.modules.courses.models import (
 from app.modules.assignments.models import (
     Assignment,
     GradeAppeal,
-    PeerReview,
     Rubric,
     Submission,
 )

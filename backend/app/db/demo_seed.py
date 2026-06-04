@@ -38,7 +38,6 @@ from app.modules.academic.models import (
 from app.modules.assignments.models import (
     Assignment,
     GradeAppeal,
-    PeerReview,
     Rubric,
     Submission,
 )
@@ -604,7 +603,6 @@ async def seed_assignments(
     courses: list[Course],
     teacher: User,
     main_student: User,
-    extra_students: list[User],
 ):
     # --- (a) Har kursga oddiy fayl topshirig'i; 1-kursda baholangan ish ---
     for idx, course in enumerate(courses[:3]):
@@ -746,64 +744,6 @@ async def seed_assignments(
                 status="pending",
             )
         )
-        await db.flush()
-
-    # --- (d) Peer review topshirig'i — asosiy talabaga 2 ta review biriktiriladi ---
-    pr_title = f"{courses[1].title} — o'zaro baholash topshirig'i"
-    pr_assignment = await _get_assignment(db, courses[1].id, pr_title)
-    if pr_assignment is None:
-        pr_assignment = Assignment(
-            course_id=courses[1].id,
-            title=pr_title,
-            description="Ma'lumotlar bazasi dizayni haqida insho yozing — keyin 2 ta kursdosh ishini baholaysiz.",
-            instructions="Insho topshirgach, sizga 2 ta anonim ish baholash uchun biriktiriladi.",
-            type="essay",
-            available_from=now() - timedelta(days=9),
-            due_date=now() - timedelta(days=1),
-            max_score=Decimal("100"),
-            pass_score=Decimal("60"),
-            weight_percent=Decimal("10"),
-            is_published=True,
-            peer_review_enabled=True,
-            peer_reviews_per_submission=2,
-            created_by=teacher.id,
-        )
-        db.add(pr_assignment)
-        await db.flush()
-
-        # Kursdoshlar topshiriqlari (asosiy talaba shularni baholaydi)
-        reviewees = extra_students[:2]
-        peer_subs: list[Submission] = []
-        for s in reviewees:
-            sub = Submission(
-                assignment_id=pr_assignment.id,
-                user_id=s.id,
-                attempt_number=1,
-                content="Normalizatsiya 3NF gacha amalga oshiriladi, bu ortiqchalikni kamaytiradi…",
-                status="submitted",
-            )
-            db.add(sub)
-            peer_subs.append(sub)
-        # Asosiy talabaning o'z ishi ham
-        db.add(
-            Submission(
-                assignment_id=pr_assignment.id,
-                user_id=main_student.id,
-                attempt_number=1,
-                content="Ma'lumotlar bazasi dizaynida birlamchi va begona kalitlar muhim rol o'ynaydi…",
-                status="submitted",
-            )
-        )
-        await db.flush()
-
-        # Asosiy talaba — 2 ta kursdosh ishiga reviewer (pending: submitted_at=None)
-        for sub in peer_subs:
-            db.add(
-                PeerReview(
-                    submission_id=sub.id,
-                    reviewer_id=main_student.id,
-                )
-            )
         await db.flush()
 
 
@@ -1167,7 +1107,7 @@ async def main() -> None:
         await db.flush()
 
         # 6-10
-        await seed_assignments(db, courses, teacher, main_student, extra_students)
+        await seed_assignments(db, courses, teacher, main_student)
         await seed_live(db, courses, teacher, all_students)
         await seed_forum(db, courses[0], teacher, all_students)
         await seed_certificate(db, courses[0], main_student)

@@ -21,7 +21,6 @@ Phase 4b da qo'shiladi:
 
 Phase 4e va keyingi sub-fazalarga qoldirilgan:
     - Plagiat tekshiruvi (Antiplag)
-    - Peer review
     - Apellyatsiya
     - Quiz / Code (Phase 6 imtihonlar bilan birga)
 """
@@ -169,14 +168,6 @@ class Assignment(Base, IDMixin, TimestampMixin, SoftDeleteMixin):
         Numeric(5, 2), default=Decimal("30"), nullable=False
     )
 
-    # Phase 4e: peer review
-    peer_review_enabled: Mapped[bool] = mapped_column(
-        Boolean, default=False, nullable=False
-    )
-    peer_reviews_per_submission: Mapped[int] = mapped_column(
-        Integer, default=3, nullable=False
-    )
-
     created_by: Mapped[int] = mapped_column(
         BigInteger,
         ForeignKey("users.id", ondelete="RESTRICT"),
@@ -280,49 +271,6 @@ class Submission(Base, IDMixin):
             f"<Submission id={self.id} assignment={self.assignment_id} "
             f"user={self.user_id} attempt={self.attempt_number} {self.status}>"
         )
-
-
-class PeerReview(Base, IDMixin, TimestampMixin):
-    """Peer review (Phase 4e) — anonim talabalar baholashi.
-
-    Pedagog `POST /assignments/{id}/peer-review/start` chaqirganda har bitta
-    submitted submission'ga `peer_reviews_per_submission` ta tasodifiy reviewer
-    biriktiriladi (PeerReview ro'yxatlari yaratiladi, dastlab `submitted_at=NULL`).
-    Talaba `submitted_at` qo'yilganda — review yakunlangan deb hisoblanadi.
-
-    UNIQUE submission+reviewer — bir talaba bir submissionni faqat bir marta baholaydi.
-    """
-
-    __tablename__ = "peer_reviews"
-    __table_args__ = (
-        UniqueConstraint(
-            "submission_id", "reviewer_id", name="uq_peer_review_sub_reviewer"
-        ),
-    )
-
-    submission_id: Mapped[int] = mapped_column(
-        BigInteger,
-        ForeignKey("submissions.id", ondelete="CASCADE"),
-        index=True,
-        nullable=False,
-    )
-    reviewer_id: Mapped[int] = mapped_column(
-        BigInteger,
-        ForeignKey("users.id", ondelete="CASCADE"),
-        index=True,
-        nullable=False,
-    )
-
-    score: Mapped[Decimal | None] = mapped_column(Numeric(5, 2), nullable=True)
-    feedback: Mapped[str | None] = mapped_column(Text, nullable=True)
-    rubric_scores: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
-    submitted_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
-
-    def __repr__(self) -> str:
-        done = self.submitted_at is not None
-        return f"<PeerReview sub={self.submission_id} reviewer={self.reviewer_id} done={done}>"
 
 
 class GradeAppeal(Base, IDMixin, TimestampMixin):
