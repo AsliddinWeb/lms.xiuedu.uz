@@ -29,6 +29,8 @@ export interface SidebarNavItem {
   to?: string
   badge?: string | number
   disabled?: boolean
+  /** Qo'shimcha path prefikslar — boshqa ildizdagi ichki sahifalar shu nav'ni active qiladi */
+  match?: string[]
 }
 
 export interface SidebarSection {
@@ -61,6 +63,25 @@ useSidebarEscClose()
 watch(() => route.fullPath, () => {
   if (mobileOpen.value) closeMobile()
 })
+
+// ---- Active holat: ichki (flat) route'lar uchun ham parent nav yonadi ----
+// Vue Router'ning RouterLink active-class'i flat sibling route'larda ishlamaydi
+// (masalan /app/exams/1/result/4 — my-exams'ning bolasi emas). Shu sabab
+// section ildizi (/app/<segment>) bo'yicha prefiks moslashtirib hisoblaymiz.
+function sectionRoot(to: string): string {
+  const m = to.match(/^(\/app\/[^/]+)/)
+  return m ? m[1] : to
+}
+
+function pathMatches(prefix: string): boolean {
+  return route.path === prefix || route.path.startsWith(prefix + '/')
+}
+
+function isActive(item: SidebarNavItem): boolean {
+  if (!item.to) return false
+  if (pathMatches(sectionRoot(item.to))) return true
+  return (item.match ?? []).some(pathMatches)
+}
 </script>
 
 <template>
@@ -158,8 +179,8 @@ watch(() => route.fullPath, () => {
               collapsed
                 ? 'lg:justify-center lg:px-0 lg:py-3 lg:mb-1 gap-3 px-3 py-2.5'
                 : 'gap-3 px-3 py-2.5 mb-0.5',
+              isActive(item) ? 'is-active !bg-foreground !text-background hover:!bg-foreground' : '',
             ]"
-            active-class="!bg-foreground !text-background hover:!bg-foreground"
           >
             <UiNavIcon :name="item.icon" :size="20" />
             <span
@@ -218,8 +239,8 @@ watch(() => route.fullPath, () => {
               collapsed
                 ? 'lg:justify-center lg:px-0 lg:py-3 lg:mb-1 gap-3 px-3 py-2.5'
                 : 'gap-3 px-3 py-2.5 mb-0.5',
+              isActive(item) ? 'is-active !bg-foreground !text-background hover:!bg-foreground' : '',
             ]"
-            active-class="!bg-foreground !text-background hover:!bg-foreground"
           >
             <UiNavIcon :name="item.icon" :size="20" />
             <span v-show="!collapsed" class="flex-1 truncate">{{ item.label }}</span>
@@ -285,13 +306,12 @@ watch(() => route.fullPath, () => {
 }
 
 /* Active'da badge rang inversiyasi */
-.router-link-active.\!bg-foreground .router-link-active-badge,
-a.router-link-exact-active .router-link-active-badge {
+.is-active .router-link-active-badge {
   background: rgba(255, 255, 255, 0.15);
   color: var(--bg, white);
 }
 
-.router-link-active.\!bg-foreground .router-link-active-dot {
+.is-active .router-link-active-dot {
   background: var(--bg, white);
 }
 </style>

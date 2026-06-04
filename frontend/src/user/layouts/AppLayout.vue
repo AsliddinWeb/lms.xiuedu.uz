@@ -134,6 +134,7 @@ const sections = computed<SidebarSection[]>(() => {
         icon: 'courses',
         label: withCount(t('nav.courses_student'), counts.value.courses),
         to: '/app/learning',
+        match: ['/app/course', '/app/forum'],
       },
       {
         name: 'course-catalog',
