@@ -1055,7 +1055,10 @@
     "today": "Бугун",
     "tomorrow": "Эртага",
     "yesterday": "Кеча",
-    "events_count": "{n} та тадбир"
+    "events_count": "{n} та тадбир",
+    "view_agenda": "Агенда",
+    "view_calendar": "Календар",
+    "day_no_events": "Бу кунда тадбир йўқ"
   },
   "catalog": {
     "tag": "КАТАЛОГ",

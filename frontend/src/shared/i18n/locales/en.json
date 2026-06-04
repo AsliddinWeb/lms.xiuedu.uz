@@ -1055,7 +1055,10 @@
     "today": "Today",
     "tomorrow": "Tomorrow",
     "yesterday": "Yesterday",
-    "events_count": "{n} events"
+    "events_count": "{n} events",
+    "view_agenda": "Agenda",
+    "view_calendar": "Calendar",
+    "day_no_events": "No events on this day"
   },
   "catalog": {
     "tag": "CATALOG",

@@ -1055,7 +1055,10 @@
     "today": "Bugun",
     "tomorrow": "Ertaga",
     "yesterday": "Kecha",
-    "events_count": "{n} ta tadbir"
+    "events_count": "{n} ta tadbir",
+    "view_agenda": "Agenda",
+    "view_calendar": "Kalendar",
+    "day_no_events": "Bu kunda tadbir yo'q"
   },
   "catalog": {
     "tag": "KATALOG",

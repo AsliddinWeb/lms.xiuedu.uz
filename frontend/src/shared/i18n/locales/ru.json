@@ -1055,7 +1055,10 @@
     "today": "Сегодня",
     "tomorrow": "Завтра",
     "yesterday": "Вчера",
-    "events_count": "{n} событий"
+    "events_count": "{n} событий",
+    "view_agenda": "Повестка",
+    "view_calendar": "Календарь",
+    "day_no_events": "В этот день событий нет"
   },
   "catalog": {
     "tag": "КАТАЛОГ",

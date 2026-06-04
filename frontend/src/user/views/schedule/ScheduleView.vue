@@ -8,7 +8,7 @@
  *   🟡 topshiriq muddatlari (due_date)
  * Backend kerak emas — sof frontend agregatsiya (DashboardView pattern'i).
  *
- * 23.1 — skelet + agregatsiya (sodda ro'yxat). Agenda/kalendar keyingi sub-fazalarda.
+ * Ikki ko'rinish: Agenda (kunlar bo'yicha) va oylik Kalendar.
  */
 import { computed, onMounted, ref } from 'vue'
 import { useRouter, type RouteLocationRaw } from 'vue-router'
@@ -17,6 +17,7 @@ import { useI18n } from 'vue-i18n'
 import UiAlert from '@shared/components/ui/UiAlert.vue'
 import UiBadge from '@shared/components/ui/UiBadge.vue'
 import UiBreadcrumb from '@shared/components/ui/UiBreadcrumb.vue'
+import UiButton from '@shared/components/ui/UiButton.vue'
 import UiEmptyState from '@shared/components/ui/UiEmptyState.vue'
 import { coursesApi } from '@shared/api/courses'
 import { assignmentsApi } from '@shared/api/assignments'
@@ -44,6 +45,9 @@ interface ScheduleEvent {
 const events = ref<ScheduleEvent[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
+
+type ViewMode = 'agenda' | 'calendar'
+const viewMode = ref<ViewMode>('agenda')
 
 async function load() {
   if (!auth.user) return
@@ -117,13 +121,44 @@ onMounted(load)
 
 const typeMeta: Record<
   ScheduleType,
-  { label: string; variant: 'info' | 'danger' | 'warning'; icon: string }
+  { label: string; variant: 'info' | 'danger' | 'warning'; icon: string; dot: string }
 > = {
-  live: { label: 'schedule.type_live', variant: 'info', icon: '🔵' },
-  exam: { label: 'schedule.type_exam', variant: 'danger', icon: '🔴' },
-  assignment: { label: 'schedule.type_assignment', variant: 'warning', icon: '🟡' },
+  live: { label: 'schedule.type_live', variant: 'info', icon: '🔵', dot: 'bg-blue-500' },
+  exam: { label: 'schedule.type_exam', variant: 'danger', icon: '🔴', dot: 'bg-red-500' },
+  assignment: {
+    label: 'schedule.type_assignment',
+    variant: 'warning',
+    icon: '🟡',
+    dot: 'bg-amber-500',
+  },
 }
 
+// ---- Sana yordamchilari ----
+function startOfDay(d: Date): number {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+}
+function dayKey(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+function keyToDate(key: string): Date {
+  const [y, m, dd] = key.split('-').map(Number)
+  return new Date(y, m - 1, dd)
+}
+function relDayLabel(d: Date): string {
+  const diff = Math.round((startOfDay(d) - startOfDay(new Date())) / 86_400_000)
+  if (diff === 0) return t('schedule.today')
+  if (diff === 1) return t('schedule.tomorrow')
+  if (diff === -1) return t('schedule.yesterday')
+  try {
+    return new Intl.DateTimeFormat(locale.value, {
+      weekday: 'long',
+      day: '2-digit',
+      month: 'long',
+    }).format(d)
+  } catch {
+    return dayKey(d)
+  }
+}
 function fmtTime(s: string): string {
   try {
     return new Intl.DateTimeFormat(locale.value, {
@@ -135,55 +170,114 @@ function fmtTime(s: string): string {
   }
 }
 
-function startOfDay(d: Date): number {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
-}
+// Kunlar bo'yicha event indeksi
+const eventsByDay = computed<Record<string, ScheduleEvent[]>>(() => {
+  const m: Record<string, ScheduleEvent[]> = {}
+  for (const ev of events.value) {
+    const k = dayKey(new Date(ev.start))
+    ;(m[k] ??= []).push(ev)
+  }
+  return m
+})
 
+// ---- Agenda ----
 interface DayGroup {
   key: string
   label: string
   isPast: boolean
   events: ScheduleEvent[]
 }
-
-// Eventlar (saralangan) kunlar bo'yicha guruhlanadi; sarlavhada nisbiy kun nomi.
 const groupedDays = computed<DayGroup[]>(() => {
-  const map = new Map<string, ScheduleEvent[]>()
-  for (const ev of events.value) {
-    const d = new Date(ev.start)
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-    if (!map.has(key)) map.set(key, [])
-    map.get(key)!.push(ev)
-  }
   const todayMs = startOfDay(new Date())
-  const oneDay = 86_400_000
   const groups: DayGroup[] = []
-  for (const [key, evs] of map) {
-    const d = new Date(evs[0].start)
-    const dayMs = startOfDay(d)
-    const diff = Math.round((dayMs - todayMs) / oneDay)
-    let label: string
-    if (diff === 0) label = t('schedule.today')
-    else if (diff === 1) label = t('schedule.tomorrow')
-    else if (diff === -1) label = t('schedule.yesterday')
-    else {
-      try {
-        label = new Intl.DateTimeFormat(locale.value, {
-          weekday: 'long',
-          day: '2-digit',
-          month: 'long',
-        }).format(d)
-      } catch {
-        label = key
-      }
-    }
-    groups.push({ key, label, isPast: dayMs < todayMs, events: evs })
+  for (const key of Object.keys(eventsByDay.value).sort()) {
+    const d = keyToDate(key)
+    groups.push({
+      key,
+      label: relDayLabel(d),
+      isPast: startOfDay(d) < todayMs,
+      events: eventsByDay.value[key],
+    })
   }
-  groups.sort((a, b) => a.key.localeCompare(b.key))
   return groups
 })
 
 const hasEvents = computed(() => events.value.length > 0)
+
+// ---- Kalendar ----
+const now0 = new Date()
+const calendarMonth = ref<Date>(new Date(now0.getFullYear(), now0.getMonth(), 1))
+const selectedDay = ref<string>(dayKey(now0))
+
+const monthLabel = computed(() => {
+  try {
+    return new Intl.DateTimeFormat(locale.value, {
+      month: 'long',
+      year: 'numeric',
+    }).format(calendarMonth.value)
+  } catch {
+    return ''
+  }
+})
+
+const weekDayNames = computed(() => {
+  const names: string[] = []
+  for (let i = 0; i < 7; i++) {
+    // 2024-01-01 — dushanba
+    const d = new Date(2024, 0, 1 + i)
+    names.push(new Intl.DateTimeFormat(locale.value, { weekday: 'short' }).format(d))
+  }
+  return names
+})
+
+interface Cell {
+  key: string
+  day: number
+  inMonth: boolean
+  isToday: boolean
+  events: ScheduleEvent[]
+}
+const monthCells = computed<Cell[]>(() => {
+  const m = calendarMonth.value
+  const year = m.getFullYear()
+  const month = m.getMonth()
+  const first = new Date(year, month, 1)
+  const firstDow = (first.getDay() + 6) % 7 // 0 = dushanba
+  const todayK = dayKey(new Date())
+  const cells: Cell[] = []
+  for (let i = 0; i < 42; i++) {
+    const date = new Date(year, month, 1 - firstDow + i)
+    const key = dayKey(date)
+    cells.push({
+      key,
+      day: date.getDate(),
+      inMonth: date.getMonth() === month,
+      isToday: key === todayK,
+      events: eventsByDay.value[key] ?? [],
+    })
+  }
+  return cells
+})
+
+const selectedDayEvents = computed(() => eventsByDay.value[selectedDay.value] ?? [])
+const selectedDayLabel = computed(() => relDayLabel(keyToDate(selectedDay.value)))
+
+function prevMonth() {
+  const m = calendarMonth.value
+  calendarMonth.value = new Date(m.getFullYear(), m.getMonth() - 1, 1)
+}
+function nextMonth() {
+  const m = calendarMonth.value
+  calendarMonth.value = new Date(m.getFullYear(), m.getMonth() + 1, 1)
+}
+function goToday() {
+  const n = new Date()
+  calendarMonth.value = new Date(n.getFullYear(), n.getMonth(), 1)
+  selectedDay.value = dayKey(n)
+}
+function selectDay(key: string) {
+  selectedDay.value = key
+}
 
 function open(ev: ScheduleEvent) {
   router.push(ev.to)
@@ -198,6 +292,25 @@ function open(ev: ScheduleEvent) {
       <div>
         <h1 class="page-title mb-1.5">{{ t('schedule.title') }}</h1>
         <p class="page-subtitle">{{ t('schedule.subtitle') }}</p>
+      </div>
+      <!-- Ko'rinish toggle -->
+      <div class="flex items-center gap-1 border border-border rounded-md p-0.5">
+        <button
+          type="button"
+          class="px-3 py-1.5 rounded text-[12px] font-medium transition-colors"
+          :class="viewMode === 'agenda' ? 'bg-foreground text-background' : 'text-muted-foreground hover:text-foreground'"
+          @click="viewMode = 'agenda'"
+        >
+          {{ t('schedule.view_agenda') }}
+        </button>
+        <button
+          type="button"
+          class="px-3 py-1.5 rounded text-[12px] font-medium transition-colors"
+          :class="viewMode === 'calendar' ? 'bg-foreground text-background' : 'text-muted-foreground hover:text-foreground'"
+          @click="viewMode = 'calendar'"
+        >
+          {{ t('schedule.view_calendar') }}
+        </button>
       </div>
     </div>
   </div>
@@ -216,10 +329,9 @@ function open(ev: ScheduleEvent) {
     :description="t('schedule.empty_hint')"
   />
 
-  <!-- AGENDA — kunlar bo'yicha guruhlangan (23.2) -->
-  <div v-else class="space-y-6">
+  <!-- AGENDA -->
+  <div v-else-if="viewMode === 'agenda'" class="space-y-6">
     <section v-for="g in groupedDays" :key="g.key" :class="g.isPast ? 'opacity-60' : ''">
-      <!-- Kun sarlavhasi -->
       <div class="flex items-center gap-3 mb-2.5">
         <h2 class="text-[13px] font-semibold capitalize">{{ g.label }}</h2>
         <div class="flex-1 h-px bg-border"></div>
@@ -227,8 +339,6 @@ function open(ev: ScheduleEvent) {
           {{ t('schedule.events_count', { n: g.events.length }) }}
         </span>
       </div>
-
-      <!-- Shu kun eventlari -->
       <div class="space-y-2">
         <article
           v-for="ev in g.events"
@@ -256,5 +366,107 @@ function open(ev: ScheduleEvent) {
         </article>
       </div>
     </section>
+  </div>
+
+  <!-- KALENDAR -->
+  <div v-else>
+    <!-- Oy navigatsiyasi -->
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-1">
+        <button
+          type="button"
+          class="w-8 h-8 grid place-items-center rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+          @click="prevMonth"
+        >
+          ‹
+        </button>
+        <span class="text-[14px] font-semibold capitalize min-w-[150px] text-center">{{ monthLabel }}</span>
+        <button
+          type="button"
+          class="w-8 h-8 grid place-items-center rounded-md border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+          @click="nextMonth"
+        >
+          ›
+        </button>
+      </div>
+      <UiButton variant="outline" size="sm" @click="goToday">{{ t('schedule.today') }}</UiButton>
+    </div>
+
+    <!-- Hafta kunlari -->
+    <div class="grid grid-cols-7 gap-1 mb-1">
+      <div
+        v-for="wd in weekDayNames"
+        :key="wd"
+        class="text-center font-mono text-[10px] uppercase tracking-wider text-muted-foreground py-1"
+      >
+        {{ wd }}
+      </div>
+    </div>
+
+    <!-- Oy setkasi -->
+    <div class="grid grid-cols-7 gap-1">
+      <button
+        v-for="cell in monthCells"
+        :key="cell.key"
+        type="button"
+        class="min-h-[58px] rounded-md border p-1.5 flex flex-col items-start text-left transition-colors"
+        :class="[
+          cell.inMonth ? 'border-border' : 'border-transparent opacity-40',
+          cell.isToday ? 'ring-1 ring-foreground' : '',
+          selectedDay === cell.key ? 'bg-muted' : 'hover:bg-muted/50',
+        ]"
+        @click="selectDay(cell.key)"
+      >
+        <span class="text-[12px]" :class="cell.isToday ? 'font-bold' : ''">{{ cell.day }}</span>
+        <div class="flex flex-wrap gap-0.5 mt-auto">
+          <span
+            v-for="(ev, i) in cell.events.slice(0, 4)"
+            :key="i"
+            class="w-1.5 h-1.5 rounded-full"
+            :class="typeMeta[ev.type].dot"
+          ></span>
+          <span v-if="cell.events.length > 4" class="text-[8px] text-muted-foreground leading-none">
+            +{{ cell.events.length - 4 }}
+          </span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Tanlangan kun eventlari -->
+    <div class="mt-6">
+      <div class="flex items-center gap-3 mb-2.5">
+        <h2 class="text-[13px] font-semibold capitalize">{{ selectedDayLabel }}</h2>
+        <div class="flex-1 h-px bg-border"></div>
+      </div>
+      <div v-if="selectedDayEvents.length" class="space-y-2">
+        <article
+          v-for="ev in selectedDayEvents"
+          :key="ev.id"
+          class="border border-border rounded-lg bg-card hover:border-border-strong transition-colors cursor-pointer p-3.5 flex items-center gap-4"
+          @click="open(ev)"
+        >
+          <div class="shrink-0 w-[52px] text-center font-mono text-[13px] font-semibold tabular-nums">
+            {{ fmtTime(ev.start) }}
+          </div>
+          <div class="w-px self-stretch bg-border"></div>
+          <div class="text-[16px] shrink-0">{{ typeMeta[ev.type].icon }}</div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-2 mb-0.5 flex-wrap">
+              <UiBadge :variant="typeMeta[ev.type].variant">
+                {{ t(typeMeta[ev.type].label) }}
+              </UiBadge>
+              <span v-if="ev.courseTitle" class="font-mono text-[11px] text-muted-foreground truncate">
+                {{ ev.courseTitle }}
+              </span>
+            </div>
+            <h3 class="font-semibold text-[14px] truncate">{{ ev.title }}</h3>
+          </div>
+          <span class="shrink-0 text-muted-foreground">→</span>
+        </article>
+      </div>
+      <p v-else class="text-[13px] text-muted-foreground py-4">
+        {{ t('schedule.day_no_events') }}
+      </p>
+    </div>
   </div>
 </template>
