@@ -1,10 +1,10 @@
 <script setup lang="ts">
 /**
- * Wireframe 10 (Grades) — talaba transcript va reyting.
+ * Baholar (Grades) — talaba transcript.
  *
- * Backend `gradebook` endpoint Phase 6+ da yaratiladi. Hozir mock data
- * bilan UI ko'rinishini wireframe'ga aniq mos qilamiz. Real data ulanganda
- * faqat `loadGradebook()` ichini yangilash kifoya.
+ * Real backend: GET /me/gradebook (kursli baholar) + sertifikatlar.
+ * GPA 4.0 shkalada harf bandlari bo'yicha kreditga vaznli hisoblanadi.
+ * Tarix/Reyting tablari keyingi fazalarda.
  */
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -22,7 +22,9 @@ import {
   certificatesApi,
   type CertificateMyItem,
 } from '@shared/api/certificates'
+import { calendarsApi } from '@shared/api/academic'
 import { useAuthStore } from '@shared/stores/auth'
+import type { AcademicCalendar } from '@shared/types/academic'
 
 const { t } = useI18n()
 const auth = useAuthStore()
@@ -37,6 +39,35 @@ const totalCredits = ref(0)
 
 // Reyting, programCredits, semestrlar tarixi — backendda hali yo'q (Phase 14+).
 const programCredits = 240
+
+const calendar = ref<AcademicCalendar | null>(null)
+
+// 4.0 GPA — backend harf bandlariga mos: >=86 A'lo, >=71 Yaxshi, >=55 Qoniqarli
+function gpaPoints(percent: number): number {
+  if (percent >= 86) return 4
+  if (percent >= 71) return 3
+  if (percent >= 55) return 2
+  return 0
+}
+
+const academicYear = computed(() => calendar.value?.academic_year ?? '')
+const currentSemesterName = computed(() => {
+  const sems = (calendar.value?.semesters ?? []) as Array<Record<string, unknown>>
+  const today = Date.now()
+  for (const s of sems) {
+    const start = (s.start ?? s.start_date) as string | undefined
+    const end = (s.end ?? s.end_date) as string | undefined
+    if (
+      start &&
+      end &&
+      today >= new Date(start).getTime() &&
+      today <= new Date(end).getTime() + 86_400_000
+    ) {
+      return String(s.name ?? '')
+    }
+  }
+  return ''
+})
 
 const semesterBars = computed(() => {
   // Hozircha faqat joriy semestr ko'rsatiladi — tarix Phase 14
@@ -61,15 +92,19 @@ async function loadGradebook() {
     currentGrades.value = rows
     totalCredits.value = rows.reduce((acc, r) => acc + r.credits, 0)
 
-    // GPA va semester avg: rows ichidagi total sonlardan o'rtacha (foiz)
-    const totals = rows
-      .map((r) => r.grade_number)
-      .filter((n) => Number.isFinite(n) && n > 0)
-    if (totals.length > 0) {
-      const avg = totals.reduce((a, b) => a + b, 0) / totals.length
-      semesterAvg.value = Math.round(avg * 10) / 10
-      // 4.0 shkalada GPA: foiz/100 * 4
-      gpa.value = Math.round((avg / 100) * 4 * 100) / 100
+    // Faqat baholangan kurslar (grade_number > 0), kreditga vaznli
+    const graded = rows.filter(
+      (r) => Number.isFinite(r.grade_number) && r.grade_number > 0,
+    )
+    if (graded.length > 0) {
+      const cr = graded.reduce((a, r) => a + r.credits, 0) || 1
+      const wPct = graded.reduce((a, r) => a + r.grade_number * r.credits, 0) / cr
+      const wGpa = graded.reduce((a, r) => a + gpaPoints(r.grade_number) * r.credits, 0) / cr
+      semesterAvg.value = Math.round(wPct * 10) / 10
+      gpa.value = Math.round(wGpa * 100) / 100
+    } else {
+      semesterAvg.value = null
+      gpa.value = null
     }
   } catch {
     currentGrades.value = []
@@ -90,6 +125,14 @@ function fmtDate(iso: string): string {
 
 onMounted(async () => {
   await Promise.all([loadGradebook(), loadCertificates()])
+  if (auth.user?.tenant_id) {
+    calendarsApi
+      .getCurrent(auth.user.tenant_id)
+      .then((c) => {
+        calendar.value = c
+      })
+      .catch(() => undefined)
+  }
 })
 </script>
 
@@ -101,7 +144,9 @@ onMounted(async () => {
       <div>
         <h1 class="page-title mb-1.5">{{ t('grades.title') }}</h1>
         <p class="page-subtitle">
-          3-{{ t('grades.semester') }} · 2025-2026 · {{ auth.user?.full_name }}
+          <template v-if="currentSemesterName">{{ currentSemesterName }} · </template>
+          <template v-if="academicYear">{{ academicYear }} · </template>
+          {{ auth.user?.full_name }}
         </p>
       </div>
       <div class="flex items-center gap-2">
@@ -162,7 +207,10 @@ onMounted(async () => {
       </div>
       <div class="p-5">
         <UiChartBar :items="semesterBars" :height="160" />
-        <div class="mt-8 pt-4 border-t border-border flex justify-between text-xs">
+        <div
+          v-if="semesterBars.length"
+          class="mt-8 pt-4 border-t border-border flex justify-between text-xs"
+        >
           <div>
             <span class="text-muted-foreground">{{ t('grades.current_semester') }}:</span>
             <span class="font-mono font-semibold ml-1">{{ semesterAvg }}</span>
@@ -190,7 +238,7 @@ onMounted(async () => {
   >
     <div class="px-5 py-4 border-b border-border flex items-center justify-between">
       <span class="text-sm font-semibold">
-        3-{{ t('grades.semester') }} · {{ t('grades.subjects_grades') }}
+        <template v-if="currentSemesterName">{{ currentSemesterName }} · </template>{{ t('grades.subjects_grades') }}
       </span>
       <span class="font-mono text-[11px] text-muted-foreground uppercase tracking-wider">
         {{ currentGrades.length }} {{ t('grades.subjects_short') }} ·
