@@ -142,7 +142,7 @@ function onSubmitted(s: Submission) {
     <UiBreadcrumb
       :items="[
         t('dashboard.crumb_home'),
-        t('my_assignments.tab_all'),
+        t('assignments.title'),
         assignment.title,
       ]"
       class="mb-6"
@@ -304,7 +304,7 @@ function onSubmitted(s: Submission) {
               {{ t('assignment_detail.tip_late_allowed', { pct: assignment.late_penalty_per_day }) }}
             </li>
             <li v-else>{{ t('assignment_detail.tip_late_blocked') }}</li>
-            <li>{{ t('assignment_detail.tip_save_draft') }}</li>
+            <li v-if="assignment.type === 'essay'">{{ t('assignment_detail.tip_save_draft') }}</li>
           </ul>
         </UiCard>
       </aside>
