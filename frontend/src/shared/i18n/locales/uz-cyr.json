@@ -1058,7 +1058,9 @@
     "events_count": "{n} та тадбир",
     "view_agenda": "Агенда",
     "view_calendar": "Календар",
-    "day_no_events": "Бу кунда тадбир йўқ"
+    "day_no_events": "Бу кунда тадбир йўқ",
+    "no_filter_results": "Фильтр бўйича тадбир йўқ",
+    "no_filter_hint": "Юқоридаги турлардан камида биттасини ёқинг"
   },
   "catalog": {
     "tag": "КАТАЛОГ",

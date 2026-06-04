@@ -428,6 +428,12 @@ function open(ev: ScheduleEvent) {
 
   <!-- AGENDA -->
   <div v-else-if="viewMode === 'agenda'" class="space-y-6">
+    <UiEmptyState
+      v-if="!groupedDays.length"
+      variant="search"
+      :title="t('schedule.no_filter_results')"
+      :description="t('schedule.no_filter_hint')"
+    />
     <section v-for="g in groupedDays" :key="g.key" :class="g.isPast ? 'opacity-60' : ''">
       <div class="flex items-center gap-3 mb-2.5">
         <h2 class="text-[13px] font-semibold capitalize">{{ g.label }}</h2>

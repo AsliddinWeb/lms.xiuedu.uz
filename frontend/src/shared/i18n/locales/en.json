@@ -1058,7 +1058,9 @@
     "events_count": "{n} events",
     "view_agenda": "Agenda",
     "view_calendar": "Calendar",
-    "day_no_events": "No events on this day"
+    "day_no_events": "No events on this day",
+    "no_filter_results": "No events match the filter",
+    "no_filter_hint": "Enable at least one of the types above"
   },
   "catalog": {
     "tag": "CATALOG",

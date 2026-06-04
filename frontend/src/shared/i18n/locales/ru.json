@@ -1058,7 +1058,9 @@
     "events_count": "{n} событий",
     "view_agenda": "Повестка",
     "view_calendar": "Календарь",
-    "day_no_events": "В этот день событий нет"
+    "day_no_events": "В этот день событий нет",
+    "no_filter_results": "Нет событий по фильтру",
+    "no_filter_hint": "Включите хотя бы один из типов выше"
   },
   "catalog": {
     "tag": "КАТАЛОГ",
