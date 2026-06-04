@@ -51,12 +51,21 @@ export function persistLocale(locale: Locale): void {
   window.localStorage.setItem(LOCALE_STORAGE_KEY, locale)
 }
 
+/**
+ * App locale'ini Intl/BCP-47 uchun yaroqli kodga aylantiradi.
+ * 'uz-lat'/'uz-cyr' — Intl uchun YAROQSIZ; ular 'uz-Latn'/'uz-Cyrl' ga o'giriladi
+ * (aks holda Intl.DateTimeFormat RangeError beradi va sana formatlanmaydi).
+ */
+export function intlLocale(locale: string): string {
+  if (locale === 'uz-lat') return 'uz-Latn'
+  if (locale === 'uz-cyr') return 'uz-Cyrl'
+  return locale
+}
+
 export function applyHtmlLang(locale: Locale): void {
   if (typeof document !== 'undefined') {
     // uz-lat va uz-cyr ikkalasi ham 'uz' BCP-47 (lotin/kirill — script subtag)
-    const langAttr =
-      locale === 'uz-lat' ? 'uz-Latn' : locale === 'uz-cyr' ? 'uz-Cyrl' : locale
-    document.documentElement.setAttribute('lang', langAttr)
+    document.documentElement.setAttribute('lang', intlLocale(locale))
   }
 }
 
