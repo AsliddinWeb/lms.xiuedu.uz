@@ -15,6 +15,7 @@ from decimal import Decimal
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.modules.academic.models import Subject
 from app.modules.assignments.models import Assignment, Submission
 from app.modules.courses.models import Course, Enrollment
 from app.modules.exams.models import Exam, ExamAttempt
@@ -58,6 +59,17 @@ async def get_my_gradebook(
         ).all()
         teachers = {uid: name for uid, name in rows}
 
+    # Kreditlar — kurs fani (Subject) orqali
+    subject_ids = [c.subject_id for c in enrolled if c.subject_id]
+    subject_credits: dict[int, int] = {}
+    if subject_ids:
+        srows = (
+            await db.execute(
+                select(Subject.id, Subject.credits).where(Subject.id.in_(subject_ids))
+            )
+        ).all()
+        subject_credits = {sid: int(cr) for sid, cr in srows}
+
     out: list[dict] = []
     for course in enrolled:
         # Exam attemptlar — har bir exam uchun best percentage
@@ -88,19 +100,14 @@ async def get_my_gradebook(
             float(p) for eid, p in best_per_exam.items()
             if type_per_exam.get(eid) == "final"
         ]
-        practice_scores = [
+        # quiz va practice imtihonlar — joriy (ongoing) baholashga kiradi
+        quiz_scores = [
             float(p) for eid, p in best_per_exam.items()
-            if type_per_exam.get(eid) == "practice"
+            if type_per_exam.get(eid) in ("quiz", "practice")
         ]
 
         midterm_avg = sum(midterm_scores) / len(midterm_scores) if midterm_scores else None
         final_avg = sum(final_scores) / len(final_scores) if final_scores else None
-        exam_overall = (
-            sum(midterm_scores + final_scores + practice_scores)
-            / len(midterm_scores + final_scores + practice_scores)
-            if (midterm_scores or final_scores or practice_scores)
-            else None
-        )
 
         # Assignment submission'lar — gradedlangan
         sub_rows = (
@@ -119,13 +126,17 @@ async def get_my_gradebook(
             for score, maxs in sub_rows
             if maxs and float(maxs) > 0
         ]
-        assignment_avg = (
-            sum(assignment_pcts) / len(assignment_pcts) if assignment_pcts else None
+        # Joriy (ongoing) baho — topshiriqlar + quiz/practice imtihonlar
+        current_components = assignment_pcts + quiz_scores
+        current_avg = (
+            sum(current_components) / len(current_components)
+            if current_components
+            else None
         )
 
-        # Total — 50/50 average (mavjud bo'lgan komponentlardan)
+        # Total — mavjud komponentlar o'rtachasi (joriy / oraliq / yakuniy)
         components = [
-            v for v in (exam_overall, assignment_avg) if v is not None
+            v for v in (current_avg, midterm_avg, final_avg) if v is not None
         ]
         total = sum(components) / len(components) if components else None
         letter, variant = (
@@ -137,9 +148,9 @@ async def get_my_gradebook(
                 "course_id": course.id,
                 "title": course.title,
                 "teacher": teachers.get(course.primary_author_id or 0, "—"),
-                "credits": 4,  # Kreditlar joriy holatda kurs modelida yo'q — placeholder
+                "credits": subject_credits.get(course.subject_id or 0, 3),
                 "current_avg": (
-                    f"{assignment_avg:.1f}" if assignment_avg is not None else "—"
+                    f"{current_avg:.1f}" if current_avg is not None else "—"
                 ),
                 "midterm": (
                     f"{midterm_avg:.1f}" if midterm_avg is not None else "—"
