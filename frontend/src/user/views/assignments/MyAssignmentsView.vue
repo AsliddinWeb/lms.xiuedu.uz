@@ -50,9 +50,8 @@ const courseOptions = computed<{ value: string | number | null; label: string }[
 ])
 const typeOptions = computed(() => [
   { value: '', label: t('my_assignments.all_types') },
-  { value: 'homework', label: t('assignments.type_homework') },
-  { value: 'project', label: t('assignments.type_project') },
-  { value: 'lab', label: t('assignments.type_lab') },
+  { value: 'essay', label: t('assignments.type_essay') },
+  { value: 'file', label: t('assignments.type_file') },
 ])
 
 function assignmentStatus(a: Assignment): 'pending' | 'in_review' | 'graded' | 'closed' {
