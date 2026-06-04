@@ -20,11 +20,14 @@ import UiBreadcrumb from '@shared/components/ui/UiBreadcrumb.vue'
 import UiButton from '@shared/components/ui/UiButton.vue'
 import UiEmptyState from '@shared/components/ui/UiEmptyState.vue'
 import { coursesApi } from '@shared/api/courses'
+import { calendarsApi } from '@shared/api/academic'
 import { assignmentsApi } from '@shared/api/assignments'
 import { examsApi } from '@shared/api/exams'
 import { liveSessionsApi } from '@shared/api/live'
 import { extractErrorMessage } from '@shared/api/client'
 import { useAuthStore } from '@shared/stores/auth'
+import type { AcademicCalendar } from '@shared/types/academic'
+import LiveCalendarButton from '@user/components/live/LiveCalendarButton.vue'
 
 const { t, locale } = useI18n()
 const router = useRouter()
@@ -48,6 +51,14 @@ const error = ref<string | null>(null)
 
 type ViewMode = 'agenda' | 'calendar'
 const viewMode = ref<ViewMode>('agenda')
+
+// Tur filtri (har uchala tur boshida yoqilgan)
+const activeTypes = ref<Record<ScheduleType, boolean>>({
+  live: true,
+  exam: true,
+  assignment: true,
+})
+const calendar = ref<AcademicCalendar | null>(null)
 
 async function load() {
   if (!auth.user) return
@@ -110,6 +121,16 @@ async function load() {
 
     out.sort((x, y) => new Date(x.start).getTime() - new Date(y.start).getTime())
     events.value = out
+
+    // Akademik kalendar konteksti (semestr / ta'til) — talabaning OTM'i bo'yicha
+    if (auth.user.tenant_id) {
+      calendarsApi
+        .getCurrent(auth.user.tenant_id)
+        .then((c) => {
+          calendar.value = c
+        })
+        .catch(() => undefined)
+    }
   } catch (e) {
     error.value = extractErrorMessage(e, t('common.load_error'))
   } finally {
@@ -170,14 +191,56 @@ function fmtTime(s: string): string {
   }
 }
 
-// Kunlar bo'yicha event indeksi
+function fmtRange(a: string, b: string): string {
+  try {
+    const f = new Intl.DateTimeFormat(locale.value, { day: '2-digit', month: 'short' })
+    return `${f.format(new Date(a))} – ${f.format(new Date(b))}`
+  } catch {
+    return ''
+  }
+}
+
+// Tur filtri qo'llangan eventlar
+const filteredEvents = computed(() =>
+  events.value.filter((e) => activeTypes.value[e.type]),
+)
+
+// Kunlar bo'yicha event indeksi (filtrlangan)
 const eventsByDay = computed<Record<string, ScheduleEvent[]>>(() => {
   const m: Record<string, ScheduleEvent[]> = {}
-  for (const ev of events.value) {
+  for (const ev of filteredEvents.value) {
     const k = dayKey(new Date(ev.start))
     ;(m[k] ??= []).push(ev)
   }
   return m
+})
+
+// Joriy semestr (bugun [start, end] oralig'ida) — JSONB kalit nomlari erkin
+const currentSemester = computed<{ name: string; start: string; end: string } | null>(
+  () => {
+    const sems = (calendar.value?.semesters ?? []) as Array<Record<string, unknown>>
+    const today = startOfDay(new Date())
+    for (const s of sems) {
+      const start = (s.start ?? s.start_date) as string | undefined
+      const end = (s.end ?? s.end_date) as string | undefined
+      if (!start || !end) continue
+      if (today >= startOfDay(new Date(start)) && today <= startOfDay(new Date(end))) {
+        return { name: String(s.name ?? ''), start, end }
+      }
+    }
+    return null
+  },
+)
+
+// Bugun ta'tilmi
+const todayHoliday = computed<string | null>(() => {
+  const hols = (calendar.value?.holidays ?? []) as Array<Record<string, unknown>>
+  const k = dayKey(new Date())
+  for (const h of hols) {
+    const d = (h.date ?? h.day) as string | undefined
+    if (d && dayKey(new Date(d)) === k) return String(h.name ?? '')
+  }
+  return null
 })
 
 // ---- Agenda ----
@@ -293,25 +356,59 @@ function open(ev: ScheduleEvent) {
         <h1 class="page-title mb-1.5">{{ t('schedule.title') }}</h1>
         <p class="page-subtitle">{{ t('schedule.subtitle') }}</p>
       </div>
-      <!-- Ko'rinish toggle -->
-      <div class="flex items-center gap-1 border border-border rounded-md p-0.5">
-        <button
-          type="button"
-          class="px-3 py-1.5 rounded text-[12px] font-medium transition-colors"
-          :class="viewMode === 'agenda' ? 'bg-foreground text-background' : 'text-muted-foreground hover:text-foreground'"
-          @click="viewMode = 'agenda'"
-        >
-          {{ t('schedule.view_agenda') }}
-        </button>
-        <button
-          type="button"
-          class="px-3 py-1.5 rounded text-[12px] font-medium transition-colors"
-          :class="viewMode === 'calendar' ? 'bg-foreground text-background' : 'text-muted-foreground hover:text-foreground'"
-          @click="viewMode = 'calendar'"
-        >
-          {{ t('schedule.view_calendar') }}
-        </button>
+      <div class="flex items-center gap-2">
+        <LiveCalendarButton />
+        <!-- Ko'rinish toggle -->
+        <div class="flex items-center gap-1 border border-border rounded-md p-0.5">
+          <button
+            type="button"
+            class="px-3 py-1.5 rounded text-[12px] font-medium transition-colors"
+            :class="viewMode === 'agenda' ? 'bg-foreground text-background' : 'text-muted-foreground hover:text-foreground'"
+            @click="viewMode = 'agenda'"
+          >
+            {{ t('schedule.view_agenda') }}
+          </button>
+          <button
+            type="button"
+            class="px-3 py-1.5 rounded text-[12px] font-medium transition-colors"
+            :class="viewMode === 'calendar' ? 'bg-foreground text-background' : 'text-muted-foreground hover:text-foreground'"
+            @click="viewMode = 'calendar'"
+          >
+            {{ t('schedule.view_calendar') }}
+          </button>
+        </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Toolbar: tur filtri + akademik kontekst -->
+  <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <div class="flex flex-wrap items-center gap-2">
+      <button
+        v-for="ty in (['live', 'exam', 'assignment'] as ScheduleType[])"
+        :key="ty"
+        type="button"
+        class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border text-[12px] font-medium transition-colors"
+        :class="activeTypes[ty]
+          ? 'border-foreground bg-foreground text-background'
+          : 'border-border text-muted-foreground hover:text-foreground'"
+        @click="activeTypes[ty] = !activeTypes[ty]"
+      >
+        <span>{{ typeMeta[ty].icon }}</span>
+        {{ t(typeMeta[ty].label) }}
+      </button>
+    </div>
+    <div
+      v-if="currentSemester || todayHoliday"
+      class="flex flex-wrap items-center gap-3 text-[12px] text-muted-foreground"
+    >
+      <span v-if="currentSemester" class="inline-flex items-center gap-1.5">
+        📚 <span class="font-medium text-foreground">{{ currentSemester.name }}</span>
+        <span class="font-mono">{{ fmtRange(currentSemester.start, currentSemester.end) }}</span>
+      </span>
+      <span v-if="todayHoliday" class="inline-flex items-center gap-1.5 text-warning">
+        🏖 {{ todayHoliday }}
+      </span>
     </div>
   </div>
 
