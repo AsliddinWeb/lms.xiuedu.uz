@@ -200,6 +200,9 @@ export interface AttemptTakeView {
   started_at: string
   deadline_at: string
   duration_minutes: number
+  proctoring_enabled: boolean
+  require_face_id: boolean
+  allow_tab_switch: boolean
   questions: QuestionStudent[]
   saved_answers: AnswerSubmit[]
 }

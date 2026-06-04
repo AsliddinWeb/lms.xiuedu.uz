@@ -343,15 +343,13 @@ onMounted(async () => {
   await loadAttempt()
   if (!attempt.value) return
 
-  // allow_tab_switch flag attempt orqali yo'q — exam'dan keladi. Backend
-  // AttemptTakeView'da bu bayroq yo'q, default false (qattiq). Plan'da 6e da
-  // exam'dan olish kerak — endpoint'ga qo'shamiz keyinroq. Hozir false default.
-  allowTabSwitch.value = false
+  // Imtihon sozlamalari take view'dan keladi (Phase 22)
+  allowTabSwitch.value = attempt.value.allow_tab_switch
 
   setupAntiCheat()
 
-  // Proctoring kamera + 30s snapshot loop
-  if (proctorVideoRef.value) {
+  // Proctoring kamera + 30s snapshot loop — faqat proctoring yoqilgan imtihonda
+  if (attempt.value.proctoring_enabled && proctorVideoRef.value) {
     proctor.start(proctorVideoRef.value).catch(() => null)
   }
 
@@ -511,15 +509,15 @@ onBeforeUnmount(() => {
         <span class="inline-block w-1.5 h-1.5 rounded-full bg-danger-500 animate-pulse"></span>
         {{ t('exam_take.status_monitored') }}
       </span>
-      <span class="ml-auto flex items-center gap-3">
+      <span v-if="attempt?.proctoring_enabled" class="ml-auto flex items-center gap-3">
         <span>{{ t('exam_take.snapshots_n', { n: proctor.snapshotsUploaded.value }) }}</span>
         <span>{{ t('exam_take.events_n', { n: proctor.eventsSent.value }) }}</span>
       </span>
     </footer>
 
-    <!-- Proctoring camera widget (bottom-right) -->
+    <!-- Proctoring camera widget (bottom-right) — faqat proctoring yoqilganda -->
     <div
-      v-show="!loading && attempt"
+      v-show="!loading && attempt && attempt.proctoring_enabled"
       class="fixed bottom-12 right-4 z-30 w-40 h-30 rounded-md overflow-hidden border-2 border-danger-500/70 bg-black shadow-lg"
     >
       <video

@@ -52,6 +52,13 @@ from app.modules.courses.models import (
     LessonProgress,
     Module,
 )
+from app.modules.exams.models import (
+    Answer,
+    Exam,
+    ExamAttempt,
+    Question,
+    QuestionOption,
+)
 from app.modules.gamification.models import (
     Badge,
     GamificationEvent,
@@ -748,6 +755,247 @@ async def seed_assignments(
 
 
 # ---------------------------------------------------------------------------
+# 5c. Imtihonlar (savol turlari + yakunlangan urinish)
+# ---------------------------------------------------------------------------
+
+
+async def _get_exam(db: AsyncSession, course_id: int, title: str):
+    return (
+        await db.execute(
+            select(Exam).where(Exam.course_id == course_id, Exam.title == title)
+        )
+    ).scalar_one_or_none()
+
+
+async def _add_question(
+    db: AsyncSession,
+    exam: Exam,
+    *,
+    order: int,
+    qtype: str,
+    title: str,
+    points,
+    options: list[tuple[str, bool]] | None = None,
+    correct_text: str | None = None,
+    code_language: str | None = None,
+    code_initial: str | None = None,
+) -> tuple[Question, list[QuestionOption]]:
+    q = Question(
+        exam_id=exam.id,
+        order_index=order,
+        type=qtype,
+        title=title,
+        points=Decimal(str(points)),
+        correct_text=correct_text,
+        code_language=code_language,
+        code_initial=code_initial,
+    )
+    db.add(q)
+    await db.flush()
+    opts: list[QuestionOption] = []
+    for i, (text, correct) in enumerate(options or []):
+        o = QuestionOption(question_id=q.id, order_index=i, text=text, is_correct=correct)
+        db.add(o)
+        opts.append(o)
+    if opts:
+        await db.flush()
+    return q, opts
+
+
+async def seed_exams(
+    db: AsyncSession, courses: list[Course], teacher: User, main_student: User
+):
+    # --- (1) Hozir topshiriladigan QUIZ (proctoringsiz — silliq demo) ---
+    quiz_title = f"{courses[0].title} — bilimni tekshirish (quiz)"
+    if await _get_exam(db, courses[0].id, quiz_title) is None:
+        quiz = Exam(
+            course_id=courses[0].id,
+            organization_id=courses[0].organization_id,
+            title=quiz_title,
+            description="Python asoslari bo'yicha qisqa test. Barcha savol turlari namunasi.",
+            type="quiz",
+            status="published",
+            duration_minutes=30,
+            max_attempts=2,
+            passing_score=Decimal("60"),
+            shuffle_questions=False,
+            shuffle_options=False,
+            show_correct_answers=True,
+            proctoring_enabled=False,
+            require_face_id=False,
+            require_screen_share=False,
+            allow_tab_switch=True,
+            available_from=now() - timedelta(days=1),
+            available_until=now() + timedelta(days=14),
+            created_by=teacher.id,
+        )
+        db.add(quiz)
+        await db.flush()
+        await _add_question(
+            db, quiz, order=0, qtype="single_choice", points=2,
+            title="Python dasturlash tili qaysi yilda yaratilgan?",
+            options=[("1991", True), ("2000", False), ("1985", False), ("2010", False)],
+        )
+        await _add_question(
+            db, quiz, order=1, qtype="multiple_choice", points=2,
+            title="Quyidagilardan qaysilari Python ma'lumot turlari?",
+            options=[("list", True), ("dict", True), ("tuple", True), ("matrix", False)],
+        )
+        await _add_question(
+            db, quiz, order=2, qtype="true_false", points=1,
+            title="Python — interpretatsiya qilinadigan (interpreted) til.",
+            options=[("To'g'ri", True), ("Noto'g'ri", False)],
+        )
+        await _add_question(
+            db, quiz, order=3, qtype="short_text", points=1,
+            title="Ro'yxat (list) uzunligini qaytaradigan o'rnatilgan funksiya nomi?",
+            correct_text="len",
+        )
+        await _add_question(
+            db, quiz, order=4, qtype="essay", points=2,
+            title="Python tilining 3 ta afzalligini qisqacha yozing.",
+        )
+        await _add_question(
+            db, quiz, order=5, qtype="code", points=2,
+            title="Ikki sonni qo'shib qaytaradigan add(a, b) funksiyasini yozing.",
+            code_language="python",
+            code_initial="def add(a, b):\n    # kodingizni yozing\n    pass",
+        )
+        await db.flush()
+
+    # --- (2) Kelgusi ORALIQ NAZORAT (proctoring bilan, hali ochilmagan) ---
+    mid_title = f"{courses[1].title} — oraliq nazorat"
+    if await _get_exam(db, courses[1].id, mid_title) is None:
+        midterm = Exam(
+            course_id=courses[1].id,
+            organization_id=courses[1].organization_id,
+            title=mid_title,
+            description="SQL bo'yicha oraliq nazorat. Proktoring (kamera + yuz tekshiruvi) majburiy.",
+            type="midterm",
+            status="published",
+            duration_minutes=60,
+            max_attempts=1,
+            passing_score=Decimal("60"),
+            proctoring_enabled=True,
+            require_face_id=True,
+            require_screen_share=True,
+            allow_tab_switch=False,
+            available_from=now() + timedelta(days=3),
+            available_until=now() + timedelta(days=3, hours=4),
+            created_by=teacher.id,
+        )
+        db.add(midterm)
+        await db.flush()
+        await _add_question(
+            db, midterm, order=0, qtype="single_choice", points=3,
+            title="SQL'da qatorlarni shart bo'yicha filtrlash uchun qaysi kalit so'z ishlatiladi?",
+            options=[("WHERE", True), ("SELECT", False), ("ORDER BY", False), ("GROUP BY", False)],
+        )
+        await _add_question(
+            db, midterm, order=1, qtype="multiple_choice", points=3,
+            title="Quyidagilardan qaysilari JOIN turlari?",
+            options=[("INNER JOIN", True), ("LEFT JOIN", True), ("RIGHT JOIN", True), ("ROUND JOIN", False)],
+        )
+        await _add_question(
+            db, midterm, order=2, qtype="short_text", points=2,
+            title="Jadvaldagi barcha ustunlarni tanlash uchun ishlatiladigan belgi?",
+            correct_text="*",
+        )
+        await db.flush()
+
+    # --- (3) Yakunlangan QUIZ + baholangan urinish (natija + review demo) ---
+    done_title = f"{courses[2].title} — yakuniy test"
+    if await _get_exam(db, courses[2].id, done_title) is None:
+        done = Exam(
+            course_id=courses[2].id,
+            organization_id=courses[2].organization_id,
+            title=done_title,
+            description="Web asoslari bo'yicha yakuniy test (topshirilgan).",
+            type="quiz",
+            status="published",
+            duration_minutes=30,
+            max_attempts=1,
+            passing_score=Decimal("60"),
+            show_correct_answers=True,
+            proctoring_enabled=False,
+            require_face_id=False,
+            require_screen_share=False,
+            available_from=now() - timedelta(days=5),
+            available_until=now() - timedelta(days=1),
+            created_by=teacher.id,
+        )
+        db.add(done)
+        await db.flush()
+        q1, o1 = await _add_question(
+            db, done, order=0, qtype="single_choice", points=2,
+            title="HTML nimaning qisqartmasi?",
+            options=[("HyperText Markup Language", True), ("High Text Machine Language", False),
+                     ("Hyperlink Markup Logic", False), ("Home Tool Markup Language", False)],
+        )
+        q2, o2 = await _add_question(
+            db, done, order=1, qtype="multiple_choice", points=3,
+            title="Quyidagilardan qaysilari CSS xossalari (property)?",
+            options=[("color", True), ("margin", True), ("padding", True), ("function", False)],
+        )
+        q3, o3 = await _add_question(
+            db, done, order=2, qtype="true_false", points=2,
+            title="CSS — to'liq dasturlash tili.",
+            options=[("To'g'ri", False), ("Noto'g'ri", True)],
+        )
+        q4, _o4 = await _add_question(
+            db, done, order=3, qtype="short_text", points=3,
+            title="Sahifa sarlavhasini belgilovchi HTML teg nomi?",
+            correct_text="title",
+        )
+        await db.flush()
+
+        started = now() - timedelta(days=2)
+        attempt = ExamAttempt(
+            exam_id=done.id,
+            user_id=main_student.id,
+            attempt_number=1,
+            status="graded",
+            started_at=started,
+            submitted_at=started + timedelta(minutes=22),
+            deadline_at=started + timedelta(minutes=30),
+            time_spent_seconds=22 * 60,
+            auto_score=Decimal("7"),
+            total_score=Decimal("7"),
+            max_score=Decimal("10"),
+            percentage=Decimal("70"),
+            passed=True,
+            question_order=[q1.id, q2.id, q3.id, q4.id],
+        )
+        db.add(attempt)
+        await db.flush()
+
+        # Javoblar: Q1 to'g'ri(2), Q2 to'g'ri(3), Q3 to'g'ri(2), Q4 noto'g'ri(0) = 7/10
+        db.add_all([
+            Answer(
+                attempt_id=attempt.id, question_id=q1.id,
+                selected_option_ids=[o1[0].id],
+                auto_correct=True, points_earned=Decimal("2"), points_max=Decimal("2"),
+            ),
+            Answer(
+                attempt_id=attempt.id, question_id=q2.id,
+                selected_option_ids=[o2[0].id, o2[1].id, o2[2].id],
+                auto_correct=True, points_earned=Decimal("3"), points_max=Decimal("3"),
+            ),
+            Answer(
+                attempt_id=attempt.id, question_id=q3.id,
+                selected_option_ids=[o3[1].id],
+                auto_correct=True, points_earned=Decimal("2"), points_max=Decimal("2"),
+            ),
+            Answer(
+                attempt_id=attempt.id, question_id=q4.id,
+                text_answer="header",
+                auto_correct=False, points_earned=Decimal("0"), points_max=Decimal("3"),
+            ),
+        ])
+        await db.flush()
+
+
+# ---------------------------------------------------------------------------
 # 6. Live darslar
 # ---------------------------------------------------------------------------
 
@@ -1108,6 +1356,7 @@ async def main() -> None:
 
         # 6-10
         await seed_assignments(db, courses, teacher, main_student)
+        await seed_exams(db, courses, teacher, main_student)
         await seed_live(db, courses, teacher, all_students)
         await seed_forum(db, courses[0], teacher, all_students)
         await seed_certificate(db, courses[0], main_student)

@@ -383,6 +383,11 @@ class AttemptTakeView(BaseModel):
     deadline_at: datetime
     duration_minutes: int
 
+    # Yechish ekrani uchun imtihon sozlamalari (Phase 22)
+    proctoring_enabled: bool = True
+    require_face_id: bool = True
+    allow_tab_switch: bool = False
+
     questions: list[QuestionStudent]
     saved_answers: list[AnswerSubmit] = []
 

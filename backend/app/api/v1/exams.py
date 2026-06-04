@@ -365,6 +365,9 @@ def _take_view(
         started_at=attempt.started_at,
         deadline_at=attempt.deadline_at,
         duration_minutes=exam.duration_minutes,
+        proctoring_enabled=exam.proctoring_enabled,
+        require_face_id=exam.require_face_id,
+        allow_tab_switch=exam.allow_tab_switch,
         questions=[QuestionStudent.model_validate(q) for q in questions],
         saved_answers=[
             AnswerSubmit(
