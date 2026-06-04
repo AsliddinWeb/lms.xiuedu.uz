@@ -1210,6 +1210,8 @@
     "submit_warning_late_penalty": "Срок прошёл: за каждый день опоздания снимается {pct}%",
     "submit_warning_unenrolled": "Вы не записаны на этот курс",
     "submit_help_essay": "Эссе рекомендуется минимум 50 символов",
+    "draft_saved": "Черновик сохранён",
+    "draft_clear": "Очистить",
     "submit_help_file": "Разрешённые форматы: {types}. Макс. размер: {size} МБ",
     "file_size_too_big": "Размер файла не должен превышать {limit} МБ",
     "file_ext_not_allowed": "Формат не поддерживается: {ext}",

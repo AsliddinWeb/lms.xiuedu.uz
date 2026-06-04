@@ -1210,6 +1210,8 @@
     "submit_warning_late_penalty": "Past due: a {pct}% per-day late penalty applies",
     "submit_warning_unenrolled": "You are not enrolled in this course",
     "submit_help_essay": "Essay should be at least 50 characters",
+    "draft_saved": "Draft saved",
+    "draft_clear": "Clear",
     "submit_help_file": "Allowed formats: {types}. Max size: {size} MB",
     "file_size_too_big": "File size must not exceed {limit} MB",
     "file_ext_not_allowed": "Format not allowed: {ext}",

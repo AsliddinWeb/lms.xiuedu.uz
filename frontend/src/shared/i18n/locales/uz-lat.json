@@ -1210,6 +1210,8 @@
     "submit_warning_late_penalty": "Muddat o'tgan: kech topshirsangiz {pct}% kunlik jazo qo'llanadi",
     "submit_warning_unenrolled": "Bu kursga yozilmagansiz",
     "submit_help_essay": "Insho min. 50 belgi bo'lishi tavsiya etiladi",
+    "draft_saved": "Qoralama saqlandi",
+    "draft_clear": "Tozalash",
     "submit_help_file": "Ruxsat etilgan formatlar: {types}. Maks. hajm: {size} MB",
     "file_size_too_big": "Fayl hajmi {limit} MB dan oshmasligi kerak",
     "file_ext_not_allowed": "Format qabul qilinmaydi: {ext}",

@@ -1210,6 +1210,8 @@
     "submit_warning_late_penalty": "Муддат ўтган: кеч топширсангиз {pct}% кунлик жазо қўлланади",
     "submit_warning_unenrolled": "Бу курсга ёзилмагансиз",
     "submit_help_essay": "Иншо мин. 50 белги бўлиши тавсия этилади",
+    "draft_saved": "Қоралама сақланди",
+    "draft_clear": "Тозалаш",
     "submit_help_file": "Рухсат этилган форматлар: {types}. Макс. ҳажм: {size} MB",
     "file_size_too_big": "Файл ҳажми {limit} MB дан ошмаслиги керак",
     "file_ext_not_allowed": "Формат қабул қилинмайди: {ext}",

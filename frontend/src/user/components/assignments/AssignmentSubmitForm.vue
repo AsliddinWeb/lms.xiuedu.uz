@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import UiAlert from '@shared/components/ui/UiAlert.vue'
@@ -7,6 +7,7 @@ import UiButton from '@shared/components/ui/UiButton.vue'
 import UiFormField from '@shared/components/ui/UiFormField.vue'
 import { assignmentsApi } from '@shared/api/assignments'
 import { extractErrorMessage } from '@shared/api/client'
+import { useAuthStore } from '@shared/stores/auth'
 import type { Assignment, Submission, SubmissionFile } from '@shared/types/assignments'
 
 interface Props {
@@ -18,6 +19,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<{ submitted: [submission: Submission] }>()
 
 const { t } = useI18n()
+const auth = useAuthStore()
 
 const content = ref('')
 const stagedFiles = ref<SubmissionFile[]>([])
@@ -26,6 +28,42 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const submitting = ref(false)
 const uploading = ref(false)
 const error = ref<string | null>(null)
+
+// Phase 21.3 — insho qoralamasi (localStorage auto-save, shaxsiy)
+const draftSaved = ref(false)
+
+function draftKey(): string {
+  return `lms.assignment_draft.${auth.user?.id ?? 'anon'}.${props.assignment.id}`
+}
+
+// Matn o'zgarsa — localStorage'ga saqlaymiz (faqat essay)
+watch(content, (v) => {
+  if (props.assignment.type !== 'essay') return
+  if (v) {
+    localStorage.setItem(draftKey(), v)
+    draftSaved.value = true
+  } else {
+    localStorage.removeItem(draftKey())
+    draftSaved.value = false
+  }
+})
+
+// Topshiriq o'zgarsa (yoki dastlab) — mos qoralamani yuklaymiz
+watch(
+  () => props.assignment.id,
+  () => {
+    draftSaved.value = false
+    content.value =
+      props.assignment.type === 'essay' ? localStorage.getItem(draftKey()) ?? '' : ''
+  },
+  { immediate: true },
+)
+
+function clearDraft() {
+  content.value = ''
+  localStorage.removeItem(draftKey())
+  draftSaved.value = false
+}
 
 const allowedHelp = computed(() => {
   const types = props.assignment.allowed_file_types.length
@@ -138,8 +176,18 @@ async function handleSubmit() {
           :disabled="!!disabledReason"
           class="block w-full rounded-md border border-border-strong bg-background text-foreground text-[13px] leading-6 px-3 py-2 outline-none focus:border-foreground focus:shadow-focus disabled:opacity-60 disabled:cursor-not-allowed"
         ></textarea>
-        <div class="text-[11px] text-muted-foreground mt-1">
-          {{ t('assignments.submit_help_essay') }} · {{ content.length }} chars
+        <div class="text-[11px] text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
+          <span>{{ t('assignments.submit_help_essay') }} · {{ content.length }} chars</span>
+          <template v-if="draftSaved">
+            <span class="text-success">· {{ t('assignments.draft_saved') }}</span>
+            <button
+              type="button"
+              class="underline hover:text-foreground"
+              @click="clearDraft"
+            >
+              {{ t('assignments.draft_clear') }}
+            </button>
+          </template>
         </div>
       </UiFormField>
     </template>
