@@ -1044,6 +1044,15 @@
     "field_text_body": "Matn tanasi (oddiy matn)",
     "create_and_attach": "Yaratish va biriktirish"
   },
+  "schedule": {
+    "title": "Jadval",
+    "subtitle": "Yaqinlashayotgan jonli darslar, imtihonlar va topshiriq muddatlari",
+    "empty_title": "Jadval bo'sh",
+    "empty_hint": "Yaqin kunlarda rejalashtirilgan tadbirlar yo'q",
+    "type_live": "Jonli dars",
+    "type_exam": "Imtihon",
+    "type_assignment": "Topshiriq muddati"
+  },
   "catalog": {
     "tag": "KATALOG",
     "title": "Kurslar katalogi",

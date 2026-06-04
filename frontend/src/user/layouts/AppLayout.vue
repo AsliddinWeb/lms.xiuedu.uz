@@ -170,7 +170,7 @@ const sections = computed<SidebarSection[]>(() => {
         name: 'schedule',
         icon: 'schedule',
         label: t('nav.schedule'),
-        disabled: true,
+        to: '/app/schedule',
       },
       { name: 'grades', icon: 'grades', label: t('nav.grades'), to: '/app/grades' },
     )

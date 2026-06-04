@@ -1044,6 +1044,15 @@
     "field_text_body": "Text body (plain)",
     "create_and_attach": "Create and attach"
   },
+  "schedule": {
+    "title": "Schedule",
+    "subtitle": "Upcoming live classes, exams and assignment deadlines",
+    "empty_title": "Schedule is empty",
+    "empty_hint": "No events scheduled for the coming days",
+    "type_live": "Live class",
+    "type_exam": "Exam",
+    "type_assignment": "Assignment due"
+  },
   "catalog": {
     "tag": "CATALOG",
     "title": "Course catalog",
