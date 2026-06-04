@@ -218,6 +218,28 @@ async def save_answer(
     return existing
 
 
+async def prepare_answer_file_upload(
+    db: AsyncSession, attempt_id: int, user_id: int, question_id: int
+) -> Question:
+    """file_upload javobi uchun validatsiya: egasi, in_progress, vaqt, savol turi.
+
+    Mos `Question`'ni qaytaradi (max_file_size_mb / allowed_file_types endpoint'da
+    ishlatiladi). Faylning o'zi endpoint'da MinIO'ga yuklanadi.
+    """
+    attempt = await _load_attempt(db, attempt_id)
+    _check_owner(attempt, user_id)
+    if attempt.status != "in_progress":
+        raise ConflictError("Bu urinish allaqachon yopilgan")
+    if attempt.deadline_at <= _now():
+        raise ConflictError("Vaqt tugagan")
+    if question_id not in (attempt.question_order or []):
+        raise ValidationError("Bu savol urinishga kirmaydi")
+    q = await db.get(Question, question_id)
+    if q is None or q.type != "file_upload":
+        raise ValidationError("Bu savol fayl yuklashni qabul qilmaydi")
+    return q
+
+
 async def submit_attempt(
     db: AsyncSession, attempt_id: int, user_id: int
 ) -> ExamAttempt:

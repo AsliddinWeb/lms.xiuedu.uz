@@ -289,6 +289,15 @@ class AnswerSubmit(BaseModel):
     file_size_bytes: int | None = None
 
 
+class AnswerFileUploadResponse(BaseModel):
+    """file_upload savol javobi uchun yuklangan fayl (URL submit'da ishlatiladi)."""
+
+    url: str
+    name: str
+    size: int
+    mime: str
+
+
 class AnswerPublic(BaseModel):
     """Pedagog ko'rinishi (auto_correct + points + grader_comment ham bor)."""
 

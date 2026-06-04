@@ -9,7 +9,7 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { codeTestCasesApi } from '@shared/api/exams'
+import { attemptsApi, codeTestCasesApi } from '@shared/api/exams'
 import { extractErrorMessage } from '@shared/api/client'
 import type {
   AnswerSubmit,
@@ -97,16 +97,24 @@ async function runCode(): Promise<void> {
   }
 }
 
-function onFilePick(ev: Event) {
-  // Hozircha file upload backend endpoint yo'q — Phase 6e+ da MinIO upload qo'shiladi.
-  // Joriy versiyada talaba fayl tanlaganini qayd qilamiz (URL bo'sh).
+const fileUploading = ref(false)
+const fileError = ref<string | null>(null)
+
+async function onFilePick(ev: Event) {
   const target = ev.target as HTMLInputElement
   const file = target.files?.[0]
-  if (!file) return
-  update({
-    file_url: file.name,
-    file_size_bytes: file.size,
-  })
+  if (!file || props.attemptId === undefined) return
+  fileError.value = null
+  fileUploading.value = true
+  try {
+    const res = await attemptsApi.uploadFile(props.attemptId, props.question.id, file)
+    update({ file_url: res.url, file_size_bytes: res.size })
+  } catch (e) {
+    fileError.value = extractErrorMessage(e, t('exam_take.file_upload_error'))
+  } finally {
+    fileUploading.value = false
+    target.value = ''
+  }
 }
 </script>
 
@@ -304,12 +312,21 @@ function onFilePick(ev: Event) {
         class="block w-full text-[13px] file:mr-3 file:px-3 file:py-2 file:rounded-md file:border file:border-border-strong file:bg-background file:text-foreground file:cursor-pointer disabled:opacity-50"
         @change="onFilePick"
       />
-      <div
-        v-if="modelValue.file_url"
-        class="text-[12px] font-mono text-muted-foreground mt-2"
-      >
-        {{ modelValue.file_url }} · {{ fileSizeMb }} MB
+      <div v-if="fileUploading" class="text-[12px] text-muted-foreground mt-2 italic">
+        {{ t('exam_take.file_uploading') }}
       </div>
+      <div v-else-if="fileError" class="text-[12px] text-danger-600 mt-2">
+        {{ fileError }}
+      </div>
+      <a
+        v-else-if="modelValue.file_url"
+        :href="modelValue.file_url"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 text-[12px] text-success mt-2 hover:underline"
+      >
+        ✓ {{ t('exam_take.file_uploaded') }} · {{ fileSizeMb }} MB
+      </a>
       <div class="text-[11px] text-muted-foreground mt-2">
         {{ t('exam_take.file_upload_note') }}
         <span v-if="question.max_file_size_mb">

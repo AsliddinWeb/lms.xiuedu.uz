@@ -25,6 +25,7 @@ import UiCard from '@shared/components/ui/UiCard.vue'
 import { attemptsApi, examsApi } from '@shared/api/exams'
 import { proctoringApi } from '@shared/api/proctoring'
 import { extractErrorMessage, isNotFound } from '@shared/api/client'
+import { toast } from '@shared/composables/useToast'
 import type { Exam } from '@shared/types/exams'
 import { useFaceDetection } from '@user/composables/useFaceDetection'
 
@@ -201,7 +202,8 @@ async function handleStart() {
         await proctoringApi.uploadIdReference(attempt.id, blob)
       } catch (e) {
         console.warn('id reference upload failed', e)
-        // davom etamiz — proctoring kelajakda qayta urinib ko'rishi mumkin
+        // Bloklamaymiz, lekin talabani ogohlantiramiz (yuz-moslik ishlamasligi mumkin)
+        toast.warning(t('exam_lobby.id_reference_failed'))
       }
     }
     // Streamlarni saqlab qolamiz (taking page'da qayta ishlatamiz) —

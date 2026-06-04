@@ -1796,6 +1796,7 @@
     "validation_short_text_required": "Необходимо указать правильный ответ (текст)."
   },
   "exam_lobby": {
+    "id_reference_failed": "Эталонное фото лица не загрузилось — проверка лица может не работать",
     "section_id_photo": "Фото лица",
     "section_system_check": "Проверка системы",
     "section_consent": "Согласие",
@@ -1857,7 +1858,10 @@
     "chars": "символов",
     "short_text_placeholder": "Введите ответ",
     "essay_placeholder": "Напишите эссе здесь…",
-    "file_upload_note": "Можно выбрать файл. Реальная загрузка появится в 6e+.",
+    "file_upload_note": "Загрузите ваше решение в виде файла.",
+    "file_uploading": "Загрузка…",
+    "file_uploaded": "Загружено",
+    "file_upload_error": "Ошибка загрузки файла",
     "code_run": "Запустить код",
     "code_running": "Запуск…",
     "code_empty": "Код пуст — напишите что-нибудь.",

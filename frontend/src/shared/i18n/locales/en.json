@@ -1796,6 +1796,7 @@
     "validation_short_text_required": "A correct answer (text) is required."
   },
   "exam_lobby": {
+    "id_reference_failed": "Face reference photo failed to upload — face matching may not work",
     "section_id_photo": "Face photo",
     "section_system_check": "System check",
     "section_consent": "Consent",
@@ -1857,7 +1858,10 @@
     "chars": "chars",
     "short_text_placeholder": "Type your answer",
     "essay_placeholder": "Write your essay here…",
-    "file_upload_note": "File can be selected. Real upload will be added in 6e+.",
+    "file_upload_note": "Upload your solution as a file.",
+    "file_uploading": "Uploading…",
+    "file_uploaded": "Uploaded",
+    "file_upload_error": "File upload failed",
     "code_run": "Run code",
     "code_running": "Running…",
     "code_empty": "Code is empty — write something.",

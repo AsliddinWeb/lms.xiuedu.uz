@@ -33,14 +33,25 @@ Phase 6b endpointlari:
 
 from __future__ import annotations
 
+import secrets
 from decimal import Decimal
 
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, File, Form, Query, Response, UploadFile, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    Form,
+    HTTPException,
+    Query,
+    Response,
+    UploadFile,
+    status,
+)
 
 from app.core.csv_export import filename_with_timestamp, rows_to_csv
-from app.core.storage import get_presigned_url
+from app.core.storage import get_presigned_url, upload_object
 from app.modules.auth.dependencies import (
     CurrentUser,
     DbSession,
@@ -54,6 +65,7 @@ from app.modules.exams import proctoring as proctoring_service
 from app.modules.exams import reports as reports_service
 from app.modules.exams import service
 from app.modules.exams.schemas import (
+    AnswerFileUploadResponse,
     AnswerPublic,
     AnswerSubmit,
     AttemptPublic,
@@ -551,6 +563,59 @@ async def save_answer(
     ans = await attempts_service.save_answer(db, attempt_id, user.id, payload)
     await db.commit()
     return AnswerPublic.model_validate(ans)
+
+
+# file_upload savol javobi uchun fayl yuklash (talaba). Qaytgan URL `answer`'da ishlatiladi.
+EXAM_FILE_HARD_MAX_BYTES = 50 * 1024 * 1024
+
+
+@router.post(
+    "/attempts/{attempt_id}/upload",
+    response_model=AnswerFileUploadResponse,
+    summary="file_upload savol javobi uchun fayl yuklash (talaba)",
+)
+async def upload_answer_file(
+    attempt_id: int,
+    db: DbSession,
+    user: CurrentUser,
+    _u: User = Depends(require_permission("exam.attempt")),
+    question_id: int = Form(..., description="file_upload savol IDsi"),
+    file: UploadFile = File(..., description="Yuklanadigan fayl"),
+) -> AnswerFileUploadResponse:
+    q = await attempts_service.prepare_answer_file_upload(
+        db, attempt_id, user.id, question_id
+    )
+
+    contents = await file.read()
+    max_mb = q.max_file_size_mb or 20
+    size_limit = min(max_mb * 1024 * 1024, EXAM_FILE_HARD_MAX_BYTES)
+    if len(contents) > size_limit:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"Fayl hajmi {max_mb} MB dan oshmasligi kerak",
+        )
+
+    filename = file.filename or "answer"
+    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else "bin"
+    if q.allowed_file_types and ext not in {e.lower() for e in q.allowed_file_types}:
+        raise HTTPException(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            detail=(
+                f"Fayl formati '{ext}' qabul qilinmaydi. Ruxsat etilgan: "
+                f"{', '.join(sorted(q.allowed_file_types))}"
+            ),
+        )
+
+    ctype = (file.content_type or "application/octet-stream").lower()
+    object_name = (
+        f"exam-answers/{attempt_id}/{question_id}/{secrets.token_hex(8)}.{ext}"
+    )
+    public_url = upload_object(
+        object_name=object_name, data=contents, content_type=ctype
+    )
+    return AnswerFileUploadResponse(
+        url=public_url, name=filename, size=len(contents), mime=ctype
+    )
 
 
 @router.post("/attempts/{attempt_id}/submit", response_model=AttemptResult)

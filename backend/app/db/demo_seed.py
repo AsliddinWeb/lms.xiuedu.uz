@@ -861,6 +861,10 @@ async def seed_exams(
             code_language="python",
             code_initial="def add(a, b):\n    # kodingizni yozing\n    pass",
         )
+        await _add_question(
+            db, quiz, order=6, qtype="file_upload", points=2,
+            title="Yozgan kodingizni .py yoki .txt fayl sifatida yuklang.",
+        )
         await db.flush()
 
     # --- (2) Kelgusi ORALIQ NAZORAT (proctoring bilan, hali ochilmagan) ---

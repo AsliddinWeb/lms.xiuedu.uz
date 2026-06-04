@@ -1796,6 +1796,7 @@
     "validation_short_text_required": "Тўғри жавоб (матн) кўрсатилиши шарт."
   },
   "exam_lobby": {
+    "id_reference_failed": "Юз reference расми юкланмади — прокторинг юз-мослиги ишламаслиги мумкин",
     "section_id_photo": "Юз расми",
     "section_system_check": "Тизим текшируви",
     "section_consent": "Розилик",
@@ -1857,7 +1858,10 @@
     "chars": "белги",
     "short_text_placeholder": "Жавобни киритинг",
     "essay_placeholder": "Эссени шу ерда ёзинг…",
-    "file_upload_note": "Файл танлаш мумкин. Sub-faza 6e+ да ҳақиқий юклаш қўшилади.",
+    "file_upload_note": "Ечимингизни файл сифатида юкланг.",
+    "file_uploading": "Юкланмоқда…",
+    "file_uploaded": "Юкланди",
+    "file_upload_error": "Файлни юклашда хато",
     "code_run": "Кодни ишга тушириш",
     "code_running": "Ишга тушяпти…",
     "code_empty": "Код бўш — бирор нарса ёзинг.",

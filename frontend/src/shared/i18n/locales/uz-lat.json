@@ -1796,6 +1796,7 @@
     "validation_short_text_required": "To'g'ri javob (matn) ko'rsatilishi shart."
   },
   "exam_lobby": {
+    "id_reference_failed": "Yuz reference rasmi yuklanmadi — proktoring yuz-mosligi ishlamasligi mumkin",
     "section_id_photo": "Yuz rasmi",
     "section_system_check": "Tizim tekshiruvi",
     "section_consent": "Rozilik",
@@ -1857,7 +1858,10 @@
     "chars": "belgi",
     "short_text_placeholder": "Javobni kiriting",
     "essay_placeholder": "Esseni shu yerda yozing…",
-    "file_upload_note": "Fayl tanlash mumkin. Sub-faza 6e+ da haqiqiy yuklash qo'shiladi.",
+    "file_upload_note": "Yechimingizni fayl sifatida yuklang.",
+    "file_uploading": "Yuklanmoqda…",
+    "file_uploaded": "Yuklandi",
+    "file_upload_error": "Faylni yuklashda xato",
     "code_run": "Kodni ishga tushirish",
     "code_running": "Ishga tushyapti…",
     "code_empty": "Kod bo'sh — biror narsa yozing.",

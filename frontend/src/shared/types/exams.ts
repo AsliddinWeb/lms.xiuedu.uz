@@ -154,6 +154,13 @@ export interface AnswerSubmit {
   file_size_bytes?: number | null
 }
 
+export interface AnswerFileUpload {
+  url: string
+  name: string
+  size: number
+  mime: string
+}
+
 export interface AnswerPublic {
   id: number
   attempt_id: number

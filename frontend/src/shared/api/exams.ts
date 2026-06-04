@@ -1,5 +1,6 @@
 import { apiClient } from './client'
 import type {
+  AnswerFileUpload,
   AnswerPublic,
   AnswerSubmit,
   AttemptPublic,
@@ -121,6 +122,22 @@ export const attemptsApi = {
 
   async saveAnswer(id: number, payload: AnswerSubmit): Promise<AnswerPublic> {
     return (await apiClient.post<AnswerPublic>(`/attempts/${id}/answer`, payload)).data
+  },
+
+  async uploadFile(
+    attemptId: number,
+    questionId: number,
+    file: File,
+  ): Promise<AnswerFileUpload> {
+    const fd = new FormData()
+    fd.append('question_id', String(questionId))
+    fd.append('file', file)
+    const { data } = await apiClient.post<AnswerFileUpload>(
+      `/attempts/${attemptId}/upload`,
+      fd,
+      { headers: { 'Content-Type': 'multipart/form-data' } },
+    )
+    return data
   },
 
   async submit(id: number): Promise<AttemptResult> {
