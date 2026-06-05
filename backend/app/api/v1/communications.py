@@ -552,6 +552,9 @@ async def get_forum_thread(
 ) -> ForumThreadPublic:
     thread = await forum_service.get_thread(db, thread_id, user.id)
     await db.commit()
+    # commit obyektni expire qiladi — serializatsiyadan oldin qayta yuklaymiz
+    # (aks holda lazy-load async kontekstda MissingGreenlet beradi)
+    await db.refresh(thread)
     pub = ForumThreadPublic.model_validate(thread)
     if thread.author_id is not None:
         names = await _resolve_author_names(db, [thread.author_id])
