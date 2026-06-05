@@ -181,6 +181,26 @@
     "label_course": "Course",
     "label_issued": "Issued"
   },
+  "help": {
+    "title": "Help center",
+    "subtitle": "Frequently asked questions, guides and contact",
+    "quick_links": "Quick links",
+    "faq": "Frequently asked questions",
+    "contact": "Contact",
+    "contact_desc": "Didn't find the answer to your question? Write to support — we usually reply within 1 business day.",
+    "q_enroll": "How do I enroll in a course?",
+    "a_enroll": "Go to «Course catalog», pick a course and click «Enroll». It will appear in «My learning».",
+    "q_certificate": "How do I get a certificate?",
+    "a_certificate": "A certificate is issued automatically once you complete a course 100%. You can download it as a PDF in the «Certificates» section.",
+    "q_exam": "How do I take an exam?",
+    "a_exam": "In «Exams», select an active exam and click «Start» from the lobby. Your result is shown when you finish or time runs out.",
+    "q_live": "How do I join a live class?",
+    "a_live": "In «Live classes», the «Join» button becomes active at the scheduled time. Allow microphone and camera access.",
+    "q_badge": "How are badges awarded?",
+    "a_badge": "Each badge is tied to a specific action (lesson, course, exam, activity). The «Achievements» section shows each badge's condition and your progress.",
+    "q_password": "How do I change my password?",
+    "a_password": "Open the profile menu in the top-right corner, go to «Security» and update your password."
+  },
   "gamif": {
     "title": "Achievements",
     "subtitle": "Badges, points and leaderboard",

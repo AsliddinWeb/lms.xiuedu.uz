@@ -181,6 +181,26 @@
     "label_course": "Kurs",
     "label_issued": "Berilgan sana"
   },
+  "help": {
+    "title": "Yordam markazi",
+    "subtitle": "Tez-tez beriladigan savollar, qo'llanmalar va aloqa",
+    "quick_links": "Tez havolalar",
+    "faq": "Ko'p so'raladigan savollar",
+    "contact": "Aloqa",
+    "contact_desc": "Savolingizga javob topmadingizmi? Qo'llab-quvvatlash xizmatiga yozing — odatda 1 ish kuni ichida javob beramiz.",
+    "q_enroll": "Kursga qanday yozilaman?",
+    "a_enroll": "«Kurslar katalogi» bo'limiga o'ting, kerakli kursni tanlang va «Yozilish» tugmasini bosing. Kurs «Mening kurslarim»da paydo bo'ladi.",
+    "q_certificate": "Sertifikatni qanday olaman?",
+    "a_certificate": "Kursni 100% tugatganingizda sertifikat avtomatik beriladi. «Sertifikatlar» bo'limidan PDF ko'rinishida yuklab olishingiz mumkin.",
+    "q_exam": "Imtihonni qanday topshiraman?",
+    "a_exam": "«Imtihonlar» bo'limida faol imtihonni tanlab, lobby orqali «Boshlash» tugmasini bosing. Vaqt tugagach yoki yakunlaganingizda natija ko'rsatiladi.",
+    "q_live": "Jonli darsga qanday qo'shilaman?",
+    "a_live": "«Jonli darslar» bo'limida dars vaqti kelganda «Qo'shilish» tugmasi faollashadi. Mikrofon va kamerangizga ruxsat bering.",
+    "q_badge": "Nishonlar qanday beriladi?",
+    "a_badge": "Har bir nishon aniq harakatga bog'langan (dars, kurs, imtihon, faollik). «Yutuqlar» bo'limida har nishonning sharti va progressingiz ko'rinadi.",
+    "q_password": "Parolni qanday o'zgartiraman?",
+    "a_password": "Yuqori o'ng burchakdagi profil menyusidan «Xavfsizlik» bo'limiga o'ting va parolni yangilang."
+  },
   "gamif": {
     "title": "Yutuqlar",
     "subtitle": "Nishonlar, ballar va reyting",

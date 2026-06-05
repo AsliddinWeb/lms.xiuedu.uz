@@ -235,6 +235,12 @@ const routes: RouteRecordRaw[] = [
         name: 'achievements',
         component: () => import('@user/views/achievements/AchievementsView.vue'),
       },
+      // Yordam markazi
+      {
+        path: 'help',
+        name: 'help',
+        component: () => import('@user/views/help/HelpView.vue'),
+      },
       {
         path: 'forum/courses/:courseId',
         name: 'forum-course',
