@@ -276,12 +276,12 @@ const sections = computed<SidebarSection[]>(() => {
   ]
 })
 
-// Footer section: Yordam (faol) / Sozlamalar (sahifa hali ishlanmagan)
+// Footer section: Yordam / Sozlamalar (ikkalasi ham faol)
 const footerSection = computed<SidebarSection>(() => ({
   title: '',
   items: [
     { name: 'help', icon: 'help', label: t('nav.help'), to: '/app/help' },
-    { name: 'settings', icon: 'settings', label: t('nav.settings'), disabled: true },
+    { name: 'settings', icon: 'settings', label: t('nav.settings'), to: '/app/settings' },
   ],
 }))
 

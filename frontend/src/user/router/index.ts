@@ -241,6 +241,12 @@ const routes: RouteRecordRaw[] = [
         name: 'help',
         component: () => import('@user/views/help/HelpView.vue'),
       },
+      // Sozlamalar
+      {
+        path: 'settings',
+        name: 'settings',
+        component: () => import('@user/views/settings/SettingsView.vue'),
+      },
       {
         path: 'forum/courses/:courseId',
         name: 'forum-course',

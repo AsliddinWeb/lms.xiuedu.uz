@@ -201,6 +201,19 @@
     "q_password": "How do I change my password?",
     "a_password": "Open the profile menu in the top-right corner, go to «Security» and update your password."
   },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Appearance, notifications and account",
+    "appearance": "Appearance",
+    "sidebar_label": "Collapse sidebar",
+    "sidebar_desc": "Icons only (compact mode)",
+    "account": "Account",
+    "account_profile": "Profile details",
+    "account_profile_desc": "Name, phone, documents, avatar",
+    "account_security": "Security & 2FA",
+    "account_security_desc": "Password, two-factor protection",
+    "saved": "Saved"
+  },
   "gamif": {
     "title": "Achievements",
     "subtitle": "Badges, points and leaderboard",

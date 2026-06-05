@@ -201,6 +201,19 @@
     "q_password": "Parolni qanday o'zgartiraman?",
     "a_password": "Yuqori o'ng burchakdagi profil menyusidan «Xavfsizlik» bo'limiga o'ting va parolni yangilang."
   },
+  "settings": {
+    "title": "Sozlamalar",
+    "subtitle": "Ko'rinish, bildirishnoma va hisob sozlamalari",
+    "appearance": "Ko'rinish",
+    "sidebar_label": "Yon panelni yig'ib ko'rsatish",
+    "sidebar_desc": "Faqat ikonkalar (ixcham rejim)",
+    "account": "Hisob",
+    "account_profile": "Profil ma'lumotlari",
+    "account_profile_desc": "Ism, telefon, hujjatlar, avatar",
+    "account_security": "Xavfsizlik va 2FA",
+    "account_security_desc": "Parol, ikki bosqichli himoya",
+    "saved": "Saqlandi"
+  },
   "gamif": {
     "title": "Yutuqlar",
     "subtitle": "Nishonlar, ballar va reyting",
