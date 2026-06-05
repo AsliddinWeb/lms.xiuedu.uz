@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { intlLocale } from '@shared/i18n'
 
 import UiAlert from '@shared/components/ui/UiAlert.vue'
 import UiBadge from '@shared/components/ui/UiBadge.vue'
@@ -131,7 +132,7 @@ async function handleRemoveStudent(s: EnrollmentStudent) {
 function fmtDate(s: string | null | undefined): string {
   if (!s) return '—'
   try {
-    return new Intl.DateTimeFormat(locale.value, {
+    return new Intl.DateTimeFormat(intlLocale(locale.value), {
       year: 'numeric',
       month: 'short',
       day: '2-digit',

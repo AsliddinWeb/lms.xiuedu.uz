@@ -33,6 +33,7 @@ import {
 } from '@shared/api/gamification'
 import { examsApi } from '@shared/api/exams'
 import { notificationsApi, type NotificationPublic } from '@shared/api/notifications'
+import { intlLocale } from '@shared/i18n'
 import { useAuthStore } from '@shared/stores/auth'
 import type { Course } from '@shared/types/courses'
 import type { Exam } from '@shared/types/exams'
@@ -89,7 +90,7 @@ const weekActivity = computed(() => {
   const days = activityData.value?.days ?? []
   return days.map((d) => {
     const date = new Date(d.date + 'T00:00:00')
-    const label = new Intl.DateTimeFormat(locale.value, {
+    const label = new Intl.DateTimeFormat(intlLocale(locale.value), {
       weekday: 'short',
     }).format(date)
     return { label, value: d.time_minutes }
@@ -108,7 +109,7 @@ const mostActiveLabel = computed(() => {
   if (!iso) return '—'
   try {
     const date = new Date(iso + 'T00:00:00')
-    return new Intl.DateTimeFormat(locale.value, {
+    return new Intl.DateTimeFormat(intlLocale(locale.value), {
       weekday: 'short',
       day: '2-digit',
       month: 'short',
@@ -126,22 +127,30 @@ async function loadStudentData() {
       page_size: 100,
     })
     enrolledCount.value = enrolled.total
-    recentCourses.value = enrolled.items.slice(0, 3)
 
-    // Har bir aktiv kurs uchun progress
+    // Barcha yozilgan kurslar uchun progress (status + foiz)
     const progresses = await Promise.all(
-      recentCourses.value.map((c) =>
+      enrolled.items.map((c) =>
         progressApi.myCourseProgress(c.id).catch(() => null),
       ),
     )
     const map: Record<number, number> = {}
-    progresses.forEach((p, idx) => {
-      if (p) {
-        const pct = Number(p.percent)
-        map[recentCourses.value[idx].id] = Number.isFinite(pct) ? Math.round(pct) : 0
-      }
+    const courseRows = enrolled.items.map((course, idx) => {
+      const p = progresses[idx]
+      const pct = p ? Number(p.percent) : 0
+      map[course.id] = Number.isFinite(pct) ? Math.round(pct) : 0
+      return { course, percent: map[course.id], status: p?.completion_status ?? null }
     })
     courseProgress.value = map
+
+    // "Davom etish" — tugatilmagan kurslar, ko'p o'zlashtirilgani oldinda;
+    // hammasi tugagan bo'lsa, oddiy ro'yxatdan ko'rsatamiz
+    const inProgress = courseRows
+      .filter((r) => r.status !== 'completed')
+      .sort((a, b) => b.percent - a.percent)
+    recentCourses.value = (inProgress.length ? inProgress : courseRows)
+      .slice(0, 3)
+      .map((r) => r.course)
 
     const active = await assignmentsApi.list({
       mine: true,
@@ -282,7 +291,7 @@ onMounted(async () => {
 
 const today = computed(() => {
   try {
-    return new Intl.DateTimeFormat(locale.value, {
+    return new Intl.DateTimeFormat(intlLocale(locale.value), {
       day: 'numeric',
       month: 'long',
     }).format(new Date())
@@ -297,7 +306,7 @@ const firstName = computed(() => {
 
 function fmtTime(s: string): string {
   try {
-    return new Intl.DateTimeFormat(locale.value, {
+    return new Intl.DateTimeFormat(intlLocale(locale.value), {
       hour: '2-digit',
       minute: '2-digit',
     }).format(new Date(s))
@@ -320,7 +329,7 @@ function deadlineVariant(days: number): 'default' | 'warning' | 'danger' {
 
 function fmtDeadline(s: string): string {
   try {
-    return new Intl.DateTimeFormat(locale.value, {
+    return new Intl.DateTimeFormat(intlLocale(locale.value), {
       day: '2-digit',
       month: 'short',
     }).format(new Date(s)).toUpperCase()

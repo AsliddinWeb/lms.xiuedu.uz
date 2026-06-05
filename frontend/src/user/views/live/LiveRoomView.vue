@@ -9,6 +9,7 @@ import {
 } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { intlLocale } from '@shared/i18n'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 
 import UiAlert from '@shared/components/ui/UiAlert.vue'
@@ -820,7 +821,7 @@ function statusVariant(s: LiveStatus): 'default' | 'success' | 'warning' {
 function fmtDateTime(s: string | null): string {
   if (!s) return '—'
   try {
-    return new Intl.DateTimeFormat(locale.value, {
+    return new Intl.DateTimeFormat(intlLocale(locale.value), {
       month: 'short',
       day: '2-digit',
       hour: '2-digit',
@@ -833,7 +834,7 @@ function fmtDateTime(s: string | null): string {
 
 function fmtChatTime(ts: number): string {
   try {
-    return new Intl.DateTimeFormat(locale.value, {
+    return new Intl.DateTimeFormat(intlLocale(locale.value), {
       hour: '2-digit',
       minute: '2-digit',
     }).format(new Date(ts))

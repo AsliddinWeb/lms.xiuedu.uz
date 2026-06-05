@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { intlLocale } from '@shared/i18n'
 
 import UiAlert from '@shared/components/ui/UiAlert.vue'
 import UiBreadcrumb from '@shared/components/ui/UiBreadcrumb.vue'
@@ -59,7 +60,7 @@ onMounted(load)
 
 function fmtDateTime(s: string): string {
   try {
-    return new Intl.DateTimeFormat(locale.value, {
+    return new Intl.DateTimeFormat(intlLocale(locale.value), {
       month: 'short',
       day: '2-digit',
       hour: '2-digit',
