@@ -1037,7 +1037,9 @@
     "card_students": "{n} students",
     "tab_structure": "Structure",
     "tab_students": "Students",
-    "tab_settings": "Settings"
+    "tab_settings": "Settings",
+    "published_ok": "Course published",
+    "unpublished_ok": "Course unpublished"
   },
   "builder": {
     "back_to_courses": "Back to courses",
@@ -1359,7 +1361,8 @@
     "col_type": "Type",
     "col_duration": "Duration",
     "col_level": "Level",
-    "col_status": "Status"
+    "col_status": "Status",
+    "col_students": "Students"
   },
   "grade_form": {
     "title": "Grade",

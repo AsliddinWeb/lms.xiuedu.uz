@@ -30,6 +30,7 @@ export interface Course {
   enrollment_type: EnrollmentType
   max_students: number | null
   primary_author_id: number | null
+  enrollment_count?: number | null
   created_at: string
   updated_at: string
 }

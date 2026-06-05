@@ -1037,7 +1037,9 @@
     "card_students": "{n} талаба",
     "tab_structure": "Тузилма",
     "tab_students": "Талабалар",
-    "tab_settings": "Созламалар"
+    "tab_settings": "Созламалар",
+    "published_ok": "Курс нашр қилинди",
+    "unpublished_ok": "Курс нашрдан олинди"
   },
   "builder": {
     "back_to_courses": "Курсларга қайтиш",
@@ -1359,7 +1361,8 @@
     "col_type": "Тур",
     "col_duration": "Давомийлиги",
     "col_level": "Даража",
-    "col_status": "Ҳолати"
+    "col_status": "Ҳолати",
+    "col_students": "Талабалар"
   },
   "grade_form": {
     "title": "Баҳолаш",

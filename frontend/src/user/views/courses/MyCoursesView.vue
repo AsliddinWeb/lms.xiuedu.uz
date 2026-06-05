@@ -118,12 +118,16 @@ async function handleDelete(c: Course) {
 }
 
 async function togglePublish(c: Course) {
+  const wasPublished = c.status === 'published'
   try {
-    if (c.status === 'published') await coursesApi.unpublish(c.id)
+    if (wasPublished) await coursesApi.unpublish(c.id)
     else await coursesApi.publish(c.id)
     await load()
+    toast.success(t(wasPublished ? 'courses.unpublished_ok' : 'courses.published_ok'))
   } catch (e) {
-    error.value = extractErrorMessage(e, t('common.save_error'))
+    const msg = extractErrorMessage(e, t('common.save_error'))
+    error.value = msg
+    toast.error(msg)
   }
 }
 
@@ -225,6 +229,9 @@ function levelLabel(c: Course): string | null {
               {{ t('my_courses.col_level') }}
             </th>
             <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('my_courses.col_students') }}
+            </th>
+            <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
               {{ t('my_courses.col_status') }}
             </th>
             <th scope="col" class="px-4 py-3"></th>
@@ -256,6 +263,9 @@ function levelLabel(c: Course): string | null {
             </td>
             <td class="px-4 py-3 font-mono text-[12px]">
               {{ levelLabel(c) ?? '—' }}
+            </td>
+            <td class="px-4 py-3 font-mono text-[12px] tabular-nums">
+              {{ c.enrollment_count ?? 0 }}
             </td>
             <td class="px-4 py-3">
               <UiBadge :variant="statusVariant(c.status)" with-dot>

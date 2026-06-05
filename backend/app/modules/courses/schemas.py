@@ -103,6 +103,9 @@ class CoursePublic(BaseModel):
 
     primary_author_id: int | None
 
+    # Ro'yxat javobida to'ldiriladi (yozilgan talabalar soni) — ixtiyoriy
+    enrollment_count: int | None = None
+
     created_at: datetime
     updated_at: datetime
 

@@ -1037,7 +1037,9 @@
     "card_students": "{n} talaba",
     "tab_structure": "Tuzilma",
     "tab_students": "Talabalar",
-    "tab_settings": "Sozlamalar"
+    "tab_settings": "Sozlamalar",
+    "published_ok": "Kurs nashr qilindi",
+    "unpublished_ok": "Kurs nashrdan olindi"
   },
   "builder": {
     "back_to_courses": "Kurslarga qaytish",
@@ -1359,7 +1361,8 @@
     "col_type": "Tur",
     "col_duration": "Davomiyligi",
     "col_level": "Daraja",
-    "col_status": "Holati"
+    "col_status": "Holati",
+    "col_students": "Talabalar"
   },
   "grade_form": {
     "title": "Baholash",

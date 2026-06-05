@@ -101,9 +101,25 @@ async def list_courses(
         page=page,
         page_size=page_size,
     )
-    return PaginatedCourses(
-        items=[CoursePublic.model_validate(c) for c in items], total=total
-    )
+    pubs = [CoursePublic.model_validate(c) for c in items]
+    # Har kurs uchun yozilgan talabalar soni — bitta grouped query (N+1 emas)
+    if pubs:
+        from sqlalchemy import func, select
+
+        from app.modules.courses.models import Enrollment
+
+        ids = [c.id for c in items]
+        rows = (
+            await db.execute(
+                select(Enrollment.course_id, func.count())
+                .where(Enrollment.course_id.in_(ids))
+                .group_by(Enrollment.course_id)
+            )
+        ).all()
+        counts = {cid: int(n) for cid, n in rows}
+        for p in pubs:
+            p.enrollment_count = counts.get(p.id, 0)
+    return PaginatedCourses(items=pubs, total=total)
 
 
 @router.post(

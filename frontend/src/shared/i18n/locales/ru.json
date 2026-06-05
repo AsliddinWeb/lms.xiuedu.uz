@@ -1037,7 +1037,9 @@
     "card_students": "Студентов: {n}",
     "tab_structure": "Структура",
     "tab_students": "Студенты",
-    "tab_settings": "Настройки"
+    "tab_settings": "Настройки",
+    "published_ok": "Курс опубликован",
+    "unpublished_ok": "Курс снят с публикации"
   },
   "builder": {
     "back_to_courses": "Назад к курсам",
@@ -1359,7 +1361,8 @@
     "col_type": "Тип",
     "col_duration": "Длительность",
     "col_level": "Уровень",
-    "col_status": "Статус"
+    "col_status": "Статус",
+    "col_students": "Студенты"
   },
   "grade_form": {
     "title": "Оценка",
