@@ -266,12 +266,12 @@
   "brand": {
     "platform": "XIU EduPlatform",
     "tagline_serif": "Bilim olishning yangi <em>raqamli</em> davri.",
-    "description": "Xalqaro Innovatsiya Universiteti uchun zamonaviy masofaviy ta'lim platformasi.",
+    "description": "Xalqaro innovatsion universiteti uchun zamonaviy masofaviy ta'lim platformasi.",
     "login_side_text": "HEMIS hisobingiz bilan tizimga kiring. Talabalar va o'qituvchilar uchun yagona ta'lim muhiti.",
     "stat_students": "Talabalar",
     "stat_otm": "OTM",
     "stat_uptime": "Uptime",
-    "footer_legal": "Xalqaro Innovatsiya Universiteti"
+    "footer_legal": "Xalqaro innovatsion universiteti"
   },
   "auth": {
     "login_title": "Tizimga kirish",
@@ -1407,7 +1407,7 @@
   "university": {
     "tag": "UNIVERSITET",
     "title": "Universitet sozlamalari",
-    "subtitle": "Xalqaro Innovatsiya Universiteti — branding va integratsiya sozlamalari.",
+    "subtitle": "Xalqaro innovatsion universiteti — branding va integratsiya sozlamalari.",
     "section_basic": "Asosiy ma'lumotlar",
     "section_hemis": "HEMIS integratsiyasi",
     "field_code": "Kod",

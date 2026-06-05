@@ -79,7 +79,7 @@ class Settings(BaseSettings):
     # lekin barcha record'lar shu yagona Organization'ga bog'lanadi.
     # `seed.py` da `id=1` bilan idempotent yaratiladi.
     TENANT_CODE: str = "XIU"
-    TENANT_NAME: str = "Xalqaro Innovatsiya Universiteti"
+    TENANT_NAME: str = "Xalqaro innovatsion universiteti"
     TENANT_DOMAIN: str = "xiuedu.uz"
 
     # --- Integratsiyalar (bo'sh = o'chirilgan) ---

@@ -82,7 +82,7 @@ def mock_account_me(token: str) -> dict[str, Any]:
             "third_name": "Anvarovich",
             "full_name": "Asadbek Rasulov Anvarovich",
             "short_name": "A.Rasulov",
-            "university": "Xalqaro Innovatsiya Universiteti",
+            "university": "Xalqaro innovatsion universiteti",
             "universityOwnership": {"code": "private", "name": "Xususiy"},
             "image": "https://student.xiuedu.uz/avatars/999001.jpg",
             "birth_date": 946684800,  # 2000-01-01

@@ -100,7 +100,7 @@ def render_certificate_pdf(
     issued_at: datetime,
     verification_url: str,
     score_percentage: float | None = None,
-    organization_name: str = "Xalqaro Innovatsiya Universiteti",
+    organization_name: str = "Xalqaro innovatsion universiteti",
 ) -> bytes:
     buf = io.BytesIO()
     page_size = landscape(A4)
