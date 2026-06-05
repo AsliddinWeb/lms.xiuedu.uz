@@ -1181,16 +1181,36 @@ async def seed_certificate(db: AsyncSession, course: Course, student: User):
     ).scalar_one_or_none()
     if exists:
         return
-    db.add(
-        Certificate(
-            user_id=student.id,
-            course_id=course.id,
-            certificate_number="XIU-2026-000123",
-            verification_code="A1B2C3D4E5F6G7H8",
-            score_percentage=Decimal("92.50"),
-            issued_at=now() - timedelta(days=1),
-        )
+    cert = Certificate(
+        user_id=student.id,
+        course_id=course.id,
+        certificate_number="XIU-2026-000123",
+        verification_code="A1B2C3D4E5F6G7H8",
+        score_percentage=Decimal("92.50"),
+        issued_at=now() - timedelta(days=1),
     )
+    db.add(cert)
+    await db.flush()
+
+    # Kreativ PDF generatsiya + MinIO (download tugmasi ishlashi uchun)
+    from app.core.storage import upload_object
+    from app.modules.certificates.pdf import render_certificate_pdf
+    from app.modules.certificates.service import _verification_url
+
+    pdf_bytes = render_certificate_pdf(
+        student_name=student.full_name,
+        course_title=course.title,
+        certificate_number=cert.certificate_number,
+        issued_at=cert.issued_at,
+        verification_url=_verification_url(cert.verification_code),
+        score_percentage=float(cert.score_percentage),
+    )
+    obj = f"certificates/{cert.id}/{cert.certificate_number}.pdf"
+    try:
+        upload_object(object_name=obj, data=pdf_bytes, content_type="application/pdf")
+        cert.pdf_path = obj
+    except Exception:  # noqa: BLE001
+        pass
     await db.flush()
 
 
