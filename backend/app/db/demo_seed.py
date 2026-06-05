@@ -1297,6 +1297,79 @@ async def seed_notifications(db: AsyncSession, student: User, course: Course):
 
 
 # ---------------------------------------------------------------------------
+# 11. Baholar semestr tarixi (Phase 25)
+# ---------------------------------------------------------------------------
+
+
+async def seed_grade_history(
+    db: AsyncSession, courses: list[Course], teacher: User, main_student: User, org
+):
+    # (a) Joriy enrollmentlarni Bahorgi semestrga taglash
+    for course in courses[:4]:
+        enr = (
+            await db.execute(
+                select(Enrollment).where(
+                    Enrollment.course_id == course.id,
+                    Enrollment.user_id == main_student.id,
+                )
+            )
+        ).scalar_one_or_none()
+        if enr and not enr.semester:
+            enr.academic_year = "2025-2026"
+            enr.semester = "Bahorgi semestr"
+    await db.flush()
+
+    # (b) O'tgan semestr (Kuzgi) — 3 yakunlangan kurs + yakuniy baho
+    past = [
+        ("oliy-matematika", "Oliy matematika", Decimal("91")),
+        ("fizika-asoslari", "Fizika asoslari", Decimal("76")),
+        ("ingliz-tili-b1", "Ingliz tili (B1)", Decimal("84")),
+    ]
+    pstart = now() - timedelta(days=180)
+    for slug, title, grade in past:
+        course = (
+            await db.execute(select(Course).where(Course.slug == slug))
+        ).scalar_one_or_none()
+        if course is None:
+            course = Course(
+                title=title,
+                slug=slug,
+                organization_id=org.id,
+                type="academic",
+                language="uz-lat",
+                status="published",
+                published_at=pstart,
+                enrollment_type="manual",
+                primary_author_id=teacher.id,
+            )
+            db.add(course)
+            await db.flush()
+        exists = (
+            await db.execute(
+                select(Enrollment).where(
+                    Enrollment.course_id == course.id,
+                    Enrollment.user_id == main_student.id,
+                )
+            )
+        ).scalar_one_or_none()
+        if exists is None:
+            db.add(
+                Enrollment(
+                    course_id=course.id,
+                    user_id=main_student.id,
+                    enrollment_method="auto",
+                    completion_status="completed",
+                    completed_at=pstart + timedelta(days=120),
+                    final_grade=grade,
+                    academic_year="2025-2026",
+                    semester="Kuzgi semestr",
+                    enrolled_at=pstart,
+                )
+            )
+    await db.flush()
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -1388,6 +1461,7 @@ async def main() -> None:
         await seed_assignments(db, courses, teacher, main_student)
         await seed_exams(db, courses, teacher, main_student)
         await seed_live(db, courses, teacher, all_students)
+        await seed_grade_history(db, courses, teacher, main_student, org)
         await seed_forum(db, courses[0], teacher, all_students)
         await seed_certificate(db, courses[0], main_student)
         await seed_gamification(db, all_students)

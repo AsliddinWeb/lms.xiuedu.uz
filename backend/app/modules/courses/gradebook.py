@@ -125,15 +125,23 @@ async def _subject_credits(db: AsyncSession, courses: list[Course]) -> dict[int,
 
 async def get_my_gradebook(db: AsyncSession, *, user_id: int) -> list[dict]:
     """Talaba uchun kursli (joriy) gradebook qaytaradi."""
-    enrolled = (
+    enr_rows = (
         await db.execute(
-            select(Course)
-            .join(Enrollment, Enrollment.course_id == Course.id)
+            select(Enrollment, Course)
+            .join(Course, Course.id == Enrollment.course_id)
             .where(Enrollment.user_id == user_id)
         )
-    ).scalars().all()
-    if not enrolled:
+    ).all()
+    if not enr_rows:
         return []
+    # Joriy gradebook faqat eng so'nggi (joriy) semestr kurslarini ko'rsatadi.
+    # Taglar bo'lmasa (None, None) — barcha kurslar (eski xatti-harakat).
+    latest = max(enr_rows, key=lambda r: r[0].enrolled_at)[0]
+    cur_key = (latest.academic_year, latest.semester)
+    if cur_key == (None, None):
+        enrolled = [c for _, c in enr_rows]
+    else:
+        enrolled = [c for e, c in enr_rows if (e.academic_year, e.semester) == cur_key]
 
     author_ids = [c.primary_author_id for c in enrolled if c.primary_author_id]
     teachers: dict[int, str] = {}
