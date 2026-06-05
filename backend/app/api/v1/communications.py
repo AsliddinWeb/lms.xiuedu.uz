@@ -82,6 +82,15 @@ class PaginatedConversations(BaseModel):
     total: int
 
 
+class ContactPublic(BaseModel):
+    """Suhbatlasha olinadigan kontakt (o'qituvchi / kursdosh) — Phase 26."""
+
+    user_id: int
+    full_name: str
+    avatar_url: str | None = None
+    relation: str  # 'teacher' | 'classmate'
+
+
 class PaginatedMessages(BaseModel):
     items: list[MessagePublic]
     has_more: bool
@@ -160,6 +169,15 @@ async def open_direct_conversation(
     await db.commit()
     await db.refresh(conv)
     return await _serialize_conversation(db, conv, user.id)
+
+
+@router.get("/chat/contacts", response_model=list[ContactPublic], tags=["chat"])
+async def list_contacts(
+    db: DbSession,
+    user: CurrentUser,
+) -> list[ContactPublic]:
+    rows = await chat_service.get_contacts(db, user.id)
+    return [ContactPublic(**r) for r in rows]
 
 
 @router.post(

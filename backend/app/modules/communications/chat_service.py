@@ -415,3 +415,92 @@ async def ensure_course_chat(
         )
         await db.flush()
     return conv
+
+
+# ============================================================================
+# Kontaktlar (kim bilan suhbatlashish mumkin) — Phase 26
+# ============================================================================
+
+
+async def get_contacts(db: AsyncSession, user_id: int) -> list[dict]:
+    """Talaba suhbatlasha oladigan kontaktlar — yozilgan kurslar o'qituvchilari
+    va kursdoshlari (birga o'qiydigan talabalar). O'qituvchilar birinchi.
+    """
+    from app.modules.courses.models import Course, Enrollment
+    from app.modules.users.models import User
+
+    course_ids = list(
+        {
+            cid
+            for cid in (
+                await db.execute(
+                    select(Enrollment.course_id).where(Enrollment.user_id == user_id)
+                )
+            ).scalars().all()
+        }
+    )
+    if not course_ids:
+        return []
+
+    teacher_ids = {
+        t
+        for t in (
+            await db.execute(
+                select(Course.primary_author_id).where(
+                    Course.id.in_(course_ids),
+                    Course.primary_author_id.isnot(None),
+                )
+            )
+        ).scalars().all()
+        if t
+    }
+
+    classmate_ids = {
+        c
+        for c in (
+            await db.execute(
+                select(Enrollment.user_id).where(
+                    Enrollment.course_id.in_(course_ids),
+                    Enrollment.user_id != user_id,
+                )
+            )
+        ).scalars().all()
+    } - teacher_ids - {user_id}
+
+    all_ids = teacher_ids | classmate_ids
+    if not all_ids:
+        return []
+
+    info = {
+        uid: (name, av)
+        for uid, name, av in (
+            await db.execute(
+                select(User.id, User.full_name, User.avatar_url).where(
+                    User.id.in_(all_ids)
+                )
+            )
+        ).all()
+    }
+
+    out: list[dict] = []
+    for uid in teacher_ids:
+        if uid in info:
+            out.append(
+                {
+                    "user_id": uid,
+                    "full_name": info[uid][0],
+                    "avatar_url": info[uid][1],
+                    "relation": "teacher",
+                }
+            )
+    for uid in sorted(classmate_ids):
+        if uid in info:
+            out.append(
+                {
+                    "user_id": uid,
+                    "full_name": info[uid][0],
+                    "avatar_url": info[uid][1],
+                    "relation": "classmate",
+                }
+            )
+    return out
