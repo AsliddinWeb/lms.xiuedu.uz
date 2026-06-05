@@ -42,7 +42,13 @@ from app.modules.assignments.models import (
     Submission,
 )
 from app.modules.certificates.models import Certificate
-from app.modules.communications.models import ForumPost, ForumThread
+from app.modules.communications.models import (
+    Conversation,
+    ConversationMember,
+    ForumPost,
+    ForumThread,
+    Message,
+)
 from app.modules.content.models import ContentItem
 from app.modules.courses.models import (
     Course,
@@ -1370,6 +1376,88 @@ async def seed_grade_history(
 
 
 # ---------------------------------------------------------------------------
+# 12. Chat (suhbatlar) — Phase 26
+# ---------------------------------------------------------------------------
+
+
+async def _seed_direct_chat(
+    db: AsyncSession, a_id: int, b_id: int, msgs: list[tuple[int, str]], *, a_read: bool
+):
+    """a_id va b_id orasida direct suhbat + xabarlar. a_read=False bo'lsa a uchun
+    o'qilmagan xabar qoladi (sidebar badge uchun).
+    """
+    conv = Conversation(type="direct")
+    db.add(conv)
+    await db.flush()
+    base = now() - timedelta(hours=3)
+    last_at = base
+    for i, (sid, body) in enumerate(msgs):
+        at = base + timedelta(minutes=i * 5)
+        db.add(Message(conversation_id=conv.id, sender_id=sid, body=body, created_at=at))
+        last_at = at
+    await db.flush()
+    conv.last_message_at = last_at
+    db.add_all(
+        [
+            ConversationMember(
+                conversation_id=conv.id,
+                user_id=a_id,
+                role="member",
+                last_read_at=last_at if a_read else None,
+            ),
+            ConversationMember(
+                conversation_id=conv.id, user_id=b_id, role="member", last_read_at=last_at
+            ),
+        ]
+    )
+    await db.flush()
+
+
+async def seed_chat(
+    db: AsyncSession, main_student: User, teacher: User, extra_students: list[User]
+):
+    # Idempotent — talabada suhbat bo'lsa o'tkazib yuboramiz
+    existing = (
+        await db.execute(
+            select(ConversationMember).where(
+                ConversationMember.user_id == main_student.id
+            )
+        )
+    ).first()
+    if existing:
+        return
+
+    # 1) Talaba ↔ O'qituvchi (1 o'qilmagan qoldiramiz)
+    await _seed_direct_chat(
+        db,
+        main_student.id,
+        teacher.id,
+        [
+            (main_student.id, "Assalomu alaykum, ustoz! Topshiriq bo'yicha savol bor edi."),
+            (teacher.id, "Va alaykum assalom! Marhamat, qanday savol?"),
+            (main_student.id, "Rubrikada optimizatsiya qismini to'liq tushunmadim."),
+            (teacher.id, "Indekslar haqida darsdagi 3-bo'limni ko'ring — u yerda misol bor."),
+        ],
+        a_read=False,
+    )
+
+    # 2) Talaba ↔ Kursdosh (o'qilgan)
+    if extra_students:
+        mate = extra_students[0]
+        await _seed_direct_chat(
+            db,
+            main_student.id,
+            mate.id,
+            [
+                (mate.id, "Salom! Bugungi jonli darsga ulanasanmi?"),
+                (main_student.id, "Ha, albatta. Ertaga SQL imtihoni ham bor-ku."),
+                (mate.id, "Ha, birga tayyorlanaylik."),
+            ],
+            a_read=True,
+        )
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -1462,6 +1550,7 @@ async def main() -> None:
         await seed_exams(db, courses, teacher, main_student)
         await seed_live(db, courses, teacher, all_students)
         await seed_grade_history(db, courses, teacher, main_student, org)
+        await seed_chat(db, main_student, teacher, extra_students)
         await seed_forum(db, courses[0], teacher, all_students)
         await seed_certificate(db, courses[0], main_student)
         await seed_gamification(db, all_students)
