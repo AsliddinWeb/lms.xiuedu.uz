@@ -88,9 +88,11 @@ const faqKeys = ['enroll', 'certificate', 'exam', 'live', 'badge', 'password']
             <path d="m6 9 6 6 6-6" />
           </svg>
         </summary>
-        <p class="px-4 pb-3.5 pt-0 text-[13px] text-muted-foreground leading-relaxed border-t border-border/60">
-          {{ t(`help.a_${key}`) }}
-        </p>
+        <div class="px-4 pb-4 pt-3 border-t border-border/60">
+          <p class="text-[13px] text-muted-foreground leading-relaxed">
+            {{ t(`help.a_${key}`) }}
+          </p>
+        </div>
       </details>
     </UiCard>
   </div>
