@@ -926,6 +926,28 @@ class GradebookRow(BaseModel):
     grade_variant: str
 
 
+class SemesterCourseGrade(BaseModel):
+    """Phase 25 — semestr tarixidagi bitta kurs bahosi."""
+
+    course_id: int
+    title: str
+    credits: int
+    grade_number: int
+    grade_letter: str
+    grade_variant: str
+
+
+class SemesterGrades(BaseModel):
+    """Phase 25 — bitta semestr natijalari (kurslar + GPA)."""
+
+    academic_year: str
+    semester: str
+    courses: list[SemesterCourseGrade]
+    gpa: float | None
+    avg: float | None
+    total_credits: int
+
+
 @router.get("/me/gradebook", response_model=list[GradebookRow])
 async def my_gradebook(
     db: DbSession,
@@ -966,6 +988,15 @@ async def my_gradebook_csv(
         media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": f"attachment; filename={fname}"},
     )
+
+
+@router.get("/me/gradebook/history", response_model=list[SemesterGrades])
+async def my_gradebook_history(
+    db: DbSession,
+    actor: CurrentUser,
+) -> list[SemesterGrades]:
+    groups = await gradebook.get_my_gradebook_history(db, user_id=actor.id)
+    return [SemesterGrades(**g) for g in groups]
 
 
 # ============================================================================
