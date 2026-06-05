@@ -190,6 +190,28 @@ async def transition_course_status(
             f"Kurs statusini '{course.status}' -> '{new_status}' o'zgartirish "
             f"ruxsat etilmagan. Ruxsat etilgan: {allowed_text}"
         )
+    # Bo'sh kursni nashr qilib bo'lmaydi — kamida 1 modul va 1 dars bo'lishi shart
+    if new_status == "published":
+        module_ids = (
+            await db.execute(
+                select(Module.id).where(Module.course_id == course_id)
+            )
+        ).scalars().all()
+        if not module_ids:
+            raise ValidationError(
+                "Kursni nashr qilish uchun kamida bitta modul bo'lishi shart"
+            )
+        lesson_count = (
+            await db.execute(
+                select(func.count())
+                .select_from(Lesson)
+                .where(Lesson.module_id.in_(module_ids))
+            )
+        ).scalar_one()
+        if not lesson_count:
+            raise ValidationError(
+                "Kursni nashr qilish uchun kamida bitta dars bo'lishi shart"
+            )
     course.status = new_status
     if new_status == "published":
         course.published_at = _now()
