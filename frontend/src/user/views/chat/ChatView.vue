@@ -29,6 +29,7 @@ import UiInput from '@shared/components/ui/UiInput.vue'
 import UiSkeleton from '@shared/components/ui/UiSkeleton.vue'
 import {
   chatApi,
+  type ChatContact,
   type ConversationPublic,
   type MessagePublic,
 } from '@shared/api/chat'
@@ -54,6 +55,36 @@ const sending = ref(false)
 const thread = ref<HTMLDivElement | null>(null)
 
 const ws = useChatSocket()
+
+// Phase 26 — yangi suhbat (kontakt picker)
+const showContacts = ref(false)
+const contacts = ref<ChatContact[]>([])
+const loadingContacts = ref(false)
+
+async function openContacts() {
+  showContacts.value = true
+  if (contacts.value.length === 0) {
+    loadingContacts.value = true
+    try {
+      contacts.value = await chatApi.contacts()
+    } catch {
+      contacts.value = []
+    } finally {
+      loadingContacts.value = false
+    }
+  }
+}
+
+async function startChat(c: ChatContact) {
+  showContacts.value = false
+  try {
+    const conv = await chatApi.openDirect(c.user_id)
+    await loadConversations()
+    await openConversation(conv.id)
+  } catch (e) {
+    error.value = extractErrorMessage(e, t('common.load_error'))
+  }
+}
 
 const activeConv = computed<ConversationPublic | null>(
   () => conversations.value.find((c) => c.id === activeId.value) ?? null,
@@ -270,11 +301,57 @@ watch(
       class="border-r border-border flex flex-col"
       :class="{ 'hidden md:flex': activeId !== null }"
     >
-      <div class="px-3 py-2 border-b border-border">
-        <UiInput
-          v-model="search"
-          :placeholder="t('chat.search_placeholder')"
-        />
+      <div class="px-3 py-2 border-b border-border space-y-2">
+        <div class="flex items-center gap-2">
+          <UiInput
+            v-model="search"
+            :placeholder="t('chat.search_placeholder')"
+            class="flex-1"
+          />
+          <UiButton size="sm" @click="openContacts">+ {{ t('chat.new') }}</UiButton>
+        </div>
+
+        <!-- Kontakt picker (Phase 26) -->
+        <div v-if="showContacts" class="border border-border rounded-md bg-card">
+          <div class="px-3 py-2 border-b border-border flex items-center justify-between">
+            <span class="text-[12px] font-semibold">{{ t('chat.new_title') }}</span>
+            <button
+              type="button"
+              class="text-muted-foreground hover:text-foreground"
+              @click="showContacts = false"
+            >
+              ✕
+            </button>
+          </div>
+          <div v-if="loadingContacts" class="p-3">
+            <UiSkeleton :count="3" />
+          </div>
+          <div
+            v-else-if="contacts.length === 0"
+            class="p-4 text-center text-[12px] text-muted-foreground"
+          >
+            {{ t('chat.no_contacts') }}
+          </div>
+          <ul v-else class="max-h-[260px] overflow-y-auto divide-y divide-border">
+            <li v-for="ct in contacts" :key="ct.user_id">
+              <button
+                type="button"
+                class="w-full text-left px-3 py-2 hover:bg-muted/40 transition-colors flex items-center gap-2.5"
+                @click="startChat(ct)"
+              >
+                <div class="w-7 h-7 rounded-full bg-muted grid place-items-center text-[11px] font-semibold shrink-0">
+                  {{ ct.full_name.slice(0, 1) }}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-[13px] font-medium truncate">{{ ct.full_name }}</div>
+                  <div class="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+                    {{ t(`chat.relation_${ct.relation}`) }}
+                  </div>
+                </div>
+              </button>
+            </li>
+          </ul>
+        </div>
       </div>
 
       <div v-if="loadingList" class="p-3">

@@ -47,7 +47,17 @@ export interface PaginatedMessages {
   has_more: boolean
 }
 
+export interface ChatContact {
+  user_id: number
+  full_name: string
+  avatar_url: string | null
+  relation: 'teacher' | 'classmate'
+}
+
 export const chatApi = {
+  async contacts(): Promise<ChatContact[]> {
+    return (await apiClient.get<ChatContact[]>('/chat/contacts')).data
+  },
   async listConversations(params: {
     include_archived?: boolean
     page?: number
