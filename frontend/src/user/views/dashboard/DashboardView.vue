@@ -85,16 +85,49 @@ const upcomingExams = ref<Exam[]>([])
 const topNotifications = ref<NotificationPublic[]>([])
 const unreadNotificationCount = ref(0)
 
-// Activity chart UI ma'lumotlari
-const weekActivity = computed(() => {
+// Activity chart UI ma'lumotlari — davrga qarab guruhlash + balandlik normallash
+// (365 kunni kunlab chizsa, ustunlar displaydan chiqib ketadi -> oylab guruhlanadi)
+const chartBars = computed(() => {
   const days = activityData.value?.days ?? []
-  return days.map((d) => {
-    const date = new Date(d.date + 'T00:00:00')
-    const label = new Intl.DateTimeFormat(intlLocale(locale.value), {
-      weekday: 'short',
-    }).format(date)
-    return { label, value: d.time_minutes }
-  })
+  if (days.length === 0) return []
+
+  let buckets: { label: string; minutes: number }[]
+  if (activityPeriod.value === 365) {
+    // Oylar bo'yicha yig'indi (12 ustun)
+    const byMonth = new Map<string, number>()
+    for (const d of days) {
+      const dt = new Date(d.date + 'T00:00:00')
+      const key = `${dt.getFullYear()}-${String(dt.getMonth()).padStart(2, '0')}`
+      byMonth.set(key, (byMonth.get(key) ?? 0) + d.time_minutes)
+    }
+    buckets = [...byMonth.entries()].map(([key, minutes]) => {
+      const [y, m] = key.split('-').map(Number)
+      const label = new Intl.DateTimeFormat(intlLocale(locale.value), {
+        month: 'short',
+      }).format(new Date(y, m, 1))
+      return { label, minutes }
+    })
+  } else {
+    // Kunlab — 7 kun har biriga yorliq, 30 kun siyrak (har 5-kunda)
+    buckets = days.map((d, i) => {
+      const dt = new Date(d.date + 'T00:00:00')
+      const showLabel = activityPeriod.value <= 7 || i % 5 === 0
+      const label = showLabel
+        ? new Intl.DateTimeFormat(intlLocale(locale.value), {
+            weekday: activityPeriod.value <= 7 ? 'short' : undefined,
+            day: activityPeriod.value <= 7 ? undefined : '2-digit',
+          }).format(dt)
+        : ''
+      return { label, minutes: d.time_minutes }
+    })
+  }
+
+  // Balandlikni eng kattaga nisbatan 0–100 ga normallaymiz
+  const max = Math.max(1, ...buckets.map((b) => b.minutes))
+  return buckets.map((b) => ({
+    label: b.label,
+    value: b.minutes > 0 ? Math.round((b.minutes / max) * 100) : 0,
+  }))
 })
 
 const totalHours = computed(() => {
@@ -535,7 +568,7 @@ function progressOf(c: Course): number {
           </div>
         </div>
         <div class="p-5">
-          <UiChartBar v-if="weekActivity.length > 0" :items="weekActivity" :height="180" />
+          <UiChartBar v-if="chartBars.length > 0" :items="chartBars" :height="180" />
           <div
             v-else
             class="h-[180px] flex items-center justify-center text-[12px] text-muted-foreground"
