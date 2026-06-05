@@ -817,7 +817,11 @@
     "tz_tashkent": "Тошкент (UTC+5)",
     "tz_samarkand": "Самарқанд (UTC+5)",
     "tz_moscow": "Москва (UTC+3)",
-    "tz_almaty": "Олмаота (UTC+5)"
+    "tz_almaty": "Олмаота (UTC+5)",
+    "invalid_phone": "Телефон рақами нотўғри форматда.",
+    "invalid_pinfl": "PINFL 14 та рақамдан иборат бўлиши керак.",
+    "invalid_passport_series": "Паспорт серияси 2 та катта лотин ҳарфи бўлиши керак (масалан: AB).",
+    "invalid_passport_number": "Паспорт рақами 7 та рақамдан иборат бўлиши керак."
   },
   "security": {
     "title": "Хавфсизлик созламалари",

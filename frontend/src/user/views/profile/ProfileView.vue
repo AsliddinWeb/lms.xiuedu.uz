@@ -111,16 +111,33 @@ async function load() {
   }
 }
 
+function validate(): string | null {
+  const p = phone.value.trim()
+  if (p && !/^\+?[0-9]{7,19}$/.test(p)) return t('profile.invalid_phone')
+  const pi = pinfl.value.trim()
+  if (pi && !/^\d{14}$/.test(pi)) return t('profile.invalid_pinfl')
+  const ps = passportSeries.value.trim().toUpperCase()
+  if (ps && !/^[A-Z]{2}$/.test(ps)) return t('profile.invalid_passport_series')
+  const pn = passportNumber.value.trim()
+  if (pn && !/^\d{7}$/.test(pn)) return t('profile.invalid_passport_number')
+  return null
+}
+
 async function handleSave() {
   errorMsg.value = null
   successMsg.value = null
+  const invalid = validate()
+  if (invalid) {
+    errorMsg.value = invalid
+    return
+  }
   submitting.value = true
   try {
     const me = await authApi.updateMe({
       full_name: fullName.value.trim(),
       phone: phone.value.trim() || null,
       pinfl: pinfl.value.trim() || null,
-      passport_series: passportSeries.value.trim() || null,
+      passport_series: passportSeries.value.trim().toUpperCase() || null,
       passport_number: passportNumber.value.trim() || null,
       birthdate: birthdate.value || null,
       gender: gender.value,
@@ -263,19 +280,34 @@ onMounted(load)
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <UiFormField :label="t('profile.field_pinfl')">
-            <UiInput v-model="pinfl" :disabled="isHemisAccount" />
+            <UiInput
+              v-model="pinfl"
+              :disabled="isHemisAccount"
+              inputmode="numeric"
+              maxlength="14"
+            />
           </UiFormField>
           <UiFormField :label="t('profile.field_passport_series')">
-            <UiInput v-model="passportSeries" :placeholder="t('profile.placeholder_passport_series')" />
+            <UiInput
+              v-model="passportSeries"
+              :placeholder="t('profile.placeholder_passport_series')"
+              maxlength="2"
+              class="uppercase"
+            />
           </UiFormField>
           <UiFormField :label="t('profile.field_passport_number')">
-            <UiInput v-model="passportNumber" :placeholder="t('profile.placeholder_passport_number')" />
+            <UiInput
+              v-model="passportNumber"
+              :placeholder="t('profile.placeholder_passport_number')"
+              inputmode="numeric"
+              maxlength="7"
+            />
           </UiFormField>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <UiFormField :label="t('profile.field_birthdate')" :hint="t('profile.field_birthdate_hint')">
-            <UiInput v-model="birthdate" :placeholder="t('profile.placeholder_birthdate')" />
+            <UiInput v-model="birthdate" type="date" max="2099-12-31" />
           </UiFormField>
           <UiFormField :label="t('profile.field_gender')">
             <UiSelect

@@ -817,7 +817,11 @@
     "tz_tashkent": "Ташкент (UTC+5)",
     "tz_samarkand": "Самарканд (UTC+5)",
     "tz_moscow": "Москва (UTC+3)",
-    "tz_almaty": "Алматы (UTC+5)"
+    "tz_almaty": "Алматы (UTC+5)",
+    "invalid_phone": "Неверный формат номера телефона.",
+    "invalid_pinfl": "ПИНФЛ должен состоять из 14 цифр.",
+    "invalid_passport_series": "Серия паспорта — 2 заглавные латинские буквы (например: AB).",
+    "invalid_passport_number": "Номер паспорта должен состоять из 7 цифр."
   },
   "security": {
     "title": "Настройки безопасности",

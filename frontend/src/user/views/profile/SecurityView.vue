@@ -149,8 +149,7 @@ async function resendVerification() {
   <div class="space-y-4">
     <!-- Email verified status -->
     <UiCard :title="t('security.email_section')">
-      <template #header>
-        <h3 class="text-sm font-semibold text-foreground">{{ t('security.email_section') }}</h3>
+      <template #actions>
         <UiBadge :variant="auth.user?.is_verified ? 'success' : 'warning'" with-dot>
           {{ auth.user?.is_verified ? t('profile.verified') : t('profile.unverified') }}
         </UiBadge>
@@ -172,8 +171,7 @@ async function resendVerification() {
 
     <!-- 2FA setup -->
     <UiCard :title="t('security.twofa_section')">
-      <template #header>
-        <h3 class="text-sm font-semibold text-foreground">{{ t('security.twofa_section') }}</h3>
+      <template #actions>
         <UiBadge :variant="auth.user?.is_2fa_enabled ? 'success' : 'default'" with-dot>
           {{ auth.user?.is_2fa_enabled ? t('dashboard.twofa_on') : t('dashboard.twofa_off') }}
         </UiBadge>

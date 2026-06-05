@@ -817,7 +817,11 @@
     "tz_tashkent": "Toshkent (UTC+5)",
     "tz_samarkand": "Samarqand (UTC+5)",
     "tz_moscow": "Moskva (UTC+3)",
-    "tz_almaty": "Olmaota (UTC+5)"
+    "tz_almaty": "Olmaota (UTC+5)",
+    "invalid_phone": "Telefon raqami noto'g'ri formatda.",
+    "invalid_pinfl": "PINFL 14 ta raqamdan iborat bo'lishi kerak.",
+    "invalid_passport_series": "Pasport seriyasi 2 ta katta lotin harfi bo'lishi kerak (masalan: AB).",
+    "invalid_passport_number": "Pasport raqami 7 ta raqamdan iborat bo'lishi kerak."
   },
   "security": {
     "title": "Xavfsizlik sozlamalari",

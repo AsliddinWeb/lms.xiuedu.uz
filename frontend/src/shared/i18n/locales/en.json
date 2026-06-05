@@ -817,7 +817,11 @@
     "tz_tashkent": "Tashkent (UTC+5)",
     "tz_samarkand": "Samarkand (UTC+5)",
     "tz_moscow": "Moscow (UTC+3)",
-    "tz_almaty": "Almaty (UTC+5)"
+    "tz_almaty": "Almaty (UTC+5)",
+    "invalid_phone": "Invalid phone number format.",
+    "invalid_pinfl": "PINFL must be 14 digits.",
+    "invalid_passport_series": "Passport series must be 2 uppercase Latin letters (e.g. AB).",
+    "invalid_passport_number": "Passport number must be 7 digits."
   },
   "security": {
     "title": "Security settings",
