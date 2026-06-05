@@ -169,6 +169,24 @@ export interface GradebookRow {
   grade_variant: 'success' | 'warning' | 'danger'
 }
 
+export interface SemesterCourseGrade {
+  course_id: number
+  title: string
+  credits: number
+  grade_number: number
+  grade_letter: string
+  grade_variant: 'success' | 'warning' | 'danger'
+}
+
+export interface SemesterGrades {
+  academic_year: string
+  semester: string
+  courses: SemesterCourseGrade[]
+  gpa: number | null
+  avg: number | null
+  total_credits: number
+}
+
 // Phase 18.2 — kurs pedagog'i public profili
 export interface CourseTeacher {
   id: number
@@ -218,6 +236,10 @@ export const gradebookApi = {
     const { data } = await apiClient.get<Blob>('/me/gradebook.csv', {
       responseType: 'blob',
     })
+    return data
+  },
+  async history(): Promise<SemesterGrades[]> {
+    const { data } = await apiClient.get<SemesterGrades[]>('/me/gradebook/history')
     return data
   },
 }

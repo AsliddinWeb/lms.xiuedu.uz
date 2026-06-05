@@ -587,6 +587,7 @@
     "level_excellent": "A'LO",
     "credits": "Kredit",
     "empty": "Hali baholangan kurs yo'q. Topshiriqlarni topshiring va imtihonlarni o'ting.",
+    "history_empty": "Hali o'tgan semestrlar yo'q.",
     "semester_chart_title": "Semestrlar bo'yicha o'rtacha baho",
     "semester_short": "SEMESTR",
     "current_semester": "Joriy semestr",

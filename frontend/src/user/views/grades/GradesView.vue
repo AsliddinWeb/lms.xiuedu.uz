@@ -17,6 +17,7 @@ import UiTabs from '@shared/components/ui/UiTabs.vue'
 import {
   gradebookApi,
   type GradebookRow,
+  type SemesterGrades,
 } from '@shared/api/courses'
 import {
   certificatesApi,
@@ -83,10 +84,11 @@ const semesterBars = computed(() => {
 const currentGrades = ref<GradebookRow[]>([])
 const myCertificates = ref<CertificateMyItem[]>([])
 const leaderboard = ref<LeaderboardResponse | null>(null)
+const history = ref<SemesterGrades[]>([])
 
 const tabs = computed(() => [
   { id: 'current', label: t('grades.tab_current') },
-  { id: 'history', label: t('grades.tab_history'), disabled: true },
+  { id: 'history', label: t('grades.tab_history') },
   { id: 'ranking', label: t('grades.tab_ranking') },
   // Phase 13.20 — sertifikatlar tabi real ma'lumotlardan
   { id: 'certificates', label: t('grades.tab_certificates') },
@@ -133,6 +135,14 @@ async function loadLeaderboard() {
   }
 }
 
+async function loadHistory() {
+  try {
+    history.value = await gradebookApi.history()
+  } catch {
+    history.value = []
+  }
+}
+
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleDateString()
 }
@@ -151,7 +161,12 @@ async function downloadTranscript() {
 }
 
 onMounted(async () => {
-  await Promise.all([loadGradebook(), loadCertificates(), loadLeaderboard()])
+  await Promise.all([
+    loadGradebook(),
+    loadCertificates(),
+    loadLeaderboard(),
+    loadHistory(),
+  ])
   if (auth.user?.tenant_id) {
     calendarsApi
       .getCurrent(auth.user.tenant_id)
@@ -458,13 +473,61 @@ onMounted(async () => {
     </table>
   </div>
 
-  <!-- History tab — disabled placeholder (Phase 14+) -->
-  <div
-    v-else
-    class="text-center py-16 border border-dashed border-border rounded-lg"
-  >
-    <p class="text-muted-foreground">
-      {{ t('grades.tab_coming_soon') }}
-    </p>
+  <!-- HISTORY — semestr bo'yicha to'liq tarix -->
+  <div v-else class="space-y-5">
+    <div
+      v-if="history.length === 0"
+      class="text-center py-16 border border-dashed border-border rounded-lg"
+    >
+      <p class="text-muted-foreground">{{ t('grades.history_empty') }}</p>
+    </div>
+    <div
+      v-for="(sem, i) in history"
+      :key="i"
+      class="bg-card border border-border rounded-lg overflow-hidden"
+    >
+      <div class="px-5 py-4 border-b border-border flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <span class="text-sm font-semibold capitalize">{{ sem.semester }}</span>
+          <span class="font-mono text-[11px] text-muted-foreground ml-2">{{ sem.academic_year }}</span>
+        </div>
+        <div class="flex items-center gap-4 font-mono text-[12px]">
+          <span>
+            {{ t('grades.gpa_label') }}:
+            <span class="font-semibold text-foreground">{{ sem.gpa ?? '—' }}</span>
+          </span>
+          <span class="text-muted-foreground">{{ sem.avg !== null ? sem.avg + '%' : '—' }}</span>
+          <span class="text-muted-foreground">
+            {{ sem.total_credits }} {{ t('grades.credits_short') }}
+          </span>
+        </div>
+      </div>
+      <table class="w-full text-[13px]">
+        <thead>
+          <tr class="bg-muted">
+            <th class="text-left px-4 py-2.5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('grades.col_subject') }}
+            </th>
+            <th class="text-left px-4 py-2.5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('grades.col_credits') }}
+            </th>
+            <th class="text-left px-4 py-2.5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('grades.col_grade') }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="c in sem.courses" :key="c.course_id" class="border-t border-border">
+            <td class="px-4 py-2.5 font-medium">{{ c.title }}</td>
+            <td class="px-4 py-2.5 font-mono">{{ c.credits }}</td>
+            <td class="px-4 py-2.5">
+              <UiBadge :variant="c.grade_variant">
+                {{ c.grade_letter }}<template v-if="c.grade_number"> · {{ c.grade_number }}</template>
+              </UiBadge>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
