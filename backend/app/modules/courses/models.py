@@ -232,6 +232,10 @@ class Enrollment(Base, IDMixin):
     )
     final_grade: Mapped[Decimal | None] = mapped_column(Numeric(5, 2), nullable=True)
 
+    # Phase 25 — semestr tarixi: enrollment qaysi o'quv yili/semestrga tegishli
+    academic_year: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    semester: Mapped[str | None] = mapped_column(String(50), nullable=True)
+
     course: Mapped[Course] = relationship("Course", back_populates="enrollments")
 
     def __repr__(self) -> str:
