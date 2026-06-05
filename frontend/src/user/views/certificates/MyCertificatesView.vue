@@ -77,48 +77,70 @@ onMounted(load)
     {{ t('certificates.empty') }}
   </UiCard>
 
-  <UiCard v-else no-padding>
-    <table class="w-full text-[13px]">
-      <thead>
-        <tr class="border-b border-border text-left text-[11px] font-mono uppercase text-muted-foreground">
-          <th class="px-4 py-2.5">{{ t('certificates.col_number') }}</th>
-          <th class="px-4 py-2.5">{{ t('certificates.col_course') }}</th>
-          <th class="px-4 py-2.5">{{ t('certificates.col_issued') }}</th>
-          <th class="px-4 py-2.5">{{ t('certificates.col_score') }}</th>
-          <th class="px-4 py-2.5">{{ t('certificates.col_status') }}</th>
-          <th class="px-4 py-2.5"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="c in items" :key="c.id" class="border-b border-border last:border-0">
-          <td class="px-4 py-3 font-mono">{{ c.certificate_number }}</td>
-          <td class="px-4 py-3">{{ c.course_title }}</td>
-          <td class="px-4 py-3 font-mono">{{ fmtDate(c.issued_at) }}</td>
-          <td class="px-4 py-3 font-mono">
-            {{ c.score_percentage ? `${c.score_percentage}%` : '—' }}
-          </td>
-          <td class="px-4 py-3">
-            <UiBadge :variant="c.revoked_at ? 'danger' : 'default'">
-              {{ c.revoked_at ? t('certificates.status_revoked') : t('certificates.status_active') }}
-            </UiBadge>
-          </td>
-          <td class="px-4 py-3 text-right">
-            <div class="flex gap-2 justify-end">
-              <UiButton
-                v-if="c.pdf_url && !c.revoked_at"
-                variant="outline"
-                size="sm"
-                @click="openPdf(c)"
-              >
-                {{ t('certificates.download_pdf') }}
-              </UiButton>
-              <UiButton variant="outline" size="sm" @click="openVerify(c)">
-                {{ t('certificates.open_verify') }}
-              </UiButton>
+  <!-- Kreativ karta grid — har kurs alohida sertifikat (Phase 27) -->
+  <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    <UiCard
+      v-for="c in items"
+      :key="c.id"
+      no-padding
+      class="overflow-hidden flex flex-col"
+    >
+      <!-- Aksent header -->
+      <div class="bg-[#1f3a5f] text-white px-4 py-3 flex items-start justify-between gap-2">
+        <div class="min-w-0">
+          <div class="font-mono text-[10px] uppercase tracking-widest text-[#e7d3a1]">
+            {{ t('certificates.title') }}
+          </div>
+          <h3 class="text-[14px] font-semibold truncate mt-0.5">{{ c.course_title }}</h3>
+        </div>
+        <span class="text-xl shrink-0">🎓</span>
+      </div>
+
+      <!-- Tana -->
+      <div class="p-4 flex-1 flex flex-col gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-full bg-[#e7d3a1] grid place-items-center shrink-0">
+            <span class="text-lg">🏅</span>
+          </div>
+          <div class="min-w-0">
+            <div class="text-[22px] font-semibold tabular-nums leading-none">
+              {{ c.score_percentage ? `${c.score_percentage}%` : '—' }}
             </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </UiCard>
+            <div class="font-mono text-[11px] text-muted-foreground mt-1">
+              {{ fmtDate(c.issued_at) }}
+            </div>
+          </div>
+          <UiBadge
+            :variant="c.revoked_at ? 'danger' : 'success'"
+            class="ml-auto self-start"
+          >
+            {{ c.revoked_at ? t('certificates.status_revoked') : t('certificates.status_active') }}
+          </UiBadge>
+        </div>
+
+        <div class="font-mono text-[11px] text-muted-foreground border-t border-border pt-2 truncate">
+          {{ t('certificates.col_number') }}: {{ c.certificate_number }}
+        </div>
+
+        <div class="flex gap-2 mt-auto pt-1">
+          <UiButton
+            v-if="c.pdf_url && !c.revoked_at"
+            size="sm"
+            class="flex-1 justify-center"
+            @click="openPdf(c)"
+          >
+            📥 {{ t('certificates.download_pdf') }}
+          </UiButton>
+          <UiButton
+            variant="outline"
+            size="sm"
+            class="flex-1 justify-center"
+            @click="openVerify(c)"
+          >
+            {{ t('certificates.open_verify') }}
+          </UiButton>
+        </div>
+      </div>
+    </UiCard>
+  </div>
 </template>
