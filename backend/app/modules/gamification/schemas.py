@@ -27,6 +27,17 @@ class UserBadgeItem(BaseModel):
     context: dict[str, Any] | None
 
 
+class BadgeProgressItem(BaseModel):
+    """Bitta nishon + foydalanuvchi progressi (sabab bilan)."""
+
+    badge: BadgePublic
+    earned: bool
+    awarded_at: datetime | None = None
+    current: int
+    target: int
+    reason: str | None = None
+
+
 class MyGamificationStats(BaseModel):
     total_points: int
     weekly_points: int

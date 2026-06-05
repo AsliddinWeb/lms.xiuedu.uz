@@ -16,7 +16,9 @@ from sqlalchemy import select
 
 from app.modules.auth.dependencies import CurrentUser, DbSession
 from app.modules.gamification import service as gamif_service
+from app.modules.gamification.rules import badge_metric
 from app.modules.gamification.schemas import (
+    BadgeProgressItem,
     BadgePublic,
     LeaderboardItem,
     LeaderboardResponse,
@@ -84,6 +86,58 @@ async def my_badges(
         )
         for b, ub in rows
     ]
+
+
+@router.get(
+    "/me/gamification/progress",
+    response_model=list[BadgeProgressItem],
+    tags=["gamification"],
+)
+async def my_badge_progress(
+    db: DbSession, user: CurrentUser
+) -> list[BadgeProgressItem]:
+    """Har bir nishon + progress (current/target) + olingan bo'lsa sabab.
+
+    Olingan nishonlar oldinda (sana bo'yicha), so'ng olinmaganlar maqsadga
+    yaqinligi bo'yicha — talaba nimaga qancha qolganini ko'radi.
+    """
+    catalog = await gamif_service.list_all_active_badges(db)
+    earned_rows = await gamif_service.list_user_badges(db, user.id)
+    earned_map = {b.id: ub for b, ub in earned_rows}
+    counts = await gamif_service.event_counts(db, user.id)
+
+    items: list[BadgeProgressItem] = []
+    for badge in catalog:
+        metric = badge_metric(badge.code)
+        event_type, target = metric if metric else ("", 1)
+        cur_raw = counts.get(event_type, 0)
+        ub = earned_map.get(badge.id)
+        earned = ub is not None
+        reason = None
+        if earned:
+            current = target
+            reason = await gamif_service.earned_reason(db, badge.code, ub.context)
+        else:
+            current = min(cur_raw, target)
+        items.append(
+            BadgeProgressItem(
+                badge=BadgePublic.model_validate(badge),
+                earned=earned,
+                awarded_at=ub.awarded_at if ub else None,
+                current=current,
+                target=target,
+                reason=reason,
+            )
+        )
+
+    items.sort(
+        key=lambda it: (
+            0 if it.earned else 1,
+            -(it.awarded_at.timestamp()) if it.earned and it.awarded_at else 0,
+            -(it.current / it.target) if it.target else 0,
+        )
+    )
+    return items
 
 
 # ============================================================================

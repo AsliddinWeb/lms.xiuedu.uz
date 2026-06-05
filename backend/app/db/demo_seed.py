@@ -1220,73 +1220,84 @@ async def seed_certificate(db: AsyncSession, course: Course, student: User, org)
 # ---------------------------------------------------------------------------
 
 
-async def seed_gamification(db: AsyncSession, students: list[User]):
-    badges = {
-        b.code: b
-        for b in (await db.execute(select(Badge))).scalars().all()
-    }
-    points_plan = [340, 280, 210, 160, 120]  # main + extras leaderboard uchun
+async def seed_gamification(
+    db: AsyncSession, students: list[User], courses: list[Course]
+):
+    """Gamification'ni HAQIQIY harakatlar orqali seed qiladi (sabab bilan).
+
+    Sehrli ball/nishon yo'q — hammasi `award_event` orqali real kurs/dars/imtihon
+    context'i bilan beriladi. Shu tufayli har nishonning aniq sababi bor, ballar
+    event'lar yig'indisiga teng, progress (masalan course_master 1/5) ko'rinadi.
+    """
+    from app.modules.gamification import service as gamif
+
+    course = courses[0]
+    lessons = await course_lessons(db, course)
+    exam = (
+        await db.execute(
+            select(Exam).where(Exam.course_id == course.id).order_by(Exam.id)
+        )
+    ).scalars().first()
+
+    # (tugatilgan dars soni, kurs tugadi?, imtihon 100%?, izoh soni)
+    # main — first_lesson + first_course + exam_ace; qolganlar kamayib boradi
+    journeys = [
+        (min(6, len(lessons)), True, True, 3),
+        (min(5, len(lessons)), True, False, 1),
+        (min(4, len(lessons)), False, False, 0),
+        (min(3, len(lessons)), False, False, 0),
+        (min(2, len(lessons)), False, False, 0),
+    ]
+
     for idx, student in enumerate(students):
-        total = points_plan[idx] if idx < len(points_plan) else 90
-        up = (
-            await db.execute(
-                select(UserPoints).where(UserPoints.user_id == student.id)
-            )
-        ).scalar_one_or_none()
-        if up is None:
-            db.add(
-                UserPoints(
-                    user_id=student.id,
-                    total_points=total,
-                    weekly_points=min(total, 60),
-                    monthly_points=min(total, 180),
-                    updated_at=now(),
-                )
+        n_lessons, complete_course, perfect_exam, n_comments = (
+            journeys[idx] if idx < len(journeys) else (1, False, False, 0)
+        )
+
+        for li in range(n_lessons):
+            lesson = lessons[li]
+            await gamif.award_event(
+                db,
+                user_id=student.id,
+                event_type="lesson.completed",
+                context={"lesson_id": lesson.id, "course_id": course.id},
+                dedupe_key=f"lesson.completed:{student.id}:{lesson.id}",
             )
 
-        # Birinchi 2 talabaga nishonlar
-        if idx < 2 and "first_lesson" in badges:
-            award_codes = ["first_lesson"] + (["first_course"] if idx == 0 else [])
-            for code in award_codes:
-                badge = badges.get(code)
-                if badge is None:
-                    continue
-                ub = (
-                    await db.execute(
-                        select(UserBadge).where(
-                            UserBadge.user_id == student.id,
-                            UserBadge.badge_id == badge.id,
-                        )
-                    )
-                ).scalar_one_or_none()
-                if ub is None:
-                    db.add(
-                        UserBadge(
-                            user_id=student.id,
-                            badge_id=badge.id,
-                            awarded_at=now() - timedelta(days=3),
-                        )
-                    )
+        if complete_course:
+            await gamif.award_event(
+                db,
+                user_id=student.id,
+                event_type="course.completed",
+                context={"course_id": course.id},
+                dedupe_key=f"course.completed:{student.id}:{course.id}",
+            )
 
-        # Event log (idempotent dedupe_key bilan)
-        dedupe = f"demo-lesson-{student.id}"
-        ev = (
-            await db.execute(
-                select(GamificationEvent).where(
-                    GamificationEvent.dedupe_key == dedupe
-                )
+        if perfect_exam and exam is not None:
+            await gamif.award_event(
+                db,
+                user_id=student.id,
+                event_type="exam.passed",
+                context={"exam_id": exam.id},
+                dedupe_key=f"demo.exam.passed:{student.id}:{exam.id}",
             )
-        ).scalar_one_or_none()
-        if ev is None:
-            db.add(
-                GamificationEvent(
-                    user_id=student.id,
-                    event_type="lesson.completed",
-                    points_awarded=5,
-                    dedupe_key=dedupe,
-                    created_at=now() - timedelta(days=3),
-                )
+            await gamif.award_event(
+                db,
+                user_id=student.id,
+                event_type="exam.perfect",
+                context={"exam_id": exam.id},
+                dedupe_key=f"demo.exam.perfect:{student.id}:{exam.id}",
             )
+
+        for ci in range(n_comments):
+            await gamif.award_event(
+                db,
+                user_id=student.id,
+                event_type="comment.created",
+                context={"seq": ci},
+                dedupe_key=f"demo.comment:{student.id}:{ci}",
+            )
+
     await db.flush()
 
 
@@ -1574,7 +1585,7 @@ async def main() -> None:
         await seed_chat(db, main_student, teacher, extra_students)
         await seed_forum(db, courses[0], teacher, all_students)
         await seed_certificate(db, courses[0], main_student, org)
-        await seed_gamification(db, all_students)
+        await seed_gamification(db, all_students, courses)
         await seed_notifications(db, main_student, courses[0])
 
         await db.commit()

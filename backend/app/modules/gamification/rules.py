@@ -1,12 +1,11 @@
-"""Gamification qoidalari — Phase 11e.
+"""Gamification qoidalari — Phase 11e (qayta ishlangan: yagona manba).
 
-Event turi → ball miqdori xaritasi va shu event natijasida tekshiriladigan
-badge'lar.
+Har bir badge **bitta haqiqiy jarayonga** bog'langan: ma'lum event turi va shu
+event sonining ostonasi (target). Shu tufayli nishon "sababsiz" emas — uni olish
+uchun aniq nima qilish kerakligi (va qancha qolgani) progress orqali ko'rinadi.
 
-Yangi qoida qo'shish uchun:
-    1. `POINTS_TABLE` ga event_type qo'shing
-    2. Tegishli badge'larni `BADGE_RULES` ichida code => async function bilan e'lon qiling
-       Funksiya `(db, user_id, context) -> bool` qaytaradi — agar shart bajarilsa
+Yangi qoida qo'shish: `POINTS_TABLE` ga ball, `BADGE_TARGETS` ga (event, target)
+qo'shing — checker, candidate xaritasi va progress avtomatik hosil bo'ladi.
 """
 
 from __future__ import annotations
@@ -18,7 +17,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # ============================================================================
-# Ball xaritasi
+# Ball xaritasi — har bir foydali harakat aniq ball beradi (sabab bilan)
 # ============================================================================
 
 POINTS_TABLE: dict[str, int] = {
@@ -49,134 +48,67 @@ def points_for(event_type: str) -> int:
 
 
 # ============================================================================
-# Badge qoidalari — har bir event'dan keyin tekshiriladigan tasdiqlovchilar
+# Badge qoidalari — har biri (metric event, target) ga bog'langan
 # ============================================================================
+
+# code -> (qaysi event sanaladi, nechta bo'lsa beriladi)
+# Tartib muhim: bir event'ga bog'liq badge'lar past target -> yuqori target.
+BADGE_TARGETS: dict[str, tuple[str, int]] = {
+    "first_lesson": ("lesson.completed", 1),
+    "first_course": ("course.completed", 1),
+    "course_master": ("course.completed", 5),
+    "exam_ace": ("exam.perfect", 1),
+    "social_butterfly": ("comment.created", 10),
+    "helpful_voice": ("forum.post.liked", 10),
+}
+
+
+def badge_metric(code: str) -> tuple[str, int] | None:
+    """Badge'ning (metric event, target) juftligi — progress uchun."""
+    return BADGE_TARGETS.get(code)
+
 
 BadgeChecker = Callable[[AsyncSession, int, dict[str, Any] | None], Awaitable[bool]]
 
 
-async def _check_first_lesson(
-    db: AsyncSession, user_id: int, context: dict[str, Any] | None
-) -> bool:
-    """Birinchi tugatilgan dars."""
+async def _count_events(db: AsyncSession, user_id: int, event_type: str) -> int:
     from app.modules.gamification.models import GamificationEvent
 
-    count = (
-        await db.execute(
-            select(func.count(GamificationEvent.id)).where(
-                GamificationEvent.user_id == user_id,
-                GamificationEvent.event_type == "lesson.completed",
+    return int(
+        (
+            await db.execute(
+                select(func.count(GamificationEvent.id)).where(
+                    GamificationEvent.user_id == user_id,
+                    GamificationEvent.event_type == event_type,
+                )
             )
-        )
-    ).scalar_one()
-    return int(count) >= 1
+        ).scalar_one()
+    )
 
 
-async def _check_first_course(
-    db: AsyncSession, user_id: int, context: dict[str, Any] | None
-) -> bool:
-    """Birinchi muvaffaqiyatli tugatilgan kurs."""
-    from app.modules.gamification.models import GamificationEvent
+def _make_checker(event_type: str, target: int) -> BadgeChecker:
+    """(event, target) -> 'shu event soni >= target' tekshiruvchisi."""
 
-    count = (
-        await db.execute(
-            select(func.count(GamificationEvent.id)).where(
-                GamificationEvent.user_id == user_id,
-                GamificationEvent.event_type == "course.completed",
-            )
-        )
-    ).scalar_one()
-    return int(count) >= 1
+    async def _check(
+        db: AsyncSession, user_id: int, context: dict[str, Any] | None
+    ) -> bool:
+        return await _count_events(db, user_id, event_type) >= target
+
+    return _check
 
 
-async def _check_course_master(
-    db: AsyncSession, user_id: int, context: dict[str, Any] | None
-) -> bool:
-    """5 ta yoki undan ko'p kurs tugatgan."""
-    from app.modules.gamification.models import GamificationEvent
-
-    count = (
-        await db.execute(
-            select(func.count(GamificationEvent.id)).where(
-                GamificationEvent.user_id == user_id,
-                GamificationEvent.event_type == "course.completed",
-            )
-        )
-    ).scalar_one()
-    return int(count) >= 5
-
-
-async def _check_exam_ace(
-    db: AsyncSession, user_id: int, context: dict[str, Any] | None
-) -> bool:
-    """Birinchi marta 100% imtihon."""
-    from app.modules.gamification.models import GamificationEvent
-
-    count = (
-        await db.execute(
-            select(func.count(GamificationEvent.id)).where(
-                GamificationEvent.user_id == user_id,
-                GamificationEvent.event_type == "exam.perfect",
-            )
-        )
-    ).scalar_one()
-    return int(count) >= 1
-
-
-async def _check_social_butterfly(
-    db: AsyncSession, user_id: int, context: dict[str, Any] | None
-) -> bool:
-    """10 ta izoh yozgan."""
-    from app.modules.gamification.models import GamificationEvent
-
-    count = (
-        await db.execute(
-            select(func.count(GamificationEvent.id)).where(
-                GamificationEvent.user_id == user_id,
-                GamificationEvent.event_type == "comment.created",
-            )
-        )
-    ).scalar_one()
-    return int(count) >= 10
-
-
-async def _check_helpful_voice(
-    db: AsyncSession, user_id: int, context: dict[str, Any] | None
-) -> bool:
-    """Forum'da 10 ta like olgan."""
-    from app.modules.gamification.models import GamificationEvent
-
-    count = (
-        await db.execute(
-            select(func.count(GamificationEvent.id)).where(
-                GamificationEvent.user_id == user_id,
-                GamificationEvent.event_type == "forum.post.liked",
-            )
-        )
-    ).scalar_one()
-    return int(count) >= 10
-
-
-# code -> checker
+# code -> checker (yagona manba'dan avtomatik)
 BADGE_RULES: dict[str, BadgeChecker] = {
-    "first_lesson": _check_first_lesson,
-    "first_course": _check_first_course,
-    "course_master": _check_course_master,
-    "exam_ace": _check_exam_ace,
-    "social_butterfly": _check_social_butterfly,
-    "helpful_voice": _check_helpful_voice,
+    code: _make_checker(event_type, target)
+    for code, (event_type, target) in BADGE_TARGETS.items()
 }
 
 
-# Event turi -> tekshirilishi mumkin bo'lgan badge code'lar (perf optimizatsiya).
-# Bo'sh tuple => barcha checker'lar tekshiriladi (default).
-EVENT_TO_BADGES: dict[str, tuple[str, ...]] = {
-    "lesson.completed": ("first_lesson",),
-    "course.completed": ("first_course", "course_master"),
-    "exam.perfect": ("exam_ace",),
-    "comment.created": ("social_butterfly",),
-    "forum.post.liked": ("helpful_voice",),
-}
+# Event turi -> shu event'dan keyin tekshiriladigan badge code'lar.
+# BADGE_TARGETS tartibini saqlab teskari xarita quramiz (perf optimizatsiya).
+EVENT_TO_BADGES: dict[str, tuple[str, ...]] = {}
+for _code, (_event_type, _target) in BADGE_TARGETS.items():
+    EVENT_TO_BADGES[_event_type] = EVENT_TO_BADGES.get(_event_type, ()) + (_code,)
 
 
 def candidate_badges(event_type: str) -> tuple[str, ...]:

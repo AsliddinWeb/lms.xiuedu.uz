@@ -255,6 +255,46 @@ async def list_user_badges(
     return [(b, ub) for b, ub in rows]
 
 
+async def event_counts(db: AsyncSession, user_id: int) -> dict[str, int]:
+    """Foydalanuvchining har bir event turi bo'yicha soni — progress uchun."""
+    rows = (
+        await db.execute(
+            select(GamificationEvent.event_type, func.count(GamificationEvent.id))
+            .where(GamificationEvent.user_id == user_id)
+            .group_by(GamificationEvent.event_type)
+        )
+    ).all()
+    return {event_type: int(cnt) for event_type, cnt in rows}
+
+
+async def earned_reason(
+    db: AsyncSession, code: str, context: dict[str, Any] | None
+) -> str | None:
+    """Olingan nishonning aniq sababi — qaysi kurs/dars/imtihon uchun.
+
+    context'da real entity ID bo'lsa, uning nomini topib o'qiladigan sabab
+    matnini quradi (achievement'ni real jarayonga bog'laydi).
+    """
+    if not context:
+        return None
+    from app.modules.courses.models import Course, Lesson
+    from app.modules.exams.models import Exam
+
+    if code in ("first_course", "course_master") and context.get("course_id"):
+        course = await db.get(Course, context["course_id"])
+        if course is not None:
+            return f"«{course.title}» kursini tugatganingiz uchun"
+    if code == "first_lesson" and context.get("lesson_id"):
+        lesson = await db.get(Lesson, context["lesson_id"])
+        if lesson is not None:
+            return f"«{lesson.title}» darsini tugatganingiz uchun"
+    if code == "exam_ace" and context.get("exam_id"):
+        exam = await db.get(Exam, context["exam_id"])
+        if exam is not None:
+            return f"«{exam.title}» imtihonida 100% natija uchun"
+    return None
+
+
 async def list_all_active_badges(db: AsyncSession) -> list[Badge]:
     rows = (
         await db.execute(
