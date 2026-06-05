@@ -24,10 +24,22 @@ from app.core.config import settings
 from app.core.exceptions import ConflictError, ForbiddenError, NotFoundError
 from app.core.logging import get_logger
 from app.core.storage import upload_object
+from app.core.tenant import ensure_xiu_org
 from app.modules.certificates.models import Certificate
 from app.modules.certificates.pdf import render_certificate_pdf
 from app.modules.courses.models import Course, Enrollment
+from app.modules.organizations.models import Organization
 from app.modules.users.models import User
+
+
+async def _org_name(db: AsyncSession, course: Course) -> str:
+    """OTM nomini DB'dan oladi (adminka tahrirlaydi). Hech qayerda hardcode emas."""
+    org = None
+    if course.organization_id is not None:
+        org = await db.get(Organization, course.organization_id)
+    if org is None:
+        org = await ensure_xiu_org(db)
+    return org.name
 
 logger = get_logger(__name__)
 
@@ -123,6 +135,7 @@ async def issue_certificate(
         certificate_number=cert.certificate_number,
         issued_at=issued_at,
         verification_url=_verification_url(cert.verification_code),
+        organization_name=await _org_name(db, course),
         score_percentage=(
             float(cert.score_percentage) if cert.score_percentage is not None else None
         ),
@@ -180,6 +193,7 @@ async def regenerate_pdf(db: AsyncSession, cert_id: int) -> Certificate:
         certificate_number=cert.certificate_number,
         issued_at=cert.issued_at,
         verification_url=_verification_url(cert.verification_code),
+        organization_name=await _org_name(db, course),
         score_percentage=(
             float(cert.score_percentage) if cert.score_percentage is not None else None
         ),

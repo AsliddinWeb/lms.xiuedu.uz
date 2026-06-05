@@ -1171,7 +1171,7 @@ async def seed_forum(
 # ---------------------------------------------------------------------------
 
 
-async def seed_certificate(db: AsyncSession, course: Course, student: User):
+async def seed_certificate(db: AsyncSession, course: Course, student: User, org):
     exists = (
         await db.execute(
             select(Certificate).where(
@@ -1203,6 +1203,7 @@ async def seed_certificate(db: AsyncSession, course: Course, student: User):
         certificate_number=cert.certificate_number,
         issued_at=cert.issued_at,
         verification_url=_verification_url(cert.verification_code),
+        organization_name=org.name,
         score_percentage=float(cert.score_percentage),
     )
     obj = f"certificates/{cert.id}/{cert.certificate_number}.pdf"
@@ -1572,7 +1573,7 @@ async def main() -> None:
         await seed_grade_history(db, courses, teacher, main_student, org)
         await seed_chat(db, main_student, teacher, extra_students)
         await seed_forum(db, courses[0], teacher, all_students)
-        await seed_certificate(db, courses[0], main_student)
+        await seed_certificate(db, courses[0], main_student, org)
         await seed_gamification(db, all_students)
         await seed_notifications(db, main_student, courses[0])
 
