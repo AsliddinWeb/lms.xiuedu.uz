@@ -1,11 +1,11 @@
 <script setup lang="ts">
 /**
- * Yutuqlar sahifasi — Phase 11e.
+ * Yutuqlar sahifasi — Phase 11e (qayta ishlangan: sabab + progress).
  *
- * Tarkibi:
- *   - Yuqorida: jami ball + reyting + nishonlar soni (3 ta stat card)
- *   - Olingan nishonlar + olinmagan katalog
- *   - Leaderboard (scope toggle: umumiy/hafta/oy)
+ * Har nishon real jarayonga bog'langan:
+ *   - Olingan nishonlar — ANIQ sabab bilan (qaysi kurs/dars/imtihon uchun)
+ *   - Olinmaganlar — progress (masalan 1/5) bilan: nimaga qancha qolgani
+ *   - Leaderboard (scope toggle)
  */
 
 import { computed, onMounted, ref, watch } from 'vue'
@@ -19,45 +19,39 @@ import UiSkeleton from '@shared/components/ui/UiSkeleton.vue'
 import UiStatCard from '@shared/components/ui/UiStatCard.vue'
 import {
   gamificationApi,
-  type BadgePublic,
+  type BadgeProgressItem,
   type LeaderboardResponse,
   type MyGamificationStats,
-  type UserBadgeItem,
 } from '@shared/api/gamification'
 import { extractErrorMessage } from '@shared/api/client'
+import { intlLocale } from '@shared/i18n'
 import { useAuthStore } from '@shared/stores/auth'
+import BadgeMedal from './BadgeMedal.vue'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const auth = useAuthStore()
 
 const stats = ref<MyGamificationStats | null>(null)
-const earnedBadges = ref<UserBadgeItem[]>([])
-const catalog = ref<BadgePublic[]>([])
+const progress = ref<BadgeProgressItem[]>([])
 const leaderboard = ref<LeaderboardResponse | null>(null)
 const scope = ref<'total' | 'weekly' | 'monthly'>('total')
 const loading = ref(true)
 const error = ref<string | null>(null)
 
-const earnedCodes = computed(
-  () => new Set(earnedBadges.value.map((b) => b.badge.code)),
-)
-const lockedBadges = computed(() =>
-  catalog.value.filter((b) => !earnedCodes.value.has(b.code)),
-)
+const earned = computed(() => progress.value.filter((b) => b.earned))
+const locked = computed(() => progress.value.filter((b) => !b.earned))
 
 async function loadAll() {
   loading.value = true
   error.value = null
   try {
-    const [s, mine, all, lb] = await Promise.all([
+    const [s, prog, lb] = await Promise.all([
       gamificationApi.myStats(),
-      gamificationApi.myBadges(),
-      gamificationApi.badgeCatalog(),
+      gamificationApi.myProgress(),
       gamificationApi.leaderboard(scope.value, 20),
     ])
     stats.value = s
-    earnedBadges.value = mine
-    catalog.value = all
+    progress.value = prog
     leaderboard.value = lb
   } catch (e) {
     error.value = extractErrorMessage(e, t('common.load_error'))
@@ -78,12 +72,22 @@ watch(scope, () => {
   void reloadLeaderboard()
 })
 
-function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleDateString()
+function fmtDate(iso: string | null): string {
+  if (!iso) return ''
+  try {
+    return new Date(iso).toLocaleDateString(intlLocale(locale.value))
+  } catch {
+    return new Date(iso).toLocaleDateString()
+  }
 }
 
 function catLabel(code: string): string {
   return t(`gamif.category_${code}`)
+}
+
+function pct(b: BadgeProgressItem): number {
+  if (b.target <= 0) return 0
+  return Math.min(100, Math.round((b.current / b.target) * 100))
 }
 
 onMounted(loadAll)
@@ -123,80 +127,83 @@ onMounted(loadAll)
       />
     </div>
 
-    <!-- Earned badges -->
+    <!-- Earned badges (sabab bilan) -->
     <h2 class="text-[14px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
       {{ t('gamif.earned') }}
     </h2>
     <div
-      v-if="earnedBadges.length === 0"
+      v-if="earned.length === 0"
       class="text-[13px] text-muted-foreground mb-6 italic"
     >
-      —
+      {{ t('gamif.empty_earned') }}
     </div>
     <div
       v-else
-      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-7"
     >
-      <UiCard v-for="ub in earnedBadges" :key="ub.badge.id" class="p-4">
+      <UiCard v-for="b in earned" :key="b.badge.id" class="p-4">
         <div class="flex items-start gap-3">
-          <div
-            class="w-12 h-12 rounded-md bg-foreground text-background grid place-items-center text-[20px] shrink-0"
-          >
-            ★
-          </div>
+          <BadgeMedal :category="b.badge.category" :earned="true" />
           <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-0.5 flex-wrap">
-              <span class="text-[14px] font-semibold">{{ ub.badge.title }}</span>
-              <UiBadge variant="default">{{ catLabel(ub.badge.category) }}</UiBadge>
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="text-[14px] font-semibold">{{ b.badge.title }}</span>
+              <UiBadge variant="success">{{ catLabel(b.badge.category) }}</UiBadge>
             </div>
-            <p class="text-[12px] text-muted-foreground mb-1">
-              {{ ub.badge.description }}
+            <!-- ANIQ sabab (real jarayonga bog'liq), bo'lmasa mezon -->
+            <p class="text-[12px] text-foreground/80 mb-1.5 leading-snug">
+              {{ b.reason || b.badge.description }}
             </p>
             <p class="text-[11px] font-mono text-muted-foreground">
-              {{ t('gamif.awarded_on', { date: fmtDate(ub.awarded_at) }) }}
+              <span class="text-[#b8923c]">+{{ b.badge.points_reward }}</span>
+              · {{ t('gamif.awarded_on', { date: fmtDate(b.awarded_at) }) }}
             </p>
           </div>
         </div>
       </UiCard>
     </div>
 
-    <!-- Locked catalog -->
+    <!-- Locked — progress bilan (sababli yo'l) -->
     <h2 class="text-[14px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-      {{ t('gamif.catalog') }}
+      {{ t('gamif.in_progress') }}
     </h2>
     <div
-      v-if="lockedBadges.length === 0"
+      v-if="locked.length === 0"
       class="text-[13px] text-muted-foreground mb-6 italic"
     >
-      —
+      {{ t('gamif.empty_locked') }}
     </div>
     <div
       v-else
       class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-8"
     >
-      <UiCard
-        v-for="b in lockedBadges"
-        :key="b.id"
-        class="p-4 opacity-60"
-      >
+      <UiCard v-for="b in locked" :key="b.badge.id" class="p-4">
         <div class="flex items-start gap-3">
-          <div
-            class="w-12 h-12 rounded-md bg-muted text-muted-foreground grid place-items-center text-[20px] shrink-0"
-          >
-            ☆
-          </div>
+          <BadgeMedal :category="b.badge.category" :earned="false" />
           <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-2 mb-0.5 flex-wrap">
-              <span class="text-[14px] font-semibold">{{ b.title }}</span>
-              <UiBadge variant="default">{{ catLabel(b.category) }}</UiBadge>
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="text-[14px] font-semibold text-foreground/90">
+                {{ b.badge.title }}
+              </span>
+              <UiBadge variant="default">{{ catLabel(b.badge.category) }}</UiBadge>
             </div>
-            <p class="text-[12px] text-muted-foreground mb-1">
-              {{ b.description }}
+            <p class="text-[12px] text-muted-foreground mb-2.5 leading-snug">
+              {{ b.badge.description }}
             </p>
-            <p class="text-[11px] font-mono text-muted-foreground italic">
-              {{ t('gamif.locked') }} ·
-              {{ t('gamif.points_reward', { n: b.points_reward }) }}
-            </p>
+            <!-- Progress bar -->
+            <div class="h-1.5 rounded-full bg-muted overflow-hidden">
+              <div
+                class="h-full rounded-full bg-gradient-to-r from-[#c19a3e] to-[#d9b962] transition-all"
+                :style="{ width: `${pct(b)}%` }"
+              ></div>
+            </div>
+            <div class="flex items-center justify-between mt-1.5">
+              <span class="text-[11px] font-mono text-muted-foreground">
+                {{ b.current }} / {{ b.target }}
+              </span>
+              <span class="text-[11px] font-mono text-muted-foreground">
+                {{ t('gamif.points_reward', { n: b.badge.points_reward }) }}
+              </span>
+            </div>
           </div>
         </div>
       </UiCard>

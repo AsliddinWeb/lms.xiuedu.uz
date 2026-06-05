@@ -20,6 +20,15 @@ export interface UserBadgeItem {
   context: Record<string, unknown> | null
 }
 
+export interface BadgeProgressItem {
+  badge: BadgePublic
+  earned: boolean
+  awarded_at: string | null
+  current: number
+  target: number
+  reason: string | null
+}
+
 export interface MyGamificationStats {
   total_points: number
   weekly_points: number
@@ -58,6 +67,13 @@ export const gamificationApi = {
 
   async badgeCatalog(): Promise<BadgePublic[]> {
     const { data } = await apiClient.get<BadgePublic[]>('/gamification/badges')
+    return data
+  },
+
+  async myProgress(): Promise<BadgeProgressItem[]> {
+    const { data } = await apiClient.get<BadgeProgressItem[]>(
+      '/me/gamification/progress',
+    )
     return data
   },
 
