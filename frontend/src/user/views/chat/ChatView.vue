@@ -139,6 +139,8 @@ async function openConversation(id: number) {
   if (c) c.unread_count = 0
   try {
     await chatApi.markRead(id)
+    // Sidebar chat badge'ini jonli yangilash uchun
+    window.dispatchEvent(new CustomEvent('lms:chat-read'))
   } catch {
     // ignore
   }

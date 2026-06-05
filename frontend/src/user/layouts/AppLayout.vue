@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
@@ -15,6 +15,7 @@ import UiTopbar from '@shared/components/layout/UiTopbar.vue'
 import { assignmentsApi } from '@shared/api/assignments'
 import { certificatesApi } from '@shared/api/certificates'
 import { chatApi } from '@shared/api/chat'
+import { useChatSocket } from '@user/composables/useChatSocket'
 import { coursesApi } from '@shared/api/courses'
 import { examsApi } from '@shared/api/exams'
 import { gamificationApi } from '@shared/api/gamification'
@@ -76,15 +77,7 @@ async function loadSidebarCounts() {
         .myStats()
         .then((r) => (counts.value.badges = r.badges_count))
         .catch(() => undefined),
-      chatApi
-        .listConversations({ page_size: 100 })
-        .then((r) => {
-          counts.value.chatUnread = r.items.reduce(
-            (acc, c) => acc + (c.unread_count ?? 0),
-            0,
-          )
-        })
-        .catch(() => undefined),
+      refreshChatUnread(),
     )
     if (auth.hasPermission('live.join')) {
       tasks.push(
@@ -110,7 +103,46 @@ async function loadSidebarCounts() {
   await Promise.all(tasks)
 }
 
-onMounted(loadSidebarCounts)
+// Chat o'qilmaganlar sonini serverdan qayta hisoblaydi (live yangilanish uchun)
+async function refreshChatUnread() {
+  try {
+    const r = await chatApi.listConversations({ page_size: 100 })
+    counts.value.chatUnread = r.items.reduce(
+      (acc, c) => acc + (c.unread_count ?? 0),
+      0,
+    )
+  } catch {
+    // ignore
+  }
+}
+
+// Real-time: yangi xabar kelganda (WS) yoki suhbat o'qilganda (window event)
+// sidebar chat badge'ini jonli yangilaymiz.
+const chatWs = useChatSocket()
+let chatRefreshTimer: number | null = null
+function scheduleChatRefresh() {
+  if (chatRefreshTimer !== null) window.clearTimeout(chatRefreshTimer)
+  chatRefreshTimer = window.setTimeout(refreshChatUnread, 400)
+}
+function onChatRead() {
+  scheduleChatRefresh()
+}
+
+onMounted(() => {
+  loadSidebarCounts()
+  chatWs.connect()
+  chatWs.on((ev) => {
+    if (ev.type === 'message.new' || ev.type === 'conversation.read') {
+      scheduleChatRefresh()
+    }
+  })
+  window.addEventListener('lms:chat-read', onChatRead)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('lms:chat-read', onChatRead)
+  if (chatRefreshTimer !== null) window.clearTimeout(chatRefreshTimer)
+})
 
 /**
  * Talaba (wireframe 04): ASOSIY + BOSHQA + footer
