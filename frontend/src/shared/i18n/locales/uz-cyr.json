@@ -583,7 +583,12 @@
     "system": "Тизим",
     "coming_soon": "Яқинда",
     "announcement_welcome": "XIU LMS платформасига хуш келибсиз. Янги семестр бошланди.",
-    "announcement_phase6": "Имтиҳонлар модули ва автопрокторинг тез орада қўшилади."
+    "announcement_phase6": "Имтиҳонлар модули ва автопрокторинг тез орада қўшилади.",
+    "academic_title": "Академик кўрсаткич",
+    "academic_avg": "Ўртача баҳо",
+    "academic_graded": "Баҳоланган",
+    "course_type_default": "Курс",
+    "cover": "Муқова"
   },
   "my_assignments": {
     "subtitle": "{pending} та янги · {in_review} та кўриб чиқилмоқда · {graded} та баҳоланган",

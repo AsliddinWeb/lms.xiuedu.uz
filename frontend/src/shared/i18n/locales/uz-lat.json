@@ -583,7 +583,12 @@
     "system": "Tizim",
     "coming_soon": "Yaqinda",
     "announcement_welcome": "XIU LMS platformasiga xush kelibsiz. Yangi semester boshlandi.",
-    "announcement_phase6": "Imtihonlar moduli va avtoproctoring tez orada qo'shiladi."
+    "announcement_phase6": "Imtihonlar moduli va avtoproctoring tez orada qo'shiladi.",
+    "academic_title": "Akademik ko'rsatkich",
+    "academic_avg": "O'rtacha baho",
+    "academic_graded": "Baholangan",
+    "course_type_default": "Kurs",
+    "cover": "Muqova"
   },
   "my_assignments": {
     "subtitle": "{pending} ta yangi · {in_review} ta ko'rib chiqilmoqda · {graded} ta baholangan",

@@ -583,7 +583,12 @@
     "system": "Система",
     "coming_soon": "Скоро",
     "announcement_welcome": "Добро пожаловать в XIU LMS. Новый семестр начался.",
-    "announcement_phase6": "Модуль экзаменов и автопрокторинг скоро будут добавлены."
+    "announcement_phase6": "Модуль экзаменов и автопрокторинг скоро будут добавлены.",
+    "academic_title": "Успеваемость",
+    "academic_avg": "Средний балл",
+    "academic_graded": "Оценено",
+    "course_type_default": "Курс",
+    "cover": "Обложка"
   },
   "my_assignments": {
     "subtitle": "Новых: {pending} · На проверке: {in_review} · Оценено: {graded}",

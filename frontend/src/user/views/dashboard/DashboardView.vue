@@ -21,6 +21,7 @@ import { assignmentsApi } from '@shared/api/assignments'
 import {
   activityApi,
   coursesApi,
+  gradebookApi,
   progressApi,
   type ActivityResponse,
 } from '@shared/api/courses'
@@ -58,6 +59,19 @@ const liveNow = ref<LiveSession[]>([])
 // Phase 13 — talaba uchun gamif + sertifikat
 const gamifStats = ref<MyGamificationStats | null>(null)
 const certificatesCount = ref(0)
+
+// Akademik ko'rsatkich (GPA) — Baholar moduli bilan bir xil hisob
+const gpa = ref<number | null>(null)
+const gradeAvg = ref<number | null>(null)
+const gradedCount = ref(0)
+
+// 4.0 GPA — backend harf bandlariga mos (GradesView bilan bir xil)
+function gpaPoints(percent: number): number {
+  if (percent >= 86) return 4
+  if (percent >= 71) return 3
+  if (percent >= 55) return 2
+  return 0
+}
 // Kurs progress map (course_id => percent)
 const courseProgress = ref<Record<number, number>>({})
 
@@ -143,13 +157,30 @@ async function loadStudentData() {
       course_id: a.course_id ?? null,
     }))
 
-    // Gamification + sertifikatlar (parallel, xatosini yutamiz)
-    const [gamif, certs] = await Promise.all([
+    // Gamification + sertifikatlar + gradebook (parallel, xatosini yutamiz)
+    const [gamif, certs, rows] = await Promise.all([
       gamificationApi.myStats().catch(() => null),
       certificatesApi.listMine().catch(() => [] as unknown[]),
+      gradebookApi.myGradebook().catch(() => []),
     ])
     gamifStats.value = gamif
     certificatesCount.value = Array.isArray(certs) ? certs.length : 0
+
+    // GPA — faqat baholangan kurslar (grade_number > 0), kreditga vaznli
+    const graded = rows.filter(
+      (r) => Number.isFinite(r.grade_number) && r.grade_number > 0,
+    )
+    gradedCount.value = graded.length
+    if (graded.length > 0) {
+      const cr = graded.reduce((a, r) => a + r.credits, 0) || 1
+      const wPct = graded.reduce((a, r) => a + r.grade_number * r.credits, 0) / cr
+      const wGpa = graded.reduce((a, r) => a + gpaPoints(r.grade_number) * r.credits, 0) / cr
+      gradeAvg.value = Math.round(wPct * 10) / 10
+      gpa.value = Math.round(wGpa * 100) / 100
+    } else {
+      gradeAvg.value = null
+      gpa.value = null
+    }
 
     // Phase 16 — yangi widgetlar (parallel)
     const [act, exams, notifs] = await Promise.all([
@@ -328,7 +359,7 @@ function progressOf(c: Course): number {
         <UiButton
           v-if="isTeacher"
           size="sm"
-          @click="router.push({ name: 'courses' })"
+          @click="router.push({ name: 'my-courses' })"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M7 3v8M3 7h8" />
@@ -416,7 +447,7 @@ function progressOf(c: Course): number {
           <button
             type="button"
             class="font-mono text-[12px] text-muted-foreground hover:text-foreground"
-            @click="router.push({ name: isStudent ? 'my-learning' : 'courses' })"
+            @click="router.push({ name: isStudent ? 'my-learning' : 'my-courses' })"
           >
             {{ t('dashboard.see_all') }} →
           </button>
@@ -435,7 +466,7 @@ function progressOf(c: Course): number {
               <UiImagePlaceholder
                 v-if="!c.cover_image_url"
                 aspect="auto"
-                label="COVER"
+                :label="t('dashboard.cover')"
               />
               <img
                 v-else
@@ -446,7 +477,7 @@ function progressOf(c: Course): number {
             </div>
             <div class="flex-1 min-w-0">
               <div class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
-                {{ c.type ? c.type.toUpperCase() : 'KURS' }}
+                {{ c.type ? c.type.toUpperCase() : t('dashboard.course_type_default') }}
               </div>
               <div class="font-semibold text-[14px] mb-1.5 truncate">{{ c.title }}</div>
               <div class="flex items-center gap-3">
@@ -529,6 +560,46 @@ function progressOf(c: Course): number {
 
     <!-- RIGHT COLUMN -->
     <div class="flex flex-col gap-4">
+      <!-- Akademik ko'rsatkich (GPA) — talaba -->
+      <UiCard v-if="!isTeacher" no-padding>
+        <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+          <span class="text-sm font-semibold">{{ t('dashboard.academic_title') }}</span>
+          <button
+            type="button"
+            class="font-mono text-[12px] text-muted-foreground hover:text-foreground"
+            @click="router.push({ name: 'grades' })"
+          >
+            {{ t('dashboard.see_all') }} →
+          </button>
+        </div>
+        <div class="p-5 flex items-center gap-5">
+          <div class="text-center shrink-0">
+            <div class="text-[34px] font-bold tabular-nums leading-none text-[#1f3a5f] dark:text-[#d9b962]">
+              {{ gpa !== null ? gpa.toFixed(2) : '—' }}
+            </div>
+            <div class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mt-1.5">
+              GPA · 4.0
+            </div>
+          </div>
+          <div class="flex-1 grid grid-cols-2 gap-3 text-center border-l border-border pl-5">
+            <div>
+              <div class="text-[18px] font-semibold tabular-nums">
+                {{ gradeAvg !== null ? `${gradeAvg}%` : '—' }}
+              </div>
+              <div class="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">
+                {{ t('dashboard.academic_avg') }}
+              </div>
+            </div>
+            <div>
+              <div class="text-[18px] font-semibold tabular-nums">{{ gradedCount }}</div>
+              <div class="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">
+                {{ t('dashboard.academic_graded') }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </UiCard>
+
       <!-- Bugungi jadval (live + scheduled) -->
       <UiCard no-padding>
         <div class="px-5 py-4 border-b border-border flex items-center justify-between">

@@ -583,7 +583,12 @@
     "system": "System",
     "coming_soon": "Coming soon",
     "announcement_welcome": "Welcome to XIU LMS. The new semester has begun.",
-    "announcement_phase6": "The exams module and auto-proctoring will be added soon."
+    "announcement_phase6": "The exams module and auto-proctoring will be added soon.",
+    "academic_title": "Academic performance",
+    "academic_avg": "Average grade",
+    "academic_graded": "Graded",
+    "course_type_default": "Course",
+    "cover": "Cover"
   },
   "my_assignments": {
     "subtitle": "{pending} new · {in_review} in review · {graded} graded",
