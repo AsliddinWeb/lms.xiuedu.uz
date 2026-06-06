@@ -1359,7 +1359,8 @@
     "col_actions": "",
     "review": "Кўриб чиқиш",
     "back_to_inbox": "Inbox'га қайтиш",
-    "total_short": "ЖАМИ"
+    "total_short": "ЖАМИ",
+    "days_late": "({n} кун кеч)"
   },
   "my_courses": {
     "courses_count": "КУРС",
@@ -1415,7 +1416,8 @@
     "field_max": "Max балл",
     "delete_confirm": "Rubricни ўчириш?",
     "total_label": "Жами: {n} балл",
-    "saved": "Сақланди"
+    "saved": "Сақланди",
+    "criteria_count": "{n} та мезон"
   },
   "plagiarism": {
     "label": "Плагиат",
@@ -1456,7 +1458,8 @@
     "submitted_at": "Яратилган: {date}",
     "reviewed_at": "Кўриб чиқилган: {date}",
     "view_submission": "Submissionни очиш",
-    "respond_submit": "Жавобни юбориш"
+    "respond_submit": "Жавобни юбориш",
+    "new_score_required": "Янги баҳо мажбурий"
   },
   "university": {
     "tag": "УНИВЕРСИТЕТ",

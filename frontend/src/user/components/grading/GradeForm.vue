@@ -100,7 +100,7 @@ async function handleSubmit() {
     successMsg.value = t('grade_form.saved')
     emit('graded', updated)
   } catch (e) {
-    error.value = extractErrorMessage(e, 'Saqlashda xato')
+    error.value = extractErrorMessage(e, t('common.save_error'))
   } finally {
     submitting.value = false
   }

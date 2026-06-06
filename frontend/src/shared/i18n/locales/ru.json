@@ -1359,7 +1359,8 @@
     "col_actions": "",
     "review": "Открыть",
     "back_to_inbox": "К списку",
-    "total_short": "ВСЕГО"
+    "total_short": "ВСЕГО",
+    "days_late": "(опоздание {n} дн.)"
   },
   "my_courses": {
     "courses_count": "КУРС.",
@@ -1415,7 +1416,8 @@
     "field_max": "Макс. балл",
     "delete_confirm": "Удалить rubric?",
     "total_label": "Всего: {n} баллов",
-    "saved": "Сохранено"
+    "saved": "Сохранено",
+    "criteria_count": "критериев: {n}"
   },
   "plagiarism": {
     "label": "Плагиат",
@@ -1456,7 +1458,8 @@
     "submitted_at": "Создано: {date}",
     "reviewed_at": "Рассмотрено: {date}",
     "view_submission": "Открыть submission",
-    "respond_submit": "Отправить ответ"
+    "respond_submit": "Отправить ответ",
+    "new_score_required": "Новая оценка обязательна"
   },
   "university": {
     "tag": "УНИВЕРСИТЕТ",

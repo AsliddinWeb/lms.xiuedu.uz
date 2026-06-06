@@ -171,7 +171,7 @@ function open(s: Submission) {
           <td class="px-4 py-3 font-mono text-[12px] text-muted-foreground">
             {{ fmtDateTime(s.submitted_at) }}
             <span v-if="s.is_late" class="text-warning-600 ml-1">
-              ({{ s.days_late }}d late)
+              {{ t('grading_inbox.days_late', { n: s.days_late }) }}
             </span>
           </td>
           <td class="px-4 py-3 font-mono">#{{ s.attempt_number }}</td>

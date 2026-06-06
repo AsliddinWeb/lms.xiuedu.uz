@@ -49,7 +49,7 @@ async function handleSubmit() {
   if (!props.appeal) return
   error.value = null
   if (decision.value === 'approved' && newScore.value === '') {
-    error.value = t('appeals.new_score_label') + ' majburiy'
+    error.value = t('appeals.new_score_required')
     return
   }
   submitting.value = true
@@ -65,7 +65,7 @@ async function handleSubmit() {
     emit('responded', updated)
     emit('close')
   } catch (e) {
-    error.value = extractErrorMessage(e, 'Yuborishda xato')
+    error.value = extractErrorMessage(e, t('common.save_error'))
   } finally {
     submitting.value = false
   }

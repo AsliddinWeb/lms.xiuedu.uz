@@ -1359,7 +1359,8 @@
     "col_actions": "",
     "review": "Review",
     "back_to_inbox": "Back to inbox",
-    "total_short": "TOTAL"
+    "total_short": "TOTAL",
+    "days_late": "({n}d late)"
   },
   "my_courses": {
     "courses_count": "COURSES",
@@ -1415,7 +1416,8 @@
     "field_max": "Max points",
     "delete_confirm": "Delete rubric?",
     "total_label": "Total: {n} points",
-    "saved": "Saved"
+    "saved": "Saved",
+    "criteria_count": "{n} criteria"
   },
   "plagiarism": {
     "label": "Plagiarism",
@@ -1456,7 +1458,8 @@
     "submitted_at": "Created: {date}",
     "reviewed_at": "Reviewed: {date}",
     "view_submission": "Open submission",
-    "respond_submit": "Send response"
+    "respond_submit": "Send response",
+    "new_score_required": "New score is required"
   },
   "university": {
     "tag": "UNIVERSITY",

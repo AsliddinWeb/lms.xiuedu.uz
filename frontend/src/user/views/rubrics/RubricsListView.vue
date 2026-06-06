@@ -120,7 +120,7 @@ async function handleDelete(r: Rubric) {
           <h3 class="text-base font-semibold text-foreground truncate">{{ r.title }}</h3>
           <div class="font-mono text-[11px] text-muted-foreground mt-0.5">
             {{ t('rubrics.total_label', { n: r.total_points }) }} ·
-            {{ r.criteria.length }} kriteriya
+            {{ t('rubrics.criteria_count', { n: r.criteria.length }) }}
           </div>
         </div>
       </template>

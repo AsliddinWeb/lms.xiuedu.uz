@@ -1359,7 +1359,8 @@
     "col_actions": "",
     "review": "Ko'rib chiqish",
     "back_to_inbox": "Inbox'ga qaytish",
-    "total_short": "JAMI"
+    "total_short": "JAMI",
+    "days_late": "({n} kun kech)"
   },
   "my_courses": {
     "courses_count": "KURS",
@@ -1415,7 +1416,8 @@
     "field_max": "Max ball",
     "delete_confirm": "Rubricni o'chirish?",
     "total_label": "Jami: {n} ball",
-    "saved": "Saqlandi"
+    "saved": "Saqlandi",
+    "criteria_count": "{n} ta mezon"
   },
   "plagiarism": {
     "label": "Plagiat",
@@ -1456,7 +1458,8 @@
     "submitted_at": "Yaratilgan: {date}",
     "reviewed_at": "Ko'rib chiqilgan: {date}",
     "view_submission": "Submissionni ochish",
-    "respond_submit": "Javobni yuborish"
+    "respond_submit": "Javobni yuborish",
+    "new_score_required": "Yangi baho majburiy"
   },
   "university": {
     "tag": "UNIVERSITET",
