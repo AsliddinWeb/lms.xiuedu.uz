@@ -126,50 +126,64 @@ function viewSubmission(a: Appeal) {
     <div v-else-if="items.length === 0" class="p-8 text-center text-muted-foreground">
       {{ t('appeals.no_appeals') }}
     </div>
-    <table v-else class="w-full text-[13px]">
-      <thead class="bg-muted/50 text-[11px] uppercase tracking-wider text-muted-foreground">
-        <tr>
-          <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('grading_inbox.col_student') }}</th>
-          <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('appeals.reason_label') }}</th>
-          <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('grading_inbox.col_status') }}</th>
-          <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('appeals.submitted_at', { date: '' }) }}</th>
-          <th scope="col" class="px-4 py-2.5"></th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-border">
-        <tr v-for="ap in items" :key="ap.id" class="hover:bg-muted/30">
-          <td class="px-4 py-3 font-medium">
-            {{ ap.student_full_name ?? `#${ap.student_id}` }}
-          </td>
-          <td class="px-4 py-3 max-w-[400px]">
-            <p class="line-clamp-2 text-[12.5px] text-muted-foreground">{{ ap.reason }}</p>
-          </td>
-          <td class="px-4 py-3">
-            <UiBadge :variant="statusVariant(ap.status as AppealStatus)" with-dot>
-              {{ t(`appeals.status_${ap.status}`) }}
-            </UiBadge>
-          </td>
-          <td class="px-4 py-3 font-mono text-[12px] text-muted-foreground">
-            {{ fmtDate(ap.created_at) }}
-          </td>
-          <td class="px-4 py-3 text-right">
-            <div class="flex justify-end gap-1.5">
-              <UiButton variant="ghost" size="sm" @click="viewSubmission(ap)">
-                {{ t('appeals.view_submission') }}
-              </UiButton>
-              <UiButton
-                v-if="ap.status === 'pending'"
-                variant="outline"
-                size="sm"
-                @click="openRespond(ap)"
-              >
-                {{ t('grading_inbox.review') }}
-              </UiButton>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div v-else class="overflow-x-auto">
+      <table class="w-full text-[13px]">
+        <thead>
+          <tr class="bg-muted">
+            <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('grading_inbox.col_student') }}
+            </th>
+            <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('appeals.reason_label') }}
+            </th>
+            <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('grading_inbox.col_status') }}
+            </th>
+            <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('grading_inbox.col_submitted') }}
+            </th>
+            <th scope="col" class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="ap in items"
+            :key="ap.id"
+            class="border-t border-border hover:bg-muted/30"
+          >
+            <td class="px-4 py-3 font-medium align-top">
+              {{ ap.student_full_name ?? `#${ap.student_id}` }}
+            </td>
+            <td class="px-4 py-3 max-w-[400px] align-top">
+              <p class="line-clamp-2 text-[12.5px] text-muted-foreground">{{ ap.reason }}</p>
+            </td>
+            <td class="px-4 py-3 align-top">
+              <UiBadge :variant="statusVariant(ap.status as AppealStatus)" with-dot>
+                {{ t(`appeals.status_${ap.status}`) }}
+              </UiBadge>
+            </td>
+            <td class="px-4 py-3 font-mono text-[12px] text-muted-foreground align-top">
+              {{ fmtDate(ap.created_at) }}
+            </td>
+            <td class="px-4 py-3 text-right align-top">
+              <div class="flex justify-end gap-1.5">
+                <UiButton variant="ghost" size="sm" @click="viewSubmission(ap)">
+                  {{ t('appeals.view_submission') }}
+                </UiButton>
+                <UiButton
+                  v-if="ap.status === 'pending'"
+                  variant="outline"
+                  size="sm"
+                  @click="openRespond(ap)"
+                >
+                  {{ t('grading_inbox.review') }}
+                </UiButton>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </UiCard>
 
   <AppealRespondDrawer
