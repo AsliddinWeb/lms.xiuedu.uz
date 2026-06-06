@@ -125,30 +125,6 @@ function fmtDateTime(s: string): string {
   }
 }
 
-// Filter tugma ranglari — statuslar bilan bir xil semantik (faol/sust)
-const FILTER_STYLE: Record<Filter, { active: string; idle: string }> = {
-  pending: {
-    active: 'bg-info-700 text-white border-info-700',
-    idle: 'bg-info-50 text-info-700 border-info-200 dark:bg-info-700/15 dark:text-info-200 dark:border-info-700/40',
-  },
-  grading: {
-    active: 'bg-warning-700 text-white border-warning-700',
-    idle: 'bg-warning-50 text-warning-700 border-warning-200 dark:bg-warning-700/15 dark:text-warning-200 dark:border-warning-700/40',
-  },
-  graded: {
-    active: 'bg-success-700 text-white border-success-700',
-    idle: 'bg-success-50 text-success-700 border-success-200 dark:bg-success-700/15 dark:text-success-200 dark:border-success-700/40',
-  },
-  all: {
-    active: 'bg-foreground text-background border-foreground',
-    idle: 'bg-background text-foreground border-border-strong hover:bg-muted',
-  },
-}
-
-function filterClass(opt: Filter): string {
-  return filter.value === opt ? FILTER_STYLE[opt].active : FILTER_STYLE[opt].idle
-}
-
 function statusVariant(
   s: SubmissionStatus,
 ): 'default' | 'success' | 'warning' | 'danger' | 'info' {
@@ -187,7 +163,11 @@ function open(s: Submission) {
         :key="opt"
         type="button"
         class="px-3 py-1.5 rounded-md text-[12px] font-medium border transition-colors"
-        :class="filterClass(opt)"
+        :class="
+          filter === opt
+            ? 'bg-foreground text-background border-foreground'
+            : 'bg-background text-foreground border-border-strong hover:bg-muted'
+        "
         @click="filter = opt"
       >
         {{ t(`grading_inbox.filter_${opt}`) }}
@@ -215,44 +195,60 @@ function open(s: Submission) {
     <div v-else-if="displayedItems.length === 0" class="p-8 text-center text-muted-foreground">
       {{ t('grading_inbox.no_items') }}
     </div>
-    <table v-else class="w-full text-[13px]">
-      <thead class="bg-muted/50 text-[11px] uppercase tracking-wider text-muted-foreground">
-        <tr>
-          <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('grading_inbox.col_student') }}</th>
-          <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('grading_inbox.col_assignment') }}</th>
-          <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('grading_inbox.col_submitted') }}</th>
-          <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('grading_inbox.col_attempt') }}</th>
-          <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('grading_inbox.col_status') }}</th>
-          <th scope="col" class="px-4 py-2.5"></th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-border">
-        <tr v-for="s in displayedItems" :key="s.id" class="hover:bg-muted/30">
-          <td class="px-4 py-3 font-medium">
-            {{ s.user_full_name ?? `#${s.user_id}` }}
-          </td>
-          <td class="px-4 py-3 truncate max-w-[280px]">
-            {{ assignmentTitles[s.assignment_id] ?? `#${s.assignment_id}` }}
-          </td>
-          <td class="px-4 py-3 font-mono text-[12px] text-muted-foreground">
-            {{ fmtDateTime(s.submitted_at) }}
-            <span v-if="s.is_late" class="text-warning-600 ml-1">
-              {{ t('grading_inbox.days_late', { n: s.days_late }) }}
-            </span>
-          </td>
-          <td class="px-4 py-3 font-mono">#{{ s.attempt_number }}</td>
-          <td class="px-4 py-3">
-            <UiBadge :variant="statusVariant(s.status)" with-dot>
-              {{ t(`assignments.status_${s.status}`) }}
-            </UiBadge>
-          </td>
-          <td class="px-4 py-3 text-right">
-            <UiButton variant="outline" size="sm" @click="open(s)">
-              {{ t('grading_inbox.review') }}
-            </UiButton>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <div v-else class="overflow-x-auto">
+      <table class="w-full text-[13px]">
+        <thead>
+          <tr class="bg-muted">
+            <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('grading_inbox.col_student') }}
+            </th>
+            <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('grading_inbox.col_assignment') }}
+            </th>
+            <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('grading_inbox.col_submitted') }}
+            </th>
+            <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('grading_inbox.col_attempt') }}
+            </th>
+            <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+              {{ t('grading_inbox.col_status') }}
+            </th>
+            <th scope="col" class="px-4 py-3"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="s in displayedItems"
+            :key="s.id"
+            class="border-t border-border hover:bg-muted/30"
+          >
+            <td class="px-4 py-3 font-medium align-top">
+              {{ s.user_full_name ?? `#${s.user_id}` }}
+            </td>
+            <td class="px-4 py-3 truncate max-w-[280px] align-top">
+              {{ assignmentTitles[s.assignment_id] ?? `#${s.assignment_id}` }}
+            </td>
+            <td class="px-4 py-3 font-mono text-[12px] text-muted-foreground align-top">
+              {{ fmtDateTime(s.submitted_at) }}
+              <span v-if="s.is_late" class="text-warning-600 ml-1">
+                {{ t('grading_inbox.days_late', { n: s.days_late }) }}
+              </span>
+            </td>
+            <td class="px-4 py-3 font-mono align-top">#{{ s.attempt_number }}</td>
+            <td class="px-4 py-3 align-top">
+              <UiBadge :variant="statusVariant(s.status)" with-dot>
+                {{ t(`assignments.status_${s.status}`) }}
+              </UiBadge>
+            </td>
+            <td class="px-4 py-3 text-right align-top">
+              <UiButton variant="outline" size="sm" @click="open(s)">
+                {{ t('grading_inbox.review') }}
+              </UiButton>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </UiCard>
 </template>
