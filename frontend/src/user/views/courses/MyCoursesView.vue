@@ -278,7 +278,6 @@ function levelLabel(c: Course): string | null {
                   {{ t('courses.open_builder') }}
                 </UiButton>
                 <UiButton
-                  v-if="c.status !== 'published'"
                   variant="ghost"
                   size="sm"
                   @click="openEdit(c)"

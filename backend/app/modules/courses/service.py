@@ -152,11 +152,10 @@ async def create_course(
 async def update_course(
     db: AsyncSession, course_id: int, data: CourseUpdateRequest
 ) -> Course:
+    # Eslatma: published kursning metadatasi (nom, tavsif, maqsadlar, ...)
+    # tahrirlanishi mumkin — slug CourseUpdateRequest'da yo'q, shuning uchun URL
+    # buzilmaydi. Struktura (modul/dars) esa alohida funksiyalarda qulflanadi.
     course = await get_course(db, course_id)
-    if course.status == "published":
-        raise ConflictError(
-            "Published kursni tahrirlab bo'lmaydi — avval unpublish qiling"
-        )
 
     if data.subject_id is not None:
         if (await db.get(Subject, data.subject_id)) is None:
