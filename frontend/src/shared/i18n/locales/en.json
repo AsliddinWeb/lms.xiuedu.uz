@@ -1358,7 +1358,7 @@
     "col_status": "Status",
     "col_actions": "",
     "review": "Review",
-    "back_to_inbox": "Back to inbox",
+    "back_to_inbox": "Back to list",
     "total_short": "TOTAL",
     "days_late": "({n}d late)",
     "ungraded": "Ungraded: {n}",

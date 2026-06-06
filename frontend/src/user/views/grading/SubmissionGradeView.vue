@@ -11,6 +11,7 @@ import UiButton from '@shared/components/ui/UiButton.vue'
 import UiCard from '@shared/components/ui/UiCard.vue'
 import { assignmentsApi, rubricsApi, submissionsApi } from '@shared/api/assignments'
 import { extractErrorMessage, isNotFound } from '@shared/api/client'
+import { toast } from '@shared/composables/useToast'
 import type {
   Assignment,
   Rubric,
@@ -149,6 +150,9 @@ function fmtSize(bytes: number): string {
 
 function onGraded(updated: Submission) {
   submission.value = updated
+  // Baholangach inbox'ga qaytamiz — pedagog keyingi ishga o'tadi
+  toast.success(t('grade_form.saved'))
+  router.push({ name: 'grading-inbox' })
 }
 </script>
 
@@ -162,8 +166,18 @@ function onGraded(updated: Submission) {
   <template v-else-if="submission && assignment">
     <UiBreadcrumb
       :items="[t('dashboard.crumb_home'), t('grading_inbox.title'), assignment.title]"
-      class="mb-6"
+      class="mb-3"
     />
+    <button
+      type="button"
+      class="inline-flex items-center gap-1.5 mb-5 text-[12px] font-mono text-muted-foreground hover:text-foreground transition-colors"
+      @click="router.push({ name: 'grading-inbox' })"
+    >
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m15 18-6-6 6-6" />
+      </svg>
+      {{ t('grading_inbox.back_to_inbox') }}
+    </button>
     <!-- Header -->
     <div class="mb-6">
       <div class="flex items-end justify-between gap-6">

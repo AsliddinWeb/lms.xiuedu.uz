@@ -1358,7 +1358,7 @@
     "col_status": "Статус",
     "col_actions": "",
     "review": "Открыть",
-    "back_to_inbox": "К списку",
+    "back_to_inbox": "Назад к списку",
     "total_short": "ВСЕГО",
     "days_late": "(опоздание {n} дн.)",
     "ungraded": "Не оценено: {n}",
