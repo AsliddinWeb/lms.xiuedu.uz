@@ -705,53 +705,69 @@ function statusVariant(s: CourseStatus): 'default' | 'success' | 'warning' {
         <div v-if="students.length === 0" class="p-8 text-center text-muted-foreground">
           {{ t('students.empty') }}
         </div>
-        <table v-else class="w-full text-[13px]">
-          <thead class="bg-muted/50 text-[11px] uppercase tracking-wider text-muted-foreground">
-            <tr>
-              <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('students.col_name') }}</th>
-              <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('students.col_email') }}</th>
-              <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('students.col_method') }}</th>
-              <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('students.col_progress') }}</th>
-              <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('students.col_status') }}</th>
-              <th scope="col" class="px-4 py-2.5"></th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-border">
-            <tr v-for="s in students" :key="s.user_id" class="hover:bg-muted/30">
-              <td class="px-4 py-3 font-medium">{{ s.full_name }}</td>
-              <td class="px-4 py-3 font-mono text-[12px] text-muted-foreground">{{ s.email }}</td>
-              <td class="px-4 py-3">
-                <UiBadge variant="default">
-                  {{ t(`courses.enrollment_${s.enrollment_method}`) }}
-                </UiBadge>
-              </td>
-              <td class="px-4 py-3 font-mono">{{ s.progress_percent }}%</td>
-              <td class="px-4 py-3">
-                <UiBadge
-                  :variant="
-                    s.completion_status === 'completed'
-                      ? 'success'
-                      : s.completion_status === 'failed' || s.completion_status === 'dropped'
-                        ? 'warning'
-                        : 'default'
-                  "
-                >
-                  {{ t(`students.completion_${s.completion_status}`) }}
-                </UiBadge>
-              </td>
-              <td class="px-4 py-3 text-right">
-                <UiButton
-                  variant="ghost"
-                  size="sm"
-                  class="text-danger-600"
-                  @click="handleStudentRemove(s)"
-                >
-                  {{ t('common.delete') }}
-                </UiButton>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div v-else class="overflow-x-auto">
+          <table class="w-full text-[13px]">
+            <thead>
+              <tr class="bg-muted">
+                <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+                  {{ t('students.col_name') }}
+                </th>
+                <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+                  {{ t('students.col_email') }}
+                </th>
+                <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+                  {{ t('students.col_method') }}
+                </th>
+                <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+                  {{ t('students.col_progress') }}
+                </th>
+                <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+                  {{ t('students.col_status') }}
+                </th>
+                <th scope="col" class="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-for="s in students"
+                :key="s.user_id"
+                class="border-t border-border hover:bg-muted/30"
+              >
+                <td class="px-4 py-3 font-medium align-top">{{ s.full_name }}</td>
+                <td class="px-4 py-3 font-mono text-[12px] text-muted-foreground align-top">{{ s.email }}</td>
+                <td class="px-4 py-3 align-top">
+                  <UiBadge variant="default">
+                    {{ t(`courses.enrollment_${s.enrollment_method}`) }}
+                  </UiBadge>
+                </td>
+                <td class="px-4 py-3 font-mono align-top">{{ s.progress_percent }}%</td>
+                <td class="px-4 py-3 align-top">
+                  <UiBadge
+                    :variant="
+                      s.completion_status === 'completed'
+                        ? 'success'
+                        : s.completion_status === 'failed' || s.completion_status === 'dropped'
+                          ? 'warning'
+                          : 'default'
+                    "
+                  >
+                    {{ t(`students.completion_${s.completion_status}`) }}
+                  </UiBadge>
+                </td>
+                <td class="px-4 py-3 text-right align-top">
+                  <UiButton
+                    variant="ghost"
+                    size="sm"
+                    class="text-danger-600"
+                    @click="handleStudentRemove(s)"
+                  >
+                    {{ t('common.delete') }}
+                  </UiButton>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </UiCard>
     </div>
 
