@@ -23,7 +23,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import ConflictError, ForbiddenError, NotFoundError
-from app.core.storage import upload_object
+from app.core.storage import delete_object, upload_object
 from app.modules.live.models import LiveRecording, LiveSession
 
 
@@ -147,6 +147,11 @@ async def delete_recording(
     rec = await _get_recording(db, recording_id)
     session = await _get_session(db, rec.session_id)
     _check_host(session, user_id)
-    # MinIO'dan ham o'chirish (kelajakda — hozir orphan qoldiramiz)
+    # MinIO'dan faylni ham o'chiramiz (storage leak oldini olish)
+    if rec.object_key:
+        try:
+            delete_object(rec.object_key)
+        except Exception:  # noqa: BLE001 — fayl bo'lmasa ham DB yozuvini o'chiramiz
+            pass
     await db.delete(rec)
     await db.flush()
