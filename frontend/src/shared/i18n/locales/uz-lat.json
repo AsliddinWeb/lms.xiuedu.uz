@@ -1039,7 +1039,8 @@
     "tab_students": "Talabalar",
     "tab_settings": "Sozlamalar",
     "published_ok": "Kurs nashr qilindi",
-    "unpublished_ok": "Kurs nashrdan olindi"
+    "unpublished_ok": "Kurs nashrdan olindi",
+    "status_review": "Ko‘rib chiqilmoqda"
   },
   "builder": {
     "back_to_courses": "Kurslarga qaytish",

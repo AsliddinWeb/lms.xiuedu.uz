@@ -53,7 +53,7 @@ const typeOptions = computed(() => [
 const statusOptions = computed(() => [
   { value: '' as ContentStatus | '', label: t('content_picker.all_statuses') },
   { value: 'draft', label: t('courses.status_draft') },
-  { value: 'review', label: 'Review' },
+  { value: 'review', label: t('courses.status_review') },
   { value: 'published', label: t('courses.status_published') },
   { value: 'archived', label: t('courses.status_archived') },
 ])

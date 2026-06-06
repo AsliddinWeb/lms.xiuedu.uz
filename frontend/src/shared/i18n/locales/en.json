@@ -1039,7 +1039,8 @@
     "tab_students": "Students",
     "tab_settings": "Settings",
     "published_ok": "Course published",
-    "unpublished_ok": "Course unpublished"
+    "unpublished_ok": "Course unpublished",
+    "status_review": "In review"
   },
   "builder": {
     "back_to_courses": "Back to courses",

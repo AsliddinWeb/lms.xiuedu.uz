@@ -19,6 +19,7 @@ import {
   modulesApi,
 } from '@shared/api/courses'
 import { examsApi, questionsApi } from '@shared/api/exams'
+import { contentApi } from '@shared/api/content'
 import { extractErrorMessage, isNotFound } from '@shared/api/client'
 import { useAuthStore } from '@shared/stores/auth'
 import type { Assignment } from '@shared/types/assignments'
@@ -49,6 +50,8 @@ const courseId = computed(() => Number(route.params.id))
 const course = ref<Course | null>(null)
 const modules = ref<Module[]>([])
 const lessonsByModule = ref<Record<number, Lesson[]>>({})
+// Dars'ga biriktirilgan content (id -> {type, title}) — kartada ko'rsatish uchun
+const contentMap = ref<Record<number, { type: string; title: string }>>({})
 const students = ref<EnrollmentStudent[]>([])
 
 const tab = ref<Tab>('structure')
@@ -108,6 +111,24 @@ async function loadModules() {
     }),
   )
   lessonsByModule.value = byId
+  await loadContentTitles()
+}
+
+async function loadContentTitles() {
+  const ids = new Set<number>()
+  for (const arr of Object.values(lessonsByModule.value)) {
+    for (const l of arr) if (l.primary_content_id) ids.add(l.primary_content_id)
+  }
+  const missing = [...ids].filter((id) => !(id in contentMap.value))
+  if (missing.length === 0) return
+  const results = await Promise.all(
+    missing.map((id) => contentApi.get(id).catch(() => null)),
+  )
+  const map = { ...contentMap.value }
+  results.forEach((c) => {
+    if (c) map[c.id] = { type: c.type, title: c.title }
+  })
+  contentMap.value = map
 }
 
 async function loadStudents() {
@@ -613,7 +634,16 @@ function statusVariant(s: CourseStatus): 'default' | 'success' | 'warning' {
                   <span v-if="!l.is_required_for_completion" class="font-mono italic">
                     {{ t('common.optional') }}
                   </span>
-                  <span v-if="l.primary_content_id" class="font-mono">
+                  <span
+                    v-if="l.primary_content_id && contentMap[l.primary_content_id]"
+                    class="font-mono"
+                  >
+                    <span class="uppercase text-foreground/70">
+                      [{{ t(`content_picker.type_${contentMap[l.primary_content_id].type}`) }}]
+                    </span>
+                    {{ contentMap[l.primary_content_id].title }}
+                  </span>
+                  <span v-else-if="l.primary_content_id" class="font-mono">
                     content #{{ l.primary_content_id }}
                   </span>
                   <span v-else class="font-mono italic text-warning-600">

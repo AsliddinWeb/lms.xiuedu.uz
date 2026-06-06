@@ -1039,7 +1039,8 @@
     "tab_students": "Студенты",
     "tab_settings": "Настройки",
     "published_ok": "Курс опубликован",
-    "unpublished_ok": "Курс снят с публикации"
+    "unpublished_ok": "Курс снят с публикации",
+    "status_review": "На проверке"
   },
   "builder": {
     "back_to_courses": "Назад к курсам",

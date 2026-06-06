@@ -1039,7 +1039,8 @@
     "tab_students": "Талабалар",
     "tab_settings": "Созламалар",
     "published_ok": "Курс нашр қилинди",
-    "unpublished_ok": "Курс нашрдан олинди"
+    "unpublished_ok": "Курс нашрдан олинди",
+    "status_review": "Кўриб чиқилмоқда"
   },
   "builder": {
     "back_to_courses": "Курсларга қайтиш",
