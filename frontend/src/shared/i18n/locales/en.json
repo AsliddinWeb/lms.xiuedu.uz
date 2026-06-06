@@ -753,7 +753,11 @@
     "stats_lessons_done": "Lessons completed",
     "stats_avg_grade": "Average grade",
     "stats_time_spent": "Time spent",
-    "stats_attendance": "Attendance"
+    "stats_attendance": "Attendance",
+    "preview_title": "Instructor preview",
+    "preview_hint": "This is how students see this page.",
+    "preview_open_lesson": "Open lesson",
+    "preview_back_builder": "Back to builder"
   },
   "assignment_detail": {
     "instructions": "Instructions",
@@ -1065,7 +1069,8 @@
     "module_delete_confirm": "Delete module and all its lessons?",
     "lesson_delete_confirm": "Delete lesson?",
     "move_up": "Move up",
-    "move_down": "Move down"
+    "move_down": "Move down",
+    "preview": "Preview"
   },
   "students": {
     "empty": "No students enrolled yet",

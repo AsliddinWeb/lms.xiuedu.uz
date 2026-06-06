@@ -124,6 +124,11 @@ const coursePercent = computed(() => {
   return Math.round(parseFloat(p.percent))
 })
 
+// Pedagog o'z kursini "preview" qiladi (talaba ko'rinishi)
+const isAuthor = computed(
+  () => !!auth.user && course.value?.primary_author_id === auth.user.id,
+)
+
 const heroBadges = computed(() => {
   const out: { label: string; variant?: 'info' | 'success' | 'warning' }[] = []
   if (course.value?.type) {
@@ -790,7 +795,33 @@ watch(activeTab, (tab) => {
         </div>
 
         <div class="p-5">
-          <template v-if="isEnrolled">
+          <!-- Pedagog preview (talaba ko'rinishi) -->
+          <template v-if="isAuthor">
+            <div class="rounded-md border border-[#c19a3e]/40 bg-[#f3e6c4]/20 px-3 py-2.5 mb-3">
+              <div class="text-[12px] font-semibold text-[#8a6d2f]">
+                {{ t('course_detail.preview_title') }}
+              </div>
+              <div class="text-[11px] text-muted-foreground mt-0.5">
+                {{ t('course_detail.preview_hint') }}
+              </div>
+            </div>
+            <UiButton
+              class="w-full justify-center mb-2"
+              :disabled="flatLessons.length === 0"
+              @click="openPlayer()"
+            >
+              {{ t('course_detail.preview_open_lesson') }}
+            </UiButton>
+            <UiButton
+              variant="outline"
+              class="w-full justify-center"
+              @click="router.push({ name: 'course-builder', params: { id: courseId } })"
+            >
+              {{ t('course_detail.preview_back_builder') }}
+            </UiButton>
+          </template>
+
+          <template v-else-if="isEnrolled">
             <!-- Progress block -->
             <div class="mb-4">
               <div class="flex items-baseline justify-between mb-2">

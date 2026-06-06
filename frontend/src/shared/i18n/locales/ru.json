@@ -753,7 +753,11 @@
     "stats_lessons_done": "Пройдено уроков",
     "stats_avg_grade": "Средний балл",
     "stats_time_spent": "Затраченное время",
-    "stats_attendance": "Посещаемость"
+    "stats_attendance": "Посещаемость",
+    "preview_title": "Режим преподавателя",
+    "preview_hint": "Так эту страницу видят студенты.",
+    "preview_open_lesson": "Открыть урок",
+    "preview_back_builder": "Назад в конструктор"
   },
   "assignment_detail": {
     "instructions": "Инструкция",
@@ -1065,7 +1069,8 @@
     "module_delete_confirm": "Удалить модуль и все его уроки?",
     "lesson_delete_confirm": "Удалить урок?",
     "move_up": "Вверх",
-    "move_down": "Вниз"
+    "move_down": "Вниз",
+    "preview": "Предпросмотр"
   },
   "students": {
     "empty": "Студенты пока не записаны",

@@ -753,7 +753,11 @@
     "stats_lessons_done": "Тугатилган дарс",
     "stats_avg_grade": "Ўртача баҳо",
     "stats_time_spent": "Сарф қилинган вақт",
-    "stats_attendance": "Давомат"
+    "stats_attendance": "Давомат",
+    "preview_title": "Педагог кўриниши",
+    "preview_hint": "Бу саҳифани талабалар шундай кўради.",
+    "preview_open_lesson": "Дарсни очиш",
+    "preview_back_builder": "Билдерга қайтиш"
   },
   "assignment_detail": {
     "instructions": "Йўриқнома",
@@ -1065,7 +1069,8 @@
     "module_delete_confirm": "Модул ва ундаги барча дарсларни ўчириш?",
     "lesson_delete_confirm": "Дарсни ўчириш?",
     "move_up": "Юқорига",
-    "move_down": "Пастга"
+    "move_down": "Пастга",
+    "preview": "Кўриб чиқиш"
   },
   "students": {
     "empty": "Ҳали биронта талаба ёзилмаган",

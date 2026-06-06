@@ -515,10 +515,12 @@ function statusVariant(s: CourseStatus): 'default' | 'success' | 'warning' {
         </div>
         <div class="flex items-center gap-2 shrink-0">
           <UiButton
-            v-if="course.status !== 'published'"
             variant="outline"
-            @click="courseDrawerOpen = true"
+            @click="router.push({ name: 'course-detail', params: { id: courseId } })"
           >
+            {{ t('builder.preview') }}
+          </UiButton>
+          <UiButton variant="outline" @click="courseDrawerOpen = true">
             {{ t('courses.edit') }}
           </UiButton>
           <UiButton v-if="auth.hasPermission('course.publish')" @click="handlePublishToggle">

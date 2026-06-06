@@ -753,7 +753,11 @@
     "stats_lessons_done": "Tugatilgan dars",
     "stats_avg_grade": "O'rtacha baho",
     "stats_time_spent": "Sarf qilingan vaqt",
-    "stats_attendance": "Davomat"
+    "stats_attendance": "Davomat",
+    "preview_title": "Pedagog ko'rinishi",
+    "preview_hint": "Bu sahifani talabalar shunday ko'radi.",
+    "preview_open_lesson": "Darsni ochish",
+    "preview_back_builder": "Builderga qaytish"
   },
   "assignment_detail": {
     "instructions": "Yo'riqnoma",
@@ -1065,7 +1069,8 @@
     "module_delete_confirm": "Modul va undagi barcha darslarni o'chirish?",
     "lesson_delete_confirm": "Darsni o'chirish?",
     "move_up": "Yuqoriga",
-    "move_down": "Pastga"
+    "move_down": "Pastga",
+    "preview": "Ko'rib chiqish"
   },
   "students": {
     "empty": "Hali bironta talaba yozilmagan",
