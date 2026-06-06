@@ -148,6 +148,11 @@
     }
   }
 
+  /* Header'ni ma'lumotlardan ajratuvchi chiziq — barcha table'larga */
+  main table > thead {
+    border-bottom: 1px solid var(--border-strong);
+  }
+
   /* Phase 8d — mobile fallback: agar parent overflow-x-auto bilan o'ralmagan
      bo'lsa, table o'zi gorizontal scroll qiladi. min-width: max-content
      kolonkalarni siqilib ketmasligi uchun. */

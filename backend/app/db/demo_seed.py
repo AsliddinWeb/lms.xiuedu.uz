@@ -827,6 +827,46 @@ async def seed_assignments(
         )
         await db.flush()
 
+    # --- (d) Bir nechta topshiriqqa pending submission (grading inbox boyitiladi)
+    if extra_students:
+        n = len(extra_students)
+        targets = [
+            (courses[1].id, f"{courses[1].title} — amaliy topshiriq", extra_students[0 % n]),
+            (courses[2].id, f"{courses[2].title} — amaliy topshiriq", extra_students[1 % n]),
+            (courses[1].id, rubric_title, extra_students[2 % n]),
+        ]
+        for cid, atitle, stu in targets:
+            a = await _get_assignment(db, cid, atitle)
+            if a is None:
+                continue
+            dup = (
+                await db.execute(
+                    select(Submission).where(
+                        Submission.assignment_id == a.id,
+                        Submission.user_id == stu.id,
+                    )
+                )
+            ).scalar_one_or_none()
+            if dup is not None:
+                continue
+            is_file = a.type == "file"
+            db.add(
+                Submission(
+                    assignment_id=a.id,
+                    user_id=stu.id,
+                    attempt_number=1,
+                    content=None if is_file else f"{stu.full_name} javobi (demo).",
+                    files=(
+                        [{"name": "yechim.pdf", "url": "https://cdn.xiuedu.uz/demo/yechim.pdf", "mime": "application/pdf", "size": 51200}]
+                        if is_file
+                        else None
+                    ),
+                    status="submitted",
+                    submitted_at=now() - timedelta(hours=3),
+                )
+            )
+        await db.flush()
+
 
 # ---------------------------------------------------------------------------
 # 5c. Imtihonlar (savol turlari + yakunlangan urinish)

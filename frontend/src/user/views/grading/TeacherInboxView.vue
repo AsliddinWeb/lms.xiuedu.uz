@@ -125,6 +125,30 @@ function fmtDateTime(s: string): string {
   }
 }
 
+// Filter tugma ranglari — statuslar bilan bir xil semantik (faol/sust)
+const FILTER_STYLE: Record<Filter, { active: string; idle: string }> = {
+  pending: {
+    active: 'bg-info-700 text-white border-info-700',
+    idle: 'bg-info-50 text-info-700 border-info-200 dark:bg-info-700/15 dark:text-info-200 dark:border-info-700/40',
+  },
+  grading: {
+    active: 'bg-warning-700 text-white border-warning-700',
+    idle: 'bg-warning-50 text-warning-700 border-warning-200 dark:bg-warning-700/15 dark:text-warning-200 dark:border-warning-700/40',
+  },
+  graded: {
+    active: 'bg-success-700 text-white border-success-700',
+    idle: 'bg-success-50 text-success-700 border-success-200 dark:bg-success-700/15 dark:text-success-200 dark:border-success-700/40',
+  },
+  all: {
+    active: 'bg-foreground text-background border-foreground',
+    idle: 'bg-background text-foreground border-border-strong hover:bg-muted',
+  },
+}
+
+function filterClass(opt: Filter): string {
+  return filter.value === opt ? FILTER_STYLE[opt].active : FILTER_STYLE[opt].idle
+}
+
 function statusVariant(
   s: SubmissionStatus,
 ): 'default' | 'success' | 'warning' | 'danger' | 'info' {
@@ -163,11 +187,7 @@ function open(s: Submission) {
         :key="opt"
         type="button"
         class="px-3 py-1.5 rounded-md text-[12px] font-medium border transition-colors"
-        :class="
-          filter === opt
-            ? 'bg-foreground text-background border-foreground'
-            : 'bg-background text-foreground border-border-strong hover:bg-muted'
-        "
+        :class="filterClass(opt)"
         @click="filter = opt"
       >
         {{ t(`grading_inbox.filter_${opt}`) }}
