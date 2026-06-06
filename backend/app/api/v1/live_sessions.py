@@ -160,9 +160,21 @@ async def list_live_sessions(
         page=page,
         page_size=page_size,
     )
-    return PaginatedLiveSessions(
-        items=[_sign_session(LiveSessionPublic.model_validate(s)) for s in items], total=total
-    )
+    pubs = [_sign_session(LiveSessionPublic.model_validate(s)) for s in items]
+    # Host nomlarini bitta so'rovda to'ldiramiz (admin/talaba ro'yxati uchun)
+    if pubs:
+        from sqlalchemy import select as _select
+
+        host_ids = {p.host_user_id for p in pubs}
+        rows = (
+            await db.execute(
+                _select(User.id, User.full_name).where(User.id.in_(host_ids))
+            )
+        ).all()
+        names = {uid: fn for uid, fn in rows}
+        for p in pubs:
+            p.host_full_name = names.get(p.host_user_id)
+    return PaginatedLiveSessions(items=pubs, total=total)
 
 
 @router.post(

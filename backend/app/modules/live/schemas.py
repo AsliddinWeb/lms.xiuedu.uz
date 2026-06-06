@@ -90,6 +90,7 @@ class LiveSessionPublic(BaseModel):
     provider_metadata: dict
 
     host_user_id: int
+    host_full_name: str | None = None  # javobda to'ldiriladi
     status: str
     actual_start: datetime | None
     actual_end: datetime | None

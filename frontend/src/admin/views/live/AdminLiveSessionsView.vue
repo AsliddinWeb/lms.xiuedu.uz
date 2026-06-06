@@ -129,8 +129,8 @@ function statusVariant(s: LiveStatus): 'default' | 'success' | 'warning' {
             {{ fmtDateTime(s.scheduled_start) }}
           </td>
           <td class="px-4 py-3 font-mono">{{ s.duration_minutes }} min</td>
-          <td class="px-4 py-3 font-mono text-[12px] text-muted-foreground">
-            #{{ s.host_user_id }}
+          <td class="px-4 py-3 text-[12px]">
+            {{ s.host_full_name ?? `#${s.host_user_id}` }}
           </td>
           <td class="px-4 py-3">
             <UiBadge variant="default">{{ s.provider }}</UiBadge>

@@ -21,6 +21,7 @@ export interface LiveSession {
   provider_metadata: Record<string, unknown>
 
   host_user_id: number
+  host_full_name?: string | null
   status: LiveStatus
   actual_start: string | null
   actual_end: string | null
