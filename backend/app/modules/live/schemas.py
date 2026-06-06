@@ -31,6 +31,7 @@ class LiveSessionCreateRequest(BaseModel):
     provider: LiveProvider = "native"
     is_recording_enabled: bool = False
     min_attendance_percent: int = Field(default=75, ge=0, le=100)
+    requires_approval: bool = False
 
     @model_validator(mode="after")
     def _check_dates(self) -> "LiveSessionCreateRequest":
@@ -53,6 +54,7 @@ class LiveSessionUpdateRequest(BaseModel):
     provider: LiveProvider | None = None
     is_recording_enabled: bool | None = None
     min_attendance_percent: int | None = Field(default=None, ge=0, le=100)
+    requires_approval: bool | None = None
 
     @model_validator(mode="after")
     def _check_dates(self) -> "LiveSessionUpdateRequest":
@@ -102,6 +104,7 @@ class LiveSessionPublic(BaseModel):
     recording_duration_seconds: int | None
     recording_mime_type: str | None
     min_attendance_percent: int
+    requires_approval: bool = False
 
     created_at: datetime
     updated_at: datetime
@@ -134,6 +137,20 @@ class LiveAttendanceItem(BaseModel):
     left_at: datetime | None
     total_minutes: int
     is_counted: bool
+
+
+class LiveAdmissionItem(BaseModel):
+    """Waiting room — kutayotgan talaba (host ko'radi)."""
+
+    user_id: int
+    full_name: str
+    email: str | None
+    status: str
+    requested_at: datetime
+
+
+class LiveAdmissionDecision(BaseModel):
+    approve: bool
 
 
 class AttendanceSummary(BaseModel):
@@ -171,6 +188,7 @@ class LiveJoinInfo(BaseModel):
     is_host: bool
     embed_token: str | None = None
     embed_config: dict | None = None
+    pending: bool = False  # waiting room — host tasdig'i kutilmoqda
 
 
 # Phase 7a — LiveRecording

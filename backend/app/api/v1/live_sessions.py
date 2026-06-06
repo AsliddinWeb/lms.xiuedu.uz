@@ -68,6 +68,8 @@ from app.modules.live.recording import (
 from app.modules.live.schemas import (
     AttendanceSummary,
     CalendarTokenResponse,
+    LiveAdmissionDecision,
+    LiveAdmissionItem,
     LiveAttendanceItem,
     LiveAttendancePublic,
     LiveCaptionBatchRequest,
@@ -303,7 +305,82 @@ async def get_join_info(
     _u: User = Depends(require_permission("live.read")),
 ) -> LiveJoinInfo:
     session = await service.get_session(db, session_id)
-    return LiveJoinInfo(**service.build_join_info(session, user=actor))
+    info = service.build_join_info(session, user=actor)
+    is_host = session.host_user_id == actor.id
+    # Waiting room — host emas va tasdiq talab qilinsa, token bermaymiz
+    if session.requires_approval and not is_host and session.status == "live":
+        adm_status = await service.get_admission_status(
+            db, session_id=session_id, user_id=actor.id
+        )
+        if adm_status != "approved":
+            await service.request_admission(
+                db, session_id=session_id, user_id=actor.id
+            )
+            await db.commit()
+            return LiveJoinInfo(
+                session_id=session_id,
+                provider=session.provider,
+                room_name=info["room_name"],
+                join_url=info["join_url"],
+                is_host=False,
+                embed_token=None,
+                embed_config=None,
+                pending=True,
+            )
+    return LiveJoinInfo(**info)
+
+
+# ----- Waiting room (admission) — Phase 31 -----------------------------------
+
+
+@router.get(
+    "/live-sessions/{session_id}/admissions",
+    response_model=list[LiveAdmissionItem],
+    summary="Kutayotgan kirish so'rovlari (host)",
+)
+async def list_admissions(
+    session_id: int,
+    db: DbSession,
+    actor: CurrentUser,
+    redis: RedisClient,
+    _u: User = Depends(require_permission("live.host")),
+) -> list[LiveAdmissionItem]:
+    if not await _user_can_manage_session(db, redis, actor, session_id):
+        raise ForbiddenError("Kirish so'rovlarini ko'rish huquqi yo'q")
+    rows = await service.list_pending_admissions(db, session_id)
+    return [
+        LiveAdmissionItem(
+            user_id=u.id,
+            full_name=u.full_name,
+            email=u.email,
+            status=a.status,
+            requested_at=a.requested_at,
+        )
+        for a, u in rows
+    ]
+
+
+@router.post(
+    "/live-sessions/{session_id}/admissions/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Kirish so'rovini tasdiqlash/rad etish (host)",
+)
+async def decide_admission(
+    session_id: int,
+    user_id: int,
+    payload: LiveAdmissionDecision,
+    db: DbSession,
+    actor: CurrentUser,
+    redis: RedisClient,
+    _u: User = Depends(require_permission("live.host")),
+) -> Response:
+    if not await _user_can_manage_session(db, redis, actor, session_id):
+        raise ForbiddenError("Kirish so'rovini hal qilish huquqi yo'q")
+    await service.decide_admission(
+        db, session_id=session_id, user_id=user_id, approve=payload.approve
+    )
+    await db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.post(

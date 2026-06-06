@@ -17,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import ConflictError, NotFoundError, ValidationError
 from app.core.tenant import get_xiu_org_id
 from app.modules.courses.models import Course, Lesson
-from app.modules.live.models import LiveAttendance, LiveSession
+from app.modules.live.models import LiveAdmission, LiveAttendance, LiveSession
 from app.modules.live.providers import ProviderUser, get_provider
 from app.modules.live.schemas import (
     LiveSessionCreateRequest,
@@ -385,6 +385,83 @@ async def recompute_all_attendance(db: AsyncSession, session_id: int) -> int:
 # ============================================================================
 # Join info (provider'ga delegatsiya — Phase 5b)
 # ============================================================================
+
+
+# ----- Waiting room (admission) — Phase 31 -----------------------------------
+
+
+async def request_admission(
+    db: AsyncSession, *, session_id: int, user_id: int
+) -> LiveAdmission:
+    """Talaba kirish so'rovi — mavjud bo'lsa qaytaradi, bo'lmasa pending yaratadi."""
+    adm = (
+        await db.execute(
+            select(LiveAdmission).where(
+                LiveAdmission.session_id == session_id,
+                LiveAdmission.user_id == user_id,
+            )
+        )
+    ).scalar_one_or_none()
+    if adm is None:
+        adm = LiveAdmission(
+            session_id=session_id,
+            user_id=user_id,
+            status="pending",
+            requested_at=_now(),
+        )
+        db.add(adm)
+        await db.flush()
+    return adm
+
+
+async def get_admission_status(
+    db: AsyncSession, *, session_id: int, user_id: int
+) -> str | None:
+    adm = (
+        await db.execute(
+            select(LiveAdmission.status).where(
+                LiveAdmission.session_id == session_id,
+                LiveAdmission.user_id == user_id,
+            )
+        )
+    ).scalar_one_or_none()
+    return adm
+
+
+async def list_pending_admissions(
+    db: AsyncSession, session_id: int
+) -> list[tuple[LiveAdmission, User]]:
+    rows = (
+        await db.execute(
+            select(LiveAdmission, User)
+            .join(User, User.id == LiveAdmission.user_id)
+            .where(
+                LiveAdmission.session_id == session_id,
+                LiveAdmission.status == "pending",
+            )
+            .order_by(LiveAdmission.requested_at)
+        )
+    ).all()
+    return [(a, u) for a, u in rows]
+
+
+async def decide_admission(
+    db: AsyncSession, *, session_id: int, user_id: int, approve: bool
+) -> LiveAdmission:
+    adm = (
+        await db.execute(
+            select(LiveAdmission).where(
+                LiveAdmission.session_id == session_id,
+                LiveAdmission.user_id == user_id,
+            )
+        )
+    ).scalar_one_or_none()
+    if adm is None:
+        raise NotFoundError("Kirish so'rovi topilmadi")
+    adm.status = "approved" if approve else "denied"
+    adm.decided_at = _now()
+    await db.flush()
+    return adm
 
 
 async def attach_recording(

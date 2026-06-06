@@ -108,6 +108,11 @@ class LiveSession(Base, IDMixin, TimestampMixin):
         Integer, default=75, nullable=False
     )
 
+    # Waiting room — yoqilsa, host tasdiqlamaguncha talaba xonaga kira olmaydi
+    requires_approval: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
+
     attendances: Mapped[list["LiveAttendance"]] = relationship(
         "LiveAttendance",
         back_populates="session",
@@ -167,6 +172,49 @@ class LiveAttendance(Base, IDMixin):
         return (
             f"<LiveAttendance session={self.session_id} user={self.user_id} "
             f"min={self.total_minutes} counted={self.is_counted}>"
+        )
+
+
+class LiveAdmission(Base, IDMixin):
+    """Waiting room — talaba xonaga kirish so'rovi (pending/approved/denied).
+
+    `requires_approval` yoqilgan sessiyada talaba join-info so'raganda 'pending'
+    yoziladi; host tasdiqlasa 'approved' (token beriladi), rad etsa 'denied'.
+    """
+
+    __tablename__ = "live_admissions"
+    __table_args__ = (
+        UniqueConstraint(
+            "session_id", "user_id", name="uq_live_admission_session_user"
+        ),
+    )
+
+    session_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("live_sessions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    user_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    status: Mapped[str] = mapped_column(
+        String(20), default="pending", nullable=False
+    )  # pending | approved | denied
+    requested_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+    decided_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
+    def __repr__(self) -> str:
+        return (
+            f"<LiveAdmission session={self.session_id} user={self.user_id} "
+            f"status={self.status}>"
         )
 
 
