@@ -188,6 +188,16 @@ function goToSession(s: LiveSession) {
   }
 }
 
+async function copyLink(s: LiveSession) {
+  const url = `${window.location.origin}/app/live/${s.id}/lobby`
+  try {
+    await navigator.clipboard.writeText(url)
+    toast.success(t('live.link_copied'))
+  } catch {
+    toast.error(t('common.save_error'))
+  }
+}
+
 // File upload for ended session recording
 const fileInputs = ref<Record<number, HTMLInputElement | null>>({})
 function triggerUpload(s: LiveSession) {
@@ -445,6 +455,16 @@ function statusVariant(s: LiveStatus): 'default' | 'success' | 'warning' | 'dang
                   @click="goToSession(s)"
                 >
                   {{ s.status === 'live' ? t('live.btn_resume') : t('live.btn_open') }}
+                </UiButton>
+
+                <!-- Havolani nusxalash (ulashish) -->
+                <UiButton
+                  v-if="s.status === 'scheduled' || s.status === 'live'"
+                  variant="ghost"
+                  size="sm"
+                  @click="copyLink(s)"
+                >
+                  {{ t('live.btn_copy_link') }}
                 </UiButton>
 
                 <!-- Ended — detail view -->

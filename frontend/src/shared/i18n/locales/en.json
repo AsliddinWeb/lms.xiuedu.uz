@@ -1778,7 +1778,9 @@
     "lobby_tips_title": "Tips",
     "lobby_tip_quiet": "Stay in a quiet room — background noise will be heard by other participants.",
     "lobby_tip_headphones": "Use headphones to reduce echo.",
-    "lobby_tip_camera": "Point the camera at a well-lit face — backlight makes your face appear dark."
+    "lobby_tip_camera": "Point the camera at a well-lit face — backlight makes your face appear dark.",
+    "btn_copy_link": "Link",
+    "link_copied": "Link copied"
   },
   "admin_live": {
     "tag": "Admin · Live",
