@@ -1147,6 +1147,42 @@ async def seed_live(
         )
         await db.flush()
 
+    # Hozir JONLI bo'layotgan dars — xonani darrov ochib ko'rsatish uchun
+    live_title = f"{course.title} — jonli dars (hozir efirda)"
+    live = (
+        await db.execute(select(LiveSession).where(LiveSession.title == live_title))
+    ).scalar_one_or_none()
+    if live is None:
+        lstart = now() - timedelta(minutes=12)
+        live = LiveSession(
+            organization_id=course.organization_id,
+            course_id=course.id,
+            title=live_title,
+            description="Jonli amaliy mashg'ulot — hozir davom etmoqda. Qo'shiling!",
+            scheduled_start=lstart,
+            scheduled_end=lstart + timedelta(minutes=90),
+            duration_minutes=90,
+            provider="native",
+            host_user_id=teacher.id,
+            status="live",
+            actual_start=lstart,
+            is_recording_enabled=True,
+        )
+        db.add(live)
+        await db.flush()
+        # Bir nechta talaba "xonada" (davomat ochiq) — attendance panelini ko'rsatadi
+        for s in students[:3]:
+            db.add(
+                LiveAttendance(
+                    session_id=live.id,
+                    user_id=s.id,
+                    joined_at=lstart + timedelta(minutes=2),
+                    total_minutes=10,
+                    is_counted=False,
+                )
+            )
+        await db.flush()
+
     # O'tib ketgan live dars + davomat
     past_title = f"{course.title} — kirish darsi"
     past = (
