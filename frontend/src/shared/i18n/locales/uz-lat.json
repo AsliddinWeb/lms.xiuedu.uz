@@ -1781,7 +1781,8 @@
     "lobby_tip_camera": "Kamera yoritilgan yuzga qaratilsin — ortdan yorug'lik bersa yuz qora ko'rinadi.",
     "btn_copy_link": "Havola",
     "link_copied": "Havola nusxalandi",
-    "error_connection": "Ulanishda muammo yuz berdi. Internetni tekshiring."
+    "error_connection": "Ulanishda muammo yuz berdi. Internetni tekshiring.",
+    "recording_size_warning": "Yozuv hajmi katta — uni saqlash uchun to'xtatishni tavsiya qilamiz."
   },
   "admin_live": {
     "tag": "Admin · Live",

@@ -283,7 +283,9 @@ export function useLiveRecorder() {
   let rig: CompositeRig | null = null
   let canvasStream: MediaStream | null = null
 
-  const sizeBytes = computed(() => chunks.reduce((acc, c) => acc + c.size, 0))
+  const sizeBytesRef = ref(0)
+  // ~700MB dan oshsa brauzer xotirasi xavf ostida — host'ni ogohlantiramiz
+  const sizeWarning = computed(() => sizeBytesRef.value > 700 * 1024 * 1024)
 
   async function start(sessionId: number, getTracks: GetLocalTracks): Promise<void> {
     if (isRecording.value) return
@@ -324,6 +326,7 @@ export function useLiveRecorder() {
       tickTimer = setInterval(() => {
         if (startedAt.value) {
           elapsedSec.value = Math.floor((Date.now() - startedAt.value) / 1000)
+          sizeBytesRef.value = chunks.reduce((acc, c) => acc + c.size, 0)
         }
       }, 1000)
     } catch (e) {
@@ -410,6 +413,7 @@ export function useLiveRecorder() {
     error.value = null
     startedAt.value = null
     elapsedSec.value = 0
+    sizeBytesRef.value = 0
   }
 
   onBeforeUnmount(() => {
@@ -422,7 +426,8 @@ export function useLiveRecorder() {
     isUploading,
     error,
     elapsedSec,
-    sizeBytes,
+    sizeBytes: sizeBytesRef,
+    sizeWarning,
     start,
     stop,
     reset,

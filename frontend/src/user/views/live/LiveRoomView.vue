@@ -600,6 +600,14 @@ function showRecordingHint(msg: string) {
 
 const recorder = useLiveRecorder()
 
+// Yozuv hajmi katta bo'lib ketsa (~700MB) host'ni ogohlantiramiz (OOM oldini olish)
+watch(
+  () => recorder.sizeWarning.value,
+  (warn) => {
+    if (warn) showRecordingHint(t('live.recording_size_warning'))
+  },
+)
+
 // Phase 9c — real-time captions (Web Speech API, host only)
 const speech = useSpeechRecognition()
 const captionsEnabled = ref(false)

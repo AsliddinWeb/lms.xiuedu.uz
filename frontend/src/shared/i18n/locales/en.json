@@ -1781,7 +1781,8 @@
     "lobby_tip_camera": "Point the camera at a well-lit face — backlight makes your face appear dark.",
     "btn_copy_link": "Link",
     "link_copied": "Link copied",
-    "error_connection": "Connection problem. Please check your internet."
+    "error_connection": "Connection problem. Please check your internet.",
+    "recording_size_warning": "Recording is getting large — consider stopping to save it."
   },
   "admin_live": {
     "tag": "Admin · Live",
