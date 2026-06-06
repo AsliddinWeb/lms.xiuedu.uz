@@ -1780,7 +1780,8 @@
     "lobby_tip_headphones": "Use headphones to reduce echo.",
     "lobby_tip_camera": "Point the camera at a well-lit face — backlight makes your face appear dark.",
     "btn_copy_link": "Link",
-    "link_copied": "Link copied"
+    "link_copied": "Link copied",
+    "error_connection": "Connection problem. Please check your internet."
   },
   "admin_live": {
     "tag": "Admin · Live",

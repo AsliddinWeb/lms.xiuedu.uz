@@ -416,8 +416,12 @@ watch(
       pollTimer = setInterval(async () => {
         try {
           attendance.value = await liveSessionsApi.listAttendance(sessionId.value)
-        } catch {
-          // ignore
+        } catch (e) {
+          // Sessiya o'chirilgan (404) bo'lsa pollni to'xtatamiz (memory leak oldini olish)
+          if (isNotFound(e) && pollTimer) {
+            clearInterval(pollTimer)
+            pollTimer = null
+          }
         }
       }, 15000)
     }
@@ -564,7 +568,9 @@ function onRoomError(message: string) {
     permissionDenied.value = true
     return
   }
-  setTransientError(`LiveKit: ${message}`)
+  // Texnik xom xabarni foydalanuvchiga ko'rsatmaymiz — console'ga, ekranga tushunarli
+  console.warn('[LiveKit] room error:', message)
+  setTransientError(t('live.error_connection'))
 }
 
 // Phase 5b.4 / 7a — Recording: in-browser MediaRecorder + MinIO upload

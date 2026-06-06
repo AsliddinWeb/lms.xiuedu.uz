@@ -1780,7 +1780,8 @@
     "lobby_tip_headphones": "Naushnik ishlatish ovoz aks-sadosini (echo) kamaytiradi.",
     "lobby_tip_camera": "Kamera yoritilgan yuzga qaratilsin — ortdan yorug'lik bersa yuz qora ko'rinadi.",
     "btn_copy_link": "Havola",
-    "link_copied": "Havola nusxalandi"
+    "link_copied": "Havola nusxalandi",
+    "error_connection": "Ulanishda muammo yuz berdi. Internetni tekshiring."
   },
   "admin_live": {
     "tag": "Admin · Live",
