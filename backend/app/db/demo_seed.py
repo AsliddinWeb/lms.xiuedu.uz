@@ -71,7 +71,12 @@ from app.modules.gamification.models import (
     UserBadge,
     UserPoints,
 )
-from app.modules.live.models import LiveAttendance, LiveRecording, LiveSession
+from app.modules.live.models import (
+    LiveAdmission,
+    LiveAttendance,
+    LiveRecording,
+    LiveSession,
+)
 from app.modules.notifications.models import Notification
 from app.modules.rbac.models import Role, UserRole
 from app.modules.users.models import Profile, User
@@ -1167,6 +1172,7 @@ async def seed_live(
             status="live",
             actual_start=lstart,
             is_recording_enabled=True,
+            requires_approval=True,  # waiting room demo
         )
         db.add(live)
         await db.flush()
@@ -1181,6 +1187,29 @@ async def seed_live(
                     is_counted=False,
                 )
             )
+        await db.flush()
+
+    # Waiting room demo (idempotent — mavjud sessiyaga ham): tasdiq + kutayotgan
+    if live is not None:
+        live.requires_approval = True
+        for s in students[3:5]:
+            dup = (
+                await db.execute(
+                    select(LiveAdmission).where(
+                        LiveAdmission.session_id == live.id,
+                        LiveAdmission.user_id == s.id,
+                    )
+                )
+            ).scalar_one_or_none()
+            if dup is None:
+                db.add(
+                    LiveAdmission(
+                        session_id=live.id,
+                        user_id=s.id,
+                        status="pending",
+                        requested_at=now() - timedelta(minutes=2),
+                    )
+                )
         await db.flush()
 
     # O'tib ketgan live dars + davomat
