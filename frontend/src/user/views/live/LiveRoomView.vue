@@ -31,6 +31,7 @@ import { toast } from '@shared/composables/useToast'
 import { useAuthStore } from '@shared/stores/auth'
 import type {
   AttendanceSummary,
+  LiveAdmissionItem,
   LiveAttendanceItem,
   LiveJoinInfo,
   LiveSession,
@@ -270,6 +271,52 @@ const isPlatformAdmin = computed(() =>
 )
 const canManage = computed(() => isHost.value || isPlatformAdmin.value)
 
+// === Waiting room (admission) — Phase 31 ===
+const admissionPending = computed(() => joinInfo.value?.pending === true)
+const pendingAdmissions = ref<LiveAdmissionItem[]>([])
+let admissionPollTimer: ReturnType<typeof setInterval> | null = null
+let hostAdmissionTimer: ReturnType<typeof setInterval> | null = null
+
+// Talaba: tasdiq kelguncha join-info'ni qayta so'raymiz
+function startAdmissionPoll() {
+  if (admissionPollTimer) return
+  admissionPollTimer = setInterval(async () => {
+    try {
+      joinInfo.value = await liveSessionsApi.getJoinInfo(sessionId.value)
+      if (!admissionPending.value && admissionPollTimer) {
+        clearInterval(admissionPollTimer)
+        admissionPollTimer = null
+      }
+    } catch {
+      // ignore
+    }
+  }, 4000)
+}
+
+// Host: kutayotgan so'rovlarni davriy yuklaymiz
+async function refreshAdmissions() {
+  try {
+    pendingAdmissions.value = await liveSessionsApi.listAdmissions(sessionId.value)
+  } catch {
+    pendingAdmissions.value = []
+  }
+}
+function startHostAdmissionPoll() {
+  if (hostAdmissionTimer) return
+  refreshAdmissions()
+  hostAdmissionTimer = setInterval(refreshAdmissions, 5000)
+}
+async function decideAdmission(userId: number, approve: boolean) {
+  try {
+    await liveSessionsApi.decideAdmission(sessionId.value, userId, approve)
+    pendingAdmissions.value = pendingAdmissions.value.filter(
+      (a) => a.user_id !== userId,
+    )
+  } catch (e) {
+    setTransientError(extractErrorMessage(e, t('common.save_error')))
+  }
+}
+
 const liveKitUrl = computed<string>(() => {
   const cfg = joinInfo.value?.embed_config
   if (cfg && typeof cfg.url === 'string') return cfg.url
@@ -379,6 +426,16 @@ async function loadSession() {
       }
     }
     if (session.value.status === 'live') startElapsedTimer()
+    // Waiting room — talaba tasdiq kutmoqda bo'lsa poll boshlaymiz
+    if (admissionPending.value) startAdmissionPoll()
+    // Host: tasdiq talab qiluvchi jonli sessiyada so'rovlarni kuzatamiz
+    if (
+      canManage.value &&
+      session.value.status === 'live' &&
+      session.value.requires_approval
+    ) {
+      startHostAdmissionPoll()
+    }
   } catch (e) {
     if (isNotFound(e)) {
       router.replace({ name: 'live-host' })
@@ -444,6 +501,8 @@ onUnmounted(async () => {
   if (qualityPollTimer) clearInterval(qualityPollTimer)
   if (captionsFlushTimer) clearInterval(captionsFlushTimer)
   if (studentCaptionsTimer) clearInterval(studentCaptionsTimer)
+  if (admissionPollTimer) clearInterval(admissionPollTimer)
+  if (hostAdmissionTimer) clearInterval(hostAdmissionTimer)
   if (joinedRoom.value && !canManage.value) {
     try {
       await liveSessionsApi.leave(sessionId.value)
@@ -905,6 +964,43 @@ function initials(name: string): string {
     to="body"
   >
     <div class="live-shell">
+      <!-- Waiting room — talaba host tasdig'ini kutmoqda -->
+      <div v-if="admissionPending" class="admission-wait">
+        <div class="admission-card">
+          <div class="admission-spin"></div>
+          <div class="admission-title">{{ t('live.waiting_title') }}</div>
+          <div class="admission-sub">{{ t('live.waiting_hint') }}</div>
+          <button class="ctrl-btn danger admission-leave" @click="hangup">
+            {{ t('live.ctrl_hangup') }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Host: kutayotgan kirish so'rovlari -->
+      <div
+        v-if="canManage && pendingAdmissions.length"
+        class="admission-host-panel"
+      >
+        <div class="admission-host-title">
+          {{ t('live.admissions_title', { n: pendingAdmissions.length }) }}
+        </div>
+        <div
+          v-for="a in pendingAdmissions"
+          :key="a.user_id"
+          class="admission-row"
+        >
+          <span class="admission-name">{{ a.full_name }}</span>
+          <div class="admission-actions">
+            <button class="admission-btn admit" @click="decideAdmission(a.user_id, true)">
+              {{ t('live.admit') }}
+            </button>
+            <button class="admission-btn deny" @click="decideAdmission(a.user_id, false)">
+              {{ t('live.deny') }}
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Native WebRTC component (no UI, just handles connection) -->
       <NativeRoom
         v-if="liveKitUrl && joinInfo.embed_token"
@@ -1790,6 +1886,83 @@ function initials(name: string): string {
 </template>
 
 <style scoped>
+/* ============================================================================
+   WAITING ROOM (admission) — Phase 31
+   ============================================================================ */
+.admission-wait {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  background: rgba(9, 9, 11, 0.92);
+  backdrop-filter: blur(4px);
+}
+.admission-card {
+  text-align: center;
+  color: #e4e4e7;
+  max-width: 340px;
+  padding: 32px 28px;
+}
+.admission-spin {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 18px;
+  border: 3px solid rgba(255, 255, 255, 0.15);
+  border-top-color: #d2ad5c;
+  border-radius: 50%;
+  animation: admission-spin 0.9s linear infinite;
+}
+@keyframes admission-spin {
+  to { transform: rotate(360deg); }
+}
+.admission-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.admission-sub { font-size: 13px; color: #a1a1aa; line-height: 1.5; margin-bottom: 22px; }
+.admission-leave { margin: 0 auto; }
+
+.admission-host-panel {
+  position: absolute;
+  top: 64px;
+  right: 16px;
+  z-index: 70;
+  width: 280px;
+  background: #18181b;
+  border: 1px solid #3f3f46;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.admission-host-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #d2ad5c;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+.admission-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid #27272a;
+}
+.admission-name { font-size: 13px; color: #e4e4e7; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admission-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.admission-btn {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+.admission-btn.admit { background: #15803d; color: #fff; }
+.admission-btn.admit:hover { background: #166534; }
+.admission-btn.deny { background: #3f3f46; color: #e4e4e7; }
+.admission-btn.deny:hover { background: #52525b; }
+
 /* ============================================================================
    LIVE SHELL — wireframe 15-live-class.html dan to'liq ko'chirilgan
    ============================================================================ */

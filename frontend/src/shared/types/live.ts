@@ -33,6 +33,7 @@ export interface LiveSession {
   recording_duration_seconds: number | null
   recording_mime_type: string | null
   min_attendance_percent: number
+  requires_approval?: boolean
 
   created_at: string
   updated_at: string
@@ -49,9 +50,18 @@ export interface LiveSessionCreatePayload {
   provider?: LiveProvider
   is_recording_enabled?: boolean
   min_attendance_percent?: number
+  requires_approval?: boolean
 }
 
 export type LiveSessionUpdatePayload = Partial<LiveSessionCreatePayload>
+
+export interface LiveAdmissionItem {
+  user_id: number
+  full_name: string
+  email: string | null
+  status: string
+  requested_at: string
+}
 
 export interface PaginatedLiveSessions {
   items: LiveSession[]
@@ -103,4 +113,5 @@ export interface LiveJoinInfo {
   is_host: boolean
   embed_token: string | null
   embed_config: Record<string, unknown> | null
+  pending?: boolean
 }

@@ -1782,7 +1782,14 @@
     "btn_copy_link": "Havola",
     "link_copied": "Havola nusxalandi",
     "error_connection": "Ulanishda muammo yuz berdi. Internetni tekshiring.",
-    "recording_size_warning": "Yozuv hajmi katta — uni saqlash uchun to'xtatishni tavsiya qilamiz."
+    "recording_size_warning": "Yozuv hajmi katta — uni saqlash uchun to'xtatishni tavsiya qilamiz.",
+    "field_requires_approval": "Tasdiq talab qilinsin (waiting room)",
+    "field_requires_approval_hint": "Yoqilsa, siz tasdiqlamaguningizcha talaba xonaga kira olmaydi.",
+    "waiting_title": "Tasdiq kutilmoqda",
+    "waiting_hint": "O'qituvchi sizni darsga qabul qilishini kuting…",
+    "admissions_title": "Kirish so'rovlari ({n})",
+    "admit": "Qabul",
+    "deny": "Rad"
   },
   "admin_live": {
     "tag": "Admin · Live",

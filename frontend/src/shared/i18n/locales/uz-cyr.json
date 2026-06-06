@@ -1782,7 +1782,14 @@
     "btn_copy_link": "Ҳавола",
     "link_copied": "Ҳавола нусхаланди",
     "error_connection": "Уланишда муаммо юз берди. Интернетни текширинг.",
-    "recording_size_warning": "Ёзув ҳажми катта — уни сақлаш учун тўхтатишни тавсия қиламиз."
+    "recording_size_warning": "Ёзув ҳажми катта — уни сақлаш учун тўхтатишни тавсия қиламиз.",
+    "field_requires_approval": "Тасдиқ талаб қилинсин (waiting room)",
+    "field_requires_approval_hint": "Ёқилса, сиз тасдиқламагунингизча талаба хонага кира олмайди.",
+    "waiting_title": "Тасдиқ кутилмоқда",
+    "waiting_hint": "Ўқитувчи сизни дарсга қабул қилишини кутинг…",
+    "admissions_title": "Кириш сўровлари ({n})",
+    "admit": "Қабул",
+    "deny": "Рад"
   },
   "admin_live": {
     "tag": "Admin · Live",

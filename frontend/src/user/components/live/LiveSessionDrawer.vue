@@ -37,6 +37,7 @@ const durationMinutes = ref<number>(60)
 const provider = ref<LiveProvider>('native')
 const isRecordingEnabled = ref(false)
 const minAttendancePercent = ref<number>(75)
+const requiresApproval = ref<boolean>(false)
 
 const courses = ref<Course[]>([])
 const modules = ref<Module[]>([])
@@ -126,6 +127,7 @@ watch(
       provider.value = s.provider
       isRecordingEnabled.value = s.is_recording_enabled
       minAttendancePercent.value = s.min_attendance_percent
+      requiresApproval.value = s.requires_approval ?? false
     } else {
       title.value = ''
       description.value = ''
@@ -143,6 +145,7 @@ watch(
       provider.value = 'native'
       isRecordingEnabled.value = false
       minAttendancePercent.value = 75
+      requiresApproval.value = false
     }
   },
   { immediate: true },
@@ -179,6 +182,7 @@ async function handleSubmit() {
       provider: provider.value,
       is_recording_enabled: isRecordingEnabled.value,
       min_attendance_percent: minAttendancePercent.value,
+      requires_approval: requiresApproval.value,
     }
     const saved = props.session
       ? await liveSessionsApi.update(props.session.id, payload)
@@ -241,13 +245,27 @@ async function handleSubmit() {
         <UiInput v-model="minAttendancePercent" type="number" min="0" max="100" />
       </UiFormField>
 
-      <label class="flex items-center gap-2 mt-2 mb-4 cursor-pointer">
+      <label class="flex items-center gap-2 mt-2 cursor-pointer">
         <input
           v-model="isRecordingEnabled"
           type="checkbox"
           class="w-3.5 h-3.5 accent-foreground"
         />
         <span class="text-[13px]">{{ t('live.field_recording') }}</span>
+      </label>
+
+      <label class="flex items-start gap-2 mt-2 mb-4 cursor-pointer">
+        <input
+          v-model="requiresApproval"
+          type="checkbox"
+          class="w-3.5 h-3.5 accent-foreground mt-0.5"
+        />
+        <span>
+          <span class="text-[13px]">{{ t('live.field_requires_approval') }}</span>
+          <span class="block text-[11px] text-muted-foreground">
+            {{ t('live.field_requires_approval_hint') }}
+          </span>
+        </span>
       </label>
     </form>
 

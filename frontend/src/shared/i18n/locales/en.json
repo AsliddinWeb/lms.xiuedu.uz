@@ -1782,7 +1782,14 @@
     "btn_copy_link": "Link",
     "link_copied": "Link copied",
     "error_connection": "Connection problem. Please check your internet.",
-    "recording_size_warning": "Recording is getting large — consider stopping to save it."
+    "recording_size_warning": "Recording is getting large — consider stopping to save it.",
+    "field_requires_approval": "Require approval (waiting room)",
+    "field_requires_approval_hint": "If enabled, students can't enter until you admit them.",
+    "waiting_title": "Waiting for approval",
+    "waiting_hint": "Please wait for the host to admit you…",
+    "admissions_title": "Join requests ({n})",
+    "admit": "Admit",
+    "deny": "Deny"
   },
   "admin_live": {
     "tag": "Admin · Live",

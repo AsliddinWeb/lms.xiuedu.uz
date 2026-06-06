@@ -2,6 +2,7 @@ import { apiClient } from './client'
 import type {
   AttendanceSummary,
   CalendarTokenResponse,
+  LiveAdmissionItem,
   LiveAttendance,
   LiveAttendanceItem,
   LiveJoinInfo,
@@ -81,6 +82,21 @@ export const liveSessionsApi = {
     return (
       await apiClient.get<LiveAttendanceItem[]>(`/live-sessions/${id}/attendance`)
     ).data
+  },
+
+  // Waiting room — kutayotgan kirish so'rovlari (host)
+  async listAdmissions(id: number): Promise<LiveAdmissionItem[]> {
+    return (
+      await apiClient.get<LiveAdmissionItem[]>(`/live-sessions/${id}/admissions`)
+    ).data
+  },
+
+  async decideAdmission(
+    id: number,
+    userId: number,
+    approve: boolean,
+  ): Promise<void> {
+    await apiClient.post(`/live-sessions/${id}/admissions/${userId}`, { approve })
   },
 
   async uploadRecording(
