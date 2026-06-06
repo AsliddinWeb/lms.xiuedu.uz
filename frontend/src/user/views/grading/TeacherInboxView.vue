@@ -9,6 +9,7 @@ import UiBadge from '@shared/components/ui/UiBadge.vue'
 import UiBreadcrumb from '@shared/components/ui/UiBreadcrumb.vue'
 import UiButton from '@shared/components/ui/UiButton.vue'
 import UiCard from '@shared/components/ui/UiCard.vue'
+import UiInput from '@shared/components/ui/UiInput.vue'
 import { assignmentsApi } from '@shared/api/assignments'
 import { extractErrorMessage } from '@shared/api/client'
 import type { Assignment, Submission, SubmissionStatus } from '@shared/types/assignments'
@@ -26,6 +27,17 @@ const assignmentTitles = ref<Record<number, string>>({})
 
 type Filter = 'pending' | 'grading' | 'graded' | 'all'
 const filter = ref<Filter>('pending')
+const searchQ = ref('')
+const pendingCount = ref(0)
+
+// Talaba nomi bo'yicha mahalliy filtr (yuklangan ro'yxat ustidan)
+const displayedItems = computed(() => {
+  const q = searchQ.value.trim().toLowerCase()
+  if (!q) return items.value
+  return items.value.filter((s) =>
+    (s.user_full_name ?? `#${s.user_id}`).toLowerCase().includes(q),
+  )
+})
 
 const assignmentIdParam = computed(() => {
   const v = route.query.assignment_id
@@ -80,8 +92,25 @@ async function load() {
   }
 }
 
-onMounted(load)
+async function loadPendingCount() {
+  try {
+    const data = await assignmentsApi.inbox({
+      status: 'submitted',
+      assignment_id: assignmentIdParam.value ?? undefined,
+      page_size: 1,
+    })
+    pendingCount.value = data.total
+  } catch {
+    // ignore
+  }
+}
+
+onMounted(() => {
+  load()
+  loadPendingCount()
+})
 watch([filter, assignmentIdParam], load)
+watch(assignmentIdParam, loadPendingCount)
 
 function fmtDateTime(s: string): string {
   try {
@@ -112,9 +141,14 @@ function open(s: Submission) {
     :items="[t('dashboard.crumb_home'), t('grading_inbox.title')]"
     class="mb-6"
   />
-  <div class="mb-6">
-    <h1 class="page-title mb-1.5">{{ t('grading_inbox.title') }}</h1>
-    <p class="page-subtitle">{{ t('grading_inbox.subtitle') }}</p>
+  <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="page-title mb-1.5">{{ t('grading_inbox.title') }}</h1>
+      <p class="page-subtitle">{{ t('grading_inbox.subtitle') }}</p>
+    </div>
+    <UiBadge :variant="pendingCount > 0 ? 'warning' : 'success'" with-dot>
+      {{ t('grading_inbox.ungraded', { n: pendingCount }) }}
+    </UiBadge>
   </div>
 
   <!-- Filter row (wireframe 14 pattern) -->
@@ -135,8 +169,16 @@ function open(s: Submission) {
         {{ t(`grading_inbox.filter_${opt}`) }}
       </button>
     </div>
+    <div class="w-px h-7 bg-border mx-1" aria-hidden="true"></div>
+    <div class="flex-1 min-w-[200px] max-w-[320px]">
+      <UiInput
+        v-model="searchQ"
+        type="search"
+        :placeholder="t('grading_inbox.search_student')"
+      />
+    </div>
     <span class="ml-auto font-mono text-[11px] text-muted-foreground uppercase tracking-wider">
-      {{ total }} {{ t('grading_inbox.total_short') }}
+      {{ displayedItems.length }} / {{ total }} {{ t('grading_inbox.total_short') }}
     </span>
   </div>
 
@@ -146,7 +188,7 @@ function open(s: Submission) {
     <div v-if="loading && items.length === 0" class="p-8 text-center text-muted-foreground">
       {{ t('common.loading') }}
     </div>
-    <div v-else-if="items.length === 0" class="p-8 text-center text-muted-foreground">
+    <div v-else-if="displayedItems.length === 0" class="p-8 text-center text-muted-foreground">
       {{ t('grading_inbox.no_items') }}
     </div>
     <table v-else class="w-full text-[13px]">
@@ -161,7 +203,7 @@ function open(s: Submission) {
         </tr>
       </thead>
       <tbody class="divide-y divide-border">
-        <tr v-for="s in items" :key="s.id" class="hover:bg-muted/30">
+        <tr v-for="s in displayedItems" :key="s.id" class="hover:bg-muted/30">
           <td class="px-4 py-3 font-medium">
             {{ s.user_full_name ?? `#${s.user_id}` }}
           </td>

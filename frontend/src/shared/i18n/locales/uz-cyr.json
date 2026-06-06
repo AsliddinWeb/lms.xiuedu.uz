@@ -1360,7 +1360,9 @@
     "review": "Кўриб чиқиш",
     "back_to_inbox": "Inbox'га қайтиш",
     "total_short": "ЖАМИ",
-    "days_late": "({n} кун кеч)"
+    "days_late": "({n} кун кеч)",
+    "ungraded": "Баҳоланмаган: {n}",
+    "search_student": "Талаба бўйича қидириш"
   },
   "my_courses": {
     "courses_count": "КУРС",

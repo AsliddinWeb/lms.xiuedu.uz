@@ -1360,7 +1360,9 @@
     "review": "Открыть",
     "back_to_inbox": "К списку",
     "total_short": "ВСЕГО",
-    "days_late": "(опоздание {n} дн.)"
+    "days_late": "(опоздание {n} дн.)",
+    "ungraded": "Не оценено: {n}",
+    "search_student": "Поиск по студенту"
   },
   "my_courses": {
     "courses_count": "КУРС.",

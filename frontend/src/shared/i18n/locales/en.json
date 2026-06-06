@@ -1360,7 +1360,9 @@
     "review": "Review",
     "back_to_inbox": "Back to inbox",
     "total_short": "TOTAL",
-    "days_late": "({n}d late)"
+    "days_late": "({n}d late)",
+    "ungraded": "Ungraded: {n}",
+    "search_student": "Search by student"
   },
   "my_courses": {
     "courses_count": "COURSES",

@@ -1360,7 +1360,9 @@
     "review": "Ko'rib chiqish",
     "back_to_inbox": "Inbox'ga qaytish",
     "total_short": "JAMI",
-    "days_late": "({n} kun kech)"
+    "days_late": "({n} kun kech)",
+    "ungraded": "Baholanmagan: {n}",
+    "search_student": "Talaba bo'yicha qidirish"
   },
   "my_courses": {
     "courses_count": "KURS",
