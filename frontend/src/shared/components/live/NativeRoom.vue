@@ -13,6 +13,7 @@ import {
   type RemoteParticipant,
   Room,
   RoomEvent,
+  ScreenSharePresets,
   Track,
 } from 'livekit-client'
 import { BackgroundBlur } from '@livekit/track-processors'
@@ -515,7 +516,18 @@ defineExpose({
     await ensureAudioStarted()
     const next = !localScreenSharing.value
     try {
-      await room.value.localParticipant.setScreenShareEnabled(next)
+      if (next) {
+        // Sekin internetli talabalar uchun: ekran 1080p/15fps/~1.5Mbps bilan
+        // cheklanadi (slaydlar uchun yetarli, ortiqcha bant-kenglik yo'q)
+        const preset = ScreenSharePresets.h1080fps15
+        await room.value.localParticipant.setScreenShareEnabled(
+          true,
+          { resolution: preset.resolution },
+          { videoEncoding: preset.encoding },
+        )
+      } else {
+        await room.value.localParticipant.setScreenShareEnabled(false)
+      }
       localScreenSharing.value = next
       emit('screenShare', next)
       refreshParticipants()
