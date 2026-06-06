@@ -159,7 +159,8 @@ const routes: RouteRecordRaw[] = [
         path: 'course/:id',
         name: 'course-detail',
         component: () => import('@user/views/courses/CourseDetailView.vue'),
-        meta: { requiresPermission: 'enrollment.self' },
+        // Talaba (enrollment.self) yoki pedagog (course.create) — preview uchun
+        meta: { requiresPermission: ['enrollment.self', 'course.create'] },
       },
       {
         path: 'assignments',
@@ -357,9 +358,12 @@ router.beforeEach(async (to) => {
 
   // Permission-based gating: foydalanuvchida kerakli permission bo'lmasa
   // dashboard'ga qaytaramiz (ruxsatsiz sahifa direct-URL'dan ham ochilmaydi)
-  const required = to.meta.requiresPermission as string | undefined
-  if (required && auth.isAuthenticated && !auth.hasPermission(required)) {
-    return { name: 'dashboard' }
+  const required = to.meta.requiresPermission as string | string[] | undefined
+  if (required && auth.isAuthenticated) {
+    const list = Array.isArray(required) ? required : [required]
+    // Massiv => OR (har qaysi biri yetarli); string => bitta permission
+    const ok = list.some((p) => auth.hasPermission(p))
+    if (!ok) return { name: 'dashboard' }
   }
 
   if (to.meta.redirectIfAuth && auth.isAuthenticated) {
