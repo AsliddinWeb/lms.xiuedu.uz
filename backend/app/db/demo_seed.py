@@ -663,26 +663,54 @@ async def seed_assignments(
     # --- (b) Insho (essay) topshirig'i — talaba yozishi uchun (draft demo) ---
     essay_title = f"{courses[0].title} — insho topshirig'i"
     if not await _get_assignment(db, courses[0].id, essay_title):
-        db.add(
-            Assignment(
-                course_id=courses[0].id,
-                title=essay_title,
-                description="Python tilida o'zgaruvchilar va ma'lumot turlari haqida qisqa insho (200-300 so'z).",
-                instructions="Mavzu: \"Nega Python o'rganish oson?\" — kamida 3 ta dalil keltiring.",
-                type="essay",
-                available_from=now() - timedelta(days=3),
-                due_date=now() + timedelta(days=10),
-                max_score=Decimal("100"),
-                pass_score=Decimal("60"),
-                weight_percent=Decimal("15"),
-                max_attempts=2,
-                late_submission_allowed=True,
-                late_penalty_per_day=Decimal("5"),
-                is_published=True,
-                created_by=teacher.id,
-            )
+        essay = Assignment(
+            course_id=courses[0].id,
+            title=essay_title,
+            description="Python tilida o'zgaruvchilar va ma'lumot turlari haqida qisqa insho (200-300 so'z).",
+            instructions="Mavzu: \"Nega Python o'rganish oson?\" — kamida 3 ta dalil keltiring.",
+            type="essay",
+            available_from=now() - timedelta(days=3),
+            due_date=now() + timedelta(days=10),
+            max_score=Decimal("100"),
+            pass_score=Decimal("60"),
+            weight_percent=Decimal("15"),
+            max_attempts=2,
+            late_submission_allowed=True,
+            late_penalty_per_day=Decimal("5"),
+            is_published=True,
+            created_by=teacher.id,
         )
+        db.add(essay)
         await db.flush()
+
+    # Pending (baholanmagan) insho — pedagog grading inbox'ida ko'rinadi (idempotent)
+    essay = await _get_assignment(db, courses[0].id, essay_title)
+    if essay is not None:
+        exists = (
+            await db.execute(
+                select(Submission).where(
+                    Submission.assignment_id == essay.id,
+                    Submission.user_id == main_student.id,
+                )
+            )
+        ).scalar_one_or_none()
+        if exists is None:
+            db.add(
+                Submission(
+                    assignment_id=essay.id,
+                    user_id=main_student.id,
+                    attempt_number=1,
+                    content=(
+                        "Python o'rganish oson, chunki: 1) sintaksisi inson tiliga "
+                        "yaqin va o'qilishi oson; 2) katta jamoa va boy kutubxonalar "
+                        "mavjud; 3) interaktiv rejimda darhol natija ko'rsa bo'ladi. "
+                        "Shu sabablardan boshlovchilar uchun ideal til hisoblanadi."
+                    ),
+                    status="submitted",
+                    submitted_at=now() - timedelta(hours=6),
+                )
+            )
+            await db.flush()
 
     # --- (c) Rubrika + rubrika bo'yicha baholangan ish + apellyatsiya ---
     rubric = (
