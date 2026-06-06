@@ -71,9 +71,12 @@ function fmtDate(s: string): string {
   }
 }
 
-function statusVariant(s: AppealStatus): 'default' | 'success' | 'warning' {
+function statusVariant(
+  s: AppealStatus,
+): 'default' | 'success' | 'warning' | 'danger' | 'info' {
   if (s === 'approved') return 'success'
-  if (s === 'rejected') return 'warning'
+  if (s === 'rejected') return 'danger'
+  if (s === 'pending') return 'info'
   return 'default'
 }
 

@@ -125,9 +125,13 @@ function fmtDateTime(s: string): string {
   }
 }
 
-function statusVariant(s: SubmissionStatus): 'default' | 'success' | 'warning' {
+function statusVariant(
+  s: SubmissionStatus,
+): 'default' | 'success' | 'warning' | 'danger' | 'info' {
   if (s === 'graded') return 'success'
-  if (s === 'returned') return 'warning'
+  if (s === 'returned') return 'danger'
+  if (s === 'grading') return 'warning'
+  if (s === 'submitted') return 'info'
   return 'default'
 }
 

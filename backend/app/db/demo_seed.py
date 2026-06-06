@@ -616,6 +616,7 @@ async def seed_assignments(
     courses: list[Course],
     teacher: User,
     main_student: User,
+    extra_students: list[User] | None = None,
 ):
     # --- (a) Har kursga oddiy fayl topshirig'i; 1-kursda baholangan ish ---
     for idx, course in enumerate(courses[:3]):
@@ -711,6 +712,45 @@ async def seed_assignments(
                 )
             )
             await db.flush()
+
+        # Har bosqichdan namuna: grading / returned / graded (extra talabalar)
+        # Pedagog inbox'ida har bir filtr (tab) ish ko'rsatishi uchun
+        stage_specs = [
+            ("grading", None, None, None),
+            ("returned", Decimal("52"), "F", "Dalillar yetarli emas — kengaytiring va qayta yuboring."),
+            ("graded", Decimal("91"), "A", "Ajoyib insho! Dalillar aniq va mantiqiy."),
+        ]
+        for i, (st, score, letter, fb) in enumerate(stage_specs):
+            if not extra_students or i >= len(extra_students):
+                break
+            stu = extra_students[i]
+            dup = (
+                await db.execute(
+                    select(Submission).where(
+                        Submission.assignment_id == essay.id,
+                        Submission.user_id == stu.id,
+                    )
+                )
+            ).scalar_one_or_none()
+            if dup is not None:
+                continue
+            db.add(
+                Submission(
+                    assignment_id=essay.id,
+                    user_id=stu.id,
+                    attempt_number=1,
+                    content=f"{stu.full_name} ning insho javobi (demo, {st} holati).",
+                    status=st,
+                    submitted_at=now() - timedelta(days=1, hours=i),
+                    score=score,
+                    final_score=score,
+                    grade_letter=letter,
+                    feedback=fb,
+                    graded_by=teacher.id if st in ("graded", "returned") else None,
+                    graded_at=(now() - timedelta(hours=i)) if st in ("graded", "returned") else None,
+                )
+            )
+        await db.flush()
 
     # --- (c) Rubrika + rubrika bo'yicha baholangan ish + apellyatsiya ---
     rubric = (
@@ -1606,7 +1646,7 @@ async def main() -> None:
         await db.flush()
 
         # 6-10
-        await seed_assignments(db, courses, teacher, main_student)
+        await seed_assignments(db, courses, teacher, main_student, extra_students)
         await seed_exams(db, courses, teacher, main_student)
         await seed_live(db, courses, teacher, all_students)
         await seed_grade_history(db, courses, teacher, main_student, org)

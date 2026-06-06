@@ -189,8 +189,10 @@ function onGraded(updated: Submission) {
                 submission.status === 'graded'
                   ? 'success'
                   : submission.status === 'returned'
-                    ? 'warning'
-                    : 'default'
+                    ? 'danger'
+                    : submission.status === 'grading'
+                      ? 'warning'
+                      : 'info'
               "
               with-dot
             >
