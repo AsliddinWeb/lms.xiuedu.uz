@@ -429,7 +429,16 @@ watch(
   { immediate: true },
 )
 
+// Qurilma ulansa/uzilsa (USB mikrofon/kamera) ro'yxatni yangilaymiz (hot-plug)
+function onDeviceChange() {
+  loadDevices().catch(() => null)
+}
+onMounted(() => {
+  navigator.mediaDevices?.addEventListener?.('devicechange', onDeviceChange)
+})
+
 onUnmounted(async () => {
+  navigator.mediaDevices?.removeEventListener?.('devicechange', onDeviceChange)
   if (pollTimer) clearInterval(pollTimer)
   if (elapsedTimer) clearInterval(elapsedTimer)
   if (qualityPollTimer) clearInterval(qualityPollTimer)
@@ -464,6 +473,11 @@ async function endSession() {
     cancelLabel: t('common.cancel'),
   })
   if (!ok) return
+  // Attendance poll'ni darrov to'xtatamiz — eskirgan ma'lumot/race oldini olish
+  if (pollTimer) {
+    clearInterval(pollTimer)
+    pollTimer = null
+  }
   transitioning.value = true
   try {
     // Agar recording faol bo'lsa, avval to'xtatib MinIO'ga yuklash
@@ -688,7 +702,7 @@ function toggleStudentCaptions(): void {
     } catch {
       // ignore
     }
-  }, 3000)
+  }, 5000)
 }
 
 async function toggleRecording() {

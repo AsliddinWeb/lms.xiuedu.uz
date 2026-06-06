@@ -176,6 +176,8 @@ export const liveRecordingsApi = {
         {
           headers: { 'Content-Type': 'multipart/form-data' },
           params,
+          // Katta yozuv ham cheksiz osilib qolmasin (30 daqiqa ceiling)
+          timeout: 30 * 60 * 1000,
         },
       )
     ).data

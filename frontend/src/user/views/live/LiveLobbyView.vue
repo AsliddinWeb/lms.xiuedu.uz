@@ -286,16 +286,23 @@ function goBack() {
   router.back()
 }
 
+// Qurilma ulansa/uzilsa ro'yxatni yangilaymiz (hot-plug)
+function onDeviceChange() {
+  loadDevices().catch(() => null)
+}
+
 onMounted(async () => {
   await loadSession()
   await loadDevices()
   await startPreview()
+  navigator.mediaDevices?.addEventListener?.('devicechange', onDeviceChange)
   nowTimer = setInterval(() => {
     now.value = Date.now()
   }, 1000)
 })
 
 onBeforeUnmount(() => {
+  navigator.mediaDevices?.removeEventListener?.('devicechange', onDeviceChange)
   stopPreview()
   if (nowTimer) {
     clearInterval(nowTimer)
