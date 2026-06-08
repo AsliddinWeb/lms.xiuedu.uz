@@ -830,12 +830,20 @@ async def egress_start(
     room = session.provider_meeting_id or service.get_provider(
         session.provider
     ).make_room_name(session.id)
+    import logging as _logging
+
     try:
         egress_id = await egress_service.start_room_composite(room, object_key)
     except Exception as exc:  # noqa: BLE001 — twirp xatolari (xona faol emas, ...)
+        _logging.getLogger("app.egress").warning(
+            "egress.start_failed room=%s err=%s: %s",
+            room,
+            type(exc).__name__,
+            str(exc),
+        )
         raise ConflictError(
-            "Server yozuvini boshlab bo'lmadi — xonada faol ishtirokchi yo'q "
-            "yoki egress xizmati mavjud emas. Avval darsni boshlang."
+            f"Server yozuvini boshlab bo'lmadi: {type(exc).__name__} — "
+            "xonada faol ishtirokchi yo'q yoki egress xizmati mavjud emas."
         ) from exc
 
     rec = LiveRecording(

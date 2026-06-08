@@ -4,7 +4,9 @@
 log_level: info
 api_key: devkey
 api_secret: devsecret_at_least_32_characters_long
-ws_url: ws://livekit:7880
+# Egress livekit tarmoq namespace'ini bo'lishadi (network_mode: service:livekit)
+# -> 127.0.0.1:7880 = livekit signaling, 127.0.0.1:7882 = livekit media (ICE ishlaydi)
+ws_url: ws://127.0.0.1:7880
 
 redis:
   address: redis:6379

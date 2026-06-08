@@ -88,6 +88,9 @@ services:
     image: livekit/egress:latest
     container_name: lms_egress
     restart: unless-stopped
+    # Livekit tarmoq namespace'ini bo'lishadi -> egress media (ICE) livekit'ga
+    # 127.0.0.1:7882 orqali yetadi (node_ip 127.0.0.1 brauzer + egress uchun ishlaydi).
+    network_mode: "service:livekit"
     environment:
       EGRESS_CONFIG_FILE: /etc/egress.yaml
     volumes:
@@ -96,7 +99,6 @@ services:
       - SYS_ADMIN
     depends_on:
       - livekit
-      - redis
 
   backend:
     build:
