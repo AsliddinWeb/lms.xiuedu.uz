@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
@@ -14,10 +14,48 @@ import UiSidebar, {
 import UiTopbar from '@shared/components/layout/UiTopbar.vue'
 import { useSidebar } from '@shared/composables/useSidebar'
 import { useAuthStore } from '@shared/stores/auth'
+import { usersApi } from '@shared/api/users'
+import {
+  calendarsApi,
+  curriculaApi,
+  departmentsApi,
+  facultiesApi,
+  specialtiesApi,
+  subjectsApi,
+} from '@shared/api/academic'
+import { contentApi } from '@shared/api/content'
+import { coursesApi } from '@shared/api/courses'
+import { liveSessionsApi } from '@shared/api/live'
+import { rolesApi } from '@shared/api/roles'
 
 const { t } = useI18n()
 const router = useRouter()
 const auth = useAuthStore()
+
+// Sidebar uchun sanaladigan elementlar soni (badge sifatida ko'rsatiladi)
+const counts = ref<Record<string, number>>({})
+
+onMounted(async () => {
+  const tasks: Array<[string, Promise<number>]> = [
+    ['users', usersApi.list({ page: 1, page_size: 1 }).then((r) => r.total)],
+    ['roles', rolesApi.list().then((r) => r.length)],
+    ['faculties', facultiesApi.list({ page_size: 1 }).then((r) => r.total)],
+    ['departments', departmentsApi.list({ page_size: 1 }).then((r) => r.total)],
+    ['specialties', specialtiesApi.list({ page_size: 1 }).then((r) => r.total)],
+    ['subjects', subjectsApi.list({ page_size: 1 }).then((r) => r.total)],
+    ['curricula', curriculaApi.list({ page_size: 1 }).then((r) => r.total)],
+    ['calendars', calendarsApi.list().then((r) => r.length)],
+    ['courses', coursesApi.list({ page: 1, page_size: 1 }).then((r) => r.total)],
+    ['content', contentApi.list({ page_size: 1 }).then((r) => r.total)],
+    ['live', liveSessionsApi.list({ page_size: 1 }).then((r) => r.total)],
+  ]
+  const results = await Promise.allSettled(tasks.map(([, p]) => p))
+  const next: Record<string, number> = {}
+  results.forEach((res, i) => {
+    if (res.status === 'fulfilled') next[tasks[i][0]] = res.value
+  })
+  counts.value = next
+})
 
 const initials = computed(() => {
   const n = auth.user?.full_name ?? ''
@@ -38,21 +76,21 @@ const sections = computed<SidebarSection[]>(() => {
   ]
 
   const management: SidebarNavItem[] = [
-    { name: 'admin-users', icon: 'users', label: t('admin_nav.users'), to: '/users' },
-    { name: 'admin-roles', icon: 'roles', label: t('admin_nav.roles'), to: '/roles' },
+    { name: 'admin-users', icon: 'users', label: t('admin_nav.users'), to: '/users', badge: counts.value.users },
+    { name: 'admin-roles', icon: 'roles', label: t('admin_nav.roles'), to: '/roles', badge: counts.value.roles },
     { name: 'admin-university', icon: 'university', label: t('admin_nav.university'), to: '/university' },
-    { name: 'admin-faculties', icon: 'faculties', label: t('admin_nav.faculties'), to: '/faculties' },
-    { name: 'admin-departments', icon: 'departments', label: t('admin_nav.departments'), to: '/departments' },
-    { name: 'admin-specialties', icon: 'specialties', label: t('admin_nav.specialties'), to: '/specialties' },
-    { name: 'admin-subjects', icon: 'subjects', label: t('admin_nav.subjects'), to: '/subjects' },
-    { name: 'admin-curricula', icon: 'curricula', label: t('admin_nav.curricula'), to: '/curricula' },
-    { name: 'admin-calendars', icon: 'calendars', label: t('admin_nav.calendars'), to: '/calendars' },
+    { name: 'admin-faculties', icon: 'faculties', label: t('admin_nav.faculties'), to: '/faculties', badge: counts.value.faculties },
+    { name: 'admin-departments', icon: 'departments', label: t('admin_nav.departments'), to: '/departments', badge: counts.value.departments },
+    { name: 'admin-specialties', icon: 'specialties', label: t('admin_nav.specialties'), to: '/specialties', badge: counts.value.specialties },
+    { name: 'admin-subjects', icon: 'subjects', label: t('admin_nav.subjects'), to: '/subjects', badge: counts.value.subjects },
+    { name: 'admin-curricula', icon: 'curricula', label: t('admin_nav.curricula'), to: '/curricula', badge: counts.value.curricula },
+    { name: 'admin-calendars', icon: 'calendars', label: t('admin_nav.calendars'), to: '/calendars', badge: counts.value.calendars },
   ]
 
   const learning: SidebarNavItem[] = [
-    { name: 'admin-courses', icon: 'courses', label: t('admin_nav.courses'), to: '/courses' },
-    { name: 'admin-content', icon: 'content', label: t('admin_nav.content'), to: '/content' },
-    { name: 'admin-live', icon: 'live', label: t('admin_nav.live'), to: '/live' },
+    { name: 'admin-courses', icon: 'courses', label: t('admin_nav.courses'), to: '/courses', badge: counts.value.courses },
+    { name: 'admin-content', icon: 'content', label: t('admin_nav.content'), to: '/content', badge: counts.value.content },
+    { name: 'admin-live', icon: 'live', label: t('admin_nav.live'), to: '/live', badge: counts.value.live },
   ]
 
   return [
