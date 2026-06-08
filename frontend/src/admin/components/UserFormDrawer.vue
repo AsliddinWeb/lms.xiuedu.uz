@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import UiAlert from '@shared/components/ui/UiAlert.vue'
 import UiButton from '@shared/components/ui/UiButton.vue'
@@ -24,10 +25,13 @@ const emit = defineEmits<{
   saved: []
 }>()
 
+const { t } = useI18n()
 const store = useUsersStore()
 
 const isEdit = computed(() => !!props.user)
-const title = computed(() => (isEdit.value ? 'Foydalanuvchini tahrirlash' : 'Yangi foydalanuvchi'))
+const title = computed(() =>
+  isEdit.value ? t('admin_users.drawer_edit_title') : t('admin_users.drawer_create_title'),
+)
 
 const fullName = ref('')
 const email = ref('')
@@ -110,7 +114,7 @@ async function handleSubmit() {
     emit('saved')
     emit('close')
   } catch (e) {
-    errorMsg.value = extractErrorMessage(e, 'Saqlashda xato')
+    errorMsg.value = extractErrorMessage(e, t('admin_users.save_error'))
   } finally {
     submitting.value = false
   }
@@ -122,50 +126,50 @@ async function handleSubmit() {
     <UiAlert v-if="errorMsg" variant="danger" class="mb-4">{{ errorMsg }}</UiAlert>
 
     <form id="user-form" @submit.prevent="handleSubmit" class="space-y-1">
-      <UiFormField label="To'liq ism" required>
-        <UiInput v-model="fullName" required placeholder="Ism Familiya" />
+      <UiFormField :label="t('admin_users.f_full_name')" required>
+        <UiInput v-model="fullName" required :placeholder="t('admin_users.f_full_name_ph')" />
       </UiFormField>
 
-      <UiFormField label="Email" required>
+      <UiFormField :label="t('admin_users.f_email')" required>
         <UiInput
           v-model="email"
           type="email"
           required
           :disabled="isEdit"
-          placeholder="user@example.uz"
+          :placeholder="t('admin_users.f_email_ph')"
         />
       </UiFormField>
 
-      <UiFormField label="Telefon">
-        <UiInput v-model="phone" type="tel" placeholder="+998 90 ..." />
+      <UiFormField :label="t('admin_users.f_phone')">
+        <UiInput v-model="phone" type="tel" :placeholder="t('admin_users.f_phone_ph')" />
       </UiFormField>
 
       <UiFormField
-        :label="isEdit ? 'Yangi parol (ixtiyoriy)' : 'Parol'"
+        :label="isEdit ? t('admin_users.f_password_new') : t('admin_users.f_password')"
         :required="!isEdit"
-        hint="Min. 10 belgi · katta harf · raqam · maxsus belgi"
+        :hint="t('admin_users.f_password_hint')"
       >
         <UiInput
           v-model="password"
           type="password"
           :required="!isEdit"
-          placeholder="••••••••••••"
+          :placeholder="t('admin_users.f_password_ph')"
         />
       </UiFormField>
 
       <div class="grid grid-cols-2 gap-3 mb-4">
         <label class="flex items-center gap-2 cursor-pointer">
           <input v-model="isActive" type="checkbox" class="w-3.5 h-3.5 accent-foreground" />
-          <span class="text-[13px]">Faol</span>
+          <span class="text-[13px]">{{ t('admin_users.f_active') }}</span>
         </label>
         <label class="flex items-center gap-2 cursor-pointer">
           <input v-model="isVerified" type="checkbox" class="w-3.5 h-3.5 accent-foreground" />
-          <span class="text-[13px]">Tasdiqlangan</span>
+          <span class="text-[13px]">{{ t('admin_users.f_verified') }}</span>
         </label>
       </div>
 
       <div class="mb-4">
-        <div class="text-xs font-medium text-foreground mb-2">Rollar</div>
+        <div class="text-xs font-medium text-foreground mb-2">{{ t('admin_users.f_roles') }}</div>
         <div class="grid grid-cols-2 gap-2">
           <label
             v-for="r in store.roles"
@@ -187,10 +191,10 @@ async function handleSubmit() {
     <template #footer>
       <div class="flex items-center justify-end gap-2">
         <UiButton variant="outline" :disabled="submitting" @click="emit('close')">
-          Bekor qilish
+          {{ t('admin_users.drawer_cancel') }}
         </UiButton>
         <UiButton type="submit" :loading="submitting" form="user-form">
-          {{ isEdit ? 'Saqlash' : 'Yaratish' }}
+          {{ isEdit ? t('admin_users.save') : t('admin_users.create') }}
         </UiButton>
       </div>
     </template>
