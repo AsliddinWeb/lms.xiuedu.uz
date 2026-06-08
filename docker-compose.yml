@@ -82,6 +82,22 @@ services:
     environment:
       LIVEKIT_KEYS: "${LIVEKIT_API_KEY:-devkey}: ${LIVEKIT_API_SECRET:-devsecret_at_least_32_characters_long}"
 
+  # LiveKit Egress — server-side recording (Phase 32). Ichki tarmoqda ishlaydi:
+  # livekit'ga redis orqali ulanadi, MinIO'ga (egress so'rovida) yozadi.
+  egress:
+    image: livekit/egress:latest
+    container_name: lms_egress
+    restart: unless-stopped
+    environment:
+      EGRESS_CONFIG_FILE: /etc/egress.yaml
+    volumes:
+      - ./livekit/egress.yaml:/etc/egress.yaml:ro
+    cap_add:
+      - SYS_ADMIN
+    depends_on:
+      - livekit
+      - redis
+
   backend:
     build:
       context: ./backend

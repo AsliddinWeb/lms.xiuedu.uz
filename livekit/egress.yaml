@@ -1,0 +1,14 @@
+# LiveKit Egress config — Phase 32.1 (server-side recording).
+# Egress livekit'ga redis orqali ulanadi va ws_url orqali xonaga qo'shiladi.
+# S3 (MinIO) output egress START so'rovida (backend) beriladi.
+log_level: info
+api_key: devkey
+api_secret: devsecret_at_least_32_characters_long
+ws_url: ws://livekit:7880
+
+redis:
+  address: redis:6379
+
+# Chrome (room composite) uchun — bitta vaqtda 1 yozuv (dev)
+template_base: ""
+insecure: true
