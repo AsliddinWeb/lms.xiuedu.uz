@@ -35,7 +35,7 @@ import {
 } from '@shared/api/gamification'
 import { examsApi } from '@shared/api/exams'
 import { notificationsApi, type NotificationPublic } from '@shared/api/notifications'
-import { intlLocale } from '@shared/i18n'
+import { formatDate } from '@shared/utils/datetime'
 import { useAuthStore } from '@shared/stores/auth'
 import type { Course, TeacherAnalytics } from '@shared/types/courses'
 import type { Exam } from '@shared/types/exams'
@@ -108,9 +108,7 @@ const chartBars = computed(() => {
     }
     buckets = [...byMonth.entries()].map(([key, minutes]) => {
       const [y, m] = key.split('-').map(Number)
-      const label = new Intl.DateTimeFormat(intlLocale(locale.value), {
-        month: 'short',
-      }).format(new Date(y, m, 1))
+      const label = formatDate(new Date(y, m, 1), locale.value, { month: 'short' })
       return { label, minutes }
     })
   } else {
@@ -119,10 +117,10 @@ const chartBars = computed(() => {
       const dt = new Date(d.date + 'T00:00:00')
       const showLabel = activityPeriod.value <= 7 || i % 5 === 0
       const label = showLabel
-        ? new Intl.DateTimeFormat(intlLocale(locale.value), {
+        ? formatDate(dt, locale.value, {
             weekday: activityPeriod.value <= 7 ? 'short' : undefined,
             day: activityPeriod.value <= 7 ? undefined : '2-digit',
-          }).format(dt)
+          })
         : ''
       return { label, minutes: d.time_minutes }
     })
@@ -148,11 +146,11 @@ const mostActiveLabel = computed(() => {
   if (!iso) return '—'
   try {
     const date = new Date(iso + 'T00:00:00')
-    return new Intl.DateTimeFormat(intlLocale(locale.value), {
+    return formatDate(date, locale.value, {
       weekday: 'short',
       day: '2-digit',
       month: 'short',
-    }).format(date)
+    })
   } catch {
     return iso
   }
@@ -171,14 +169,7 @@ const teacherEnrollBars = computed(() => {
   const max = Math.max(1, ...pts.map((p) => p.count))
   return pts.map((p) => {
     const [y, m] = p.month.split('-').map(Number)
-    let label = p.month
-    try {
-      label = new Intl.DateTimeFormat(intlLocale(locale.value), {
-        month: 'short',
-      }).format(new Date(y, m - 1, 1))
-    } catch {
-      /* xom fallback */
-    }
+    const label = formatDate(new Date(y, m - 1, 1), locale.value, { month: 'short' })
     return { label, value: Math.round((p.count / max) * 100), raw: p.count }
   })
 })
@@ -377,30 +368,16 @@ onMounted(async () => {
   if (auth.hasPermission('live.read')) await loadLive()
 })
 
-const today = computed(() => {
-  try {
-    return new Intl.DateTimeFormat(intlLocale(locale.value), {
-      day: 'numeric',
-      month: 'long',
-    }).format(new Date())
-  } catch {
-    return ''
-  }
-})
+const today = computed(() =>
+  formatDate(new Date(), locale.value, { day: 'numeric', month: 'long' }),
+)
 
 const firstName = computed(() => {
   return auth.user?.full_name?.split(' ')[0] ?? auth.user?.email?.split('@')[0] ?? ''
 })
 
 function fmtTime(s: string): string {
-  try {
-    return new Intl.DateTimeFormat(intlLocale(locale.value), {
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(new Date(s))
-  } catch {
-    return s
-  }
+  return formatDate(s, locale.value, { hour: '2-digit', minute: '2-digit' })
 }
 
 function daysUntil(dateStr: string): number {
@@ -417,10 +394,7 @@ function deadlineVariant(days: number): 'default' | 'warning' | 'danger' {
 
 function fmtDeadline(s: string): string {
   try {
-    return new Intl.DateTimeFormat(intlLocale(locale.value), {
-      day: '2-digit',
-      month: 'short',
-    }).format(new Date(s)).toUpperCase()
+    return formatDate(s, locale.value, { day: '2-digit', month: 'short' }).toUpperCase()
   } catch {
     return s
   }
