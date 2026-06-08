@@ -592,7 +592,11 @@
     "hint_published": "Опубликовано: {n}",
     "hint_completion": "Завершение {pct}%",
     "hint_all_graded": "Всё оценено",
-    "hint_avg_grade": "По всем курсам"
+    "hint_avg_grade": "По всем курсам",
+    "teacher_courses_title": "Мои курсы",
+    "students_short": "студ.",
+    "enroll_trend_title": "Динамика записей",
+    "total_enrollments": "Всего записей"
   },
   "my_assignments": {
     "subtitle": "Новых: {pending} · На проверке: {in_review} · Оценено: {graded}",

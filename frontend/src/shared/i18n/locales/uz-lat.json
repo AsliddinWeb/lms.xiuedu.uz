@@ -592,7 +592,11 @@
     "hint_published": "{n} ta nashr etilgan",
     "hint_completion": "Tugatish {pct}%",
     "hint_all_graded": "Hammasi baholangan",
-    "hint_avg_grade": "Barcha kurslar bo'yicha"
+    "hint_avg_grade": "Barcha kurslar bo'yicha",
+    "teacher_courses_title": "Mening kurslarim",
+    "students_short": "talaba",
+    "enroll_trend_title": "Ro'yxatlar dinamikasi",
+    "total_enrollments": "Jami ro'yxatlar"
   },
   "my_assignments": {
     "subtitle": "{pending} ta yangi · {in_review} ta ko'rib chiqilmoqda · {graded} ta baholangan",

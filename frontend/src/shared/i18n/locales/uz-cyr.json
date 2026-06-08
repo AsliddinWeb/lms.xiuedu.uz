@@ -592,7 +592,11 @@
     "hint_published": "{n} та нашр этилган",
     "hint_completion": "Тугатиш {pct}%",
     "hint_all_graded": "Ҳаммаси баҳоланган",
-    "hint_avg_grade": "Барча курслар бўйича"
+    "hint_avg_grade": "Барча курслар бўйича",
+    "teacher_courses_title": "Менинг курсларим",
+    "students_short": "талаба",
+    "enroll_trend_title": "Рўйхатлар динамикаси",
+    "total_enrollments": "Жами рўйхатлар"
   },
   "my_assignments": {
     "subtitle": "{pending} та янги · {in_review} та кўриб чиқилмоқда · {graded} та баҳоланган",

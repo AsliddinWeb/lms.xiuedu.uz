@@ -592,7 +592,11 @@
     "hint_published": "{n} published",
     "hint_completion": "Completion {pct}%",
     "hint_all_graded": "All graded",
-    "hint_avg_grade": "Across all courses"
+    "hint_avg_grade": "Across all courses",
+    "teacher_courses_title": "My courses",
+    "students_short": "students",
+    "enroll_trend_title": "Enrollment trend",
+    "total_enrollments": "Total enrollments"
   },
   "my_assignments": {
     "subtitle": "{pending} new · {in_review} in review · {graded} graded",

@@ -157,6 +157,41 @@ const mostActiveLabel = computed(() => {
   }
 })
 
+// Phase 36 — pedagog: eng ko'p talabali kurslar (per-kurs kartasi uchun)
+const teacherTopCourses = computed(() => {
+  const pc = teacherStats.value?.per_course ?? []
+  return [...pc].sort((a, b) => b.student_count - a.student_count).slice(0, 4)
+})
+
+// Phase 36 — pedagog: ro'yxatlar dinamikasi (oylar -> 0-100 normallash)
+const teacherEnrollBars = computed(() => {
+  const pts = teacherStats.value?.enrollments_over_time ?? []
+  if (pts.length === 0) return []
+  const max = Math.max(1, ...pts.map((p) => p.count))
+  return pts.map((p) => {
+    const [y, m] = p.month.split('-').map(Number)
+    let label = p.month
+    try {
+      label = new Intl.DateTimeFormat(intlLocale(locale.value), {
+        month: 'short',
+      }).format(new Date(y, m - 1, 1))
+    } catch {
+      /* xom fallback */
+    }
+    return { label, value: Math.round((p.count / max) * 100), raw: p.count }
+  })
+})
+
+const teacherTotalEnrollments = computed(
+  () => teacherStats.value?.total_enrollments ?? 0,
+)
+
+function courseStatusVariant(status: string): 'success' | 'warning' | 'default' {
+  if (status === 'published') return 'success'
+  if (status === 'archived') return 'warning'
+  return 'default'
+}
+
 async function loadStudentData() {
   if (!auth.user) return
   try {
@@ -494,8 +529,91 @@ function progressOf(c: Course): number {
   <div class="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4">
     <!-- LEFT COLUMN -->
     <div class="flex flex-col gap-4">
-      <!-- "Davom etish" / Continue learning -->
-      <UiCard no-padding>
+      <!-- Pedagog — Mening kurslarim (talaba soni + tugatish) -->
+      <UiCard v-if="isTeacher" no-padding>
+        <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+          <span class="text-sm font-semibold">{{ t('dashboard.teacher_courses_title') }}</span>
+          <button
+            type="button"
+            class="font-mono text-[12px] text-muted-foreground hover:text-foreground"
+            @click="router.push({ name: 'my-courses' })"
+          >
+            {{ t('dashboard.see_all') }} →
+          </button>
+        </div>
+        <div
+          v-if="teacherTopCourses.length === 0"
+          class="p-6 text-center text-[12px] text-muted-foreground"
+        >
+          {{ t('dashboard.no_courses') }}
+        </div>
+        <div v-else>
+          <div
+            v-for="(c, i) in teacherTopCourses"
+            :key="c.course_id"
+            class="px-5 py-3.5 flex items-center gap-4 cursor-pointer hover:bg-muted/30"
+            :class="i < teacherTopCourses.length - 1 ? 'border-b border-border' : ''"
+            @click="router.push({ name: 'course-builder', params: { id: c.course_id } })"
+          >
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="font-semibold text-[13px] truncate">{{ c.title }}</span>
+                <UiBadge :variant="courseStatusVariant(c.status)">
+                  {{ t(`courses.status_${c.status}`) }}
+                </UiBadge>
+              </div>
+              <div class="flex items-center gap-3">
+                <UiProgressBar :value="Math.round(c.completion_rate)" size="sm" />
+                <span class="font-mono text-[10px] text-muted-foreground shrink-0 tabular-nums w-9 text-right">
+                  {{ Math.round(c.completion_rate) }}%
+                </span>
+              </div>
+            </div>
+            <div class="text-center shrink-0 w-14">
+              <div class="text-[18px] font-semibold tabular-nums leading-none">{{ c.student_count }}</div>
+              <div class="font-mono text-[9px] uppercase tracking-wider text-muted-foreground mt-1">
+                {{ t('dashboard.students_short') }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </UiCard>
+
+      <!-- Pedagog — Ro'yxatlar dinamikasi (oylar bo'yicha) -->
+      <UiCard v-if="isTeacher" no-padding>
+        <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+          <span class="text-sm font-semibold">{{ t('dashboard.enroll_trend_title') }}</span>
+          <button
+            type="button"
+            class="font-mono text-[12px] text-muted-foreground hover:text-foreground"
+            @click="router.push({ name: 'teacher-statistics' })"
+          >
+            {{ t('dashboard.see_all') }} →
+          </button>
+        </div>
+        <div class="p-5">
+          <UiChartBar v-if="teacherEnrollBars.length > 0" :items="teacherEnrollBars" :height="180" />
+          <div
+            v-else
+            class="h-[180px] flex items-center justify-center text-[12px] text-muted-foreground"
+          >
+            {{ t('dashboard.no_activity') }}
+          </div>
+          <div class="mt-6 pt-4 border-t border-border flex justify-between text-[12px] text-muted-foreground">
+            <div>
+              {{ t('dashboard.total_enrollments') }}:
+              <span class="text-foreground font-mono font-medium">{{ teacherTotalEnrollments }}</span>
+            </div>
+            <div>
+              {{ t('dashboard.stat_students') }}:
+              <span class="text-foreground font-mono font-medium">{{ studentsCount }}</span>
+            </div>
+          </div>
+        </div>
+      </UiCard>
+
+      <!-- "Davom etish" / Continue learning (talaba) -->
+      <UiCard v-if="isStudent" no-padding>
         <div class="px-5 py-4 border-b border-border flex items-center justify-between">
           <span class="text-sm font-semibold">{{ t('dashboard.continue_title') }}</span>
           <button
@@ -552,8 +670,8 @@ function progressOf(c: Course): number {
         </div>
       </UiCard>
 
-      <!-- Activity chart — real data, period switcher (Phase 16) -->
-      <UiCard no-padding>
+      <!-- Activity chart — real data, period switcher (Phase 16, talaba) -->
+      <UiCard v-if="isStudent" no-padding>
         <div class="px-5 py-4 border-b border-border flex items-center justify-between">
           <span class="text-sm font-semibold">{{ t('dashboard.activity_title') }}</span>
           <div class="flex gap-1">
