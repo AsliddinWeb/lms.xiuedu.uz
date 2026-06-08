@@ -99,6 +99,18 @@ async function loadSidebarCounts() {
         .then((r) => (counts.value.assignments = r.total))
         .catch(() => undefined),
     )
+    if (auth.hasPermission('live.host')) {
+      tasks.push(
+        liveSessionsApi
+          .list({
+            host_user_id: auth.user.id,
+            status: 'scheduled',
+            page_size: 1,
+          })
+          .then((r) => (counts.value.live = r.total))
+          .catch(() => undefined),
+      )
+    }
   }
   await Promise.all(tasks)
 }
@@ -254,7 +266,7 @@ const sections = computed<SidebarSection[]>(() => {
     main.push({
       name: 'live-host',
       icon: 'live',
-      label: t('nav.live_host'),
+      label: withCount(t('nav.live_host'), counts.value.live),
       to: '/app/live',
     })
   }
