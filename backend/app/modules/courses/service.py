@@ -13,12 +13,12 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from decimal import Decimal
 
-from sqlalchemy import and_, desc, func, or_, select
+from sqlalchemy import and_, case, desc, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.exceptions import ConflictError, NotFoundError, ValidationError
-from app.modules.academic.models import Subject
+from app.modules.academic.models import AcademicGroup, Subject
 from app.modules.content.models import ContentItem
 from app.modules.courses.models import (
     Course,
@@ -491,6 +491,63 @@ async def list_course_students(
         pct = await calculate_course_progress(db, user_id=user.id, course_id=course_id)
         result.append((enr, user, pct["percent"]))
     return result, int(total)
+
+
+async def list_my_students(
+    db: AsyncSession,
+    teacher_id: int,
+    *,
+    q: str | None = None,
+    page: int,
+    page_size: int,
+) -> tuple[list, int]:
+    """Pedagog barcha kurslari bo'yicha NOYOB talabalar (aggregate).
+
+    Har talaba: ism/email/avatar/guruh + nechta kursda (shu pedagog), tugatgan
+    kurslar soni, o'rtacha yakuniy baho. Qidiruv (ism/email) + pagination.
+    """
+    base = (
+        select(
+            User.id.label("user_id"),
+            User.full_name,
+            User.email,
+            User.avatar_url,
+            AcademicGroup.name.label("group_name"),
+            func.count(Enrollment.id).label("course_count"),
+            func.sum(
+                case((Enrollment.completion_status == "completed", 1), else_=0)
+            ).label("completed_count"),
+            func.avg(Enrollment.final_grade).label("avg_grade"),
+        )
+        .select_from(Enrollment)
+        .join(
+            Course,
+            and_(
+                Course.id == Enrollment.course_id,
+                Course.primary_author_id == teacher_id,
+                Course.deleted_at.is_(None),
+            ),
+        )
+        .join(User, User.id == Enrollment.user_id)
+        .outerjoin(AcademicGroup, AcademicGroup.id == User.group_id)
+    )
+    if q and q.strip():
+        like = f"%{q.strip()}%"
+        base = base.where(or_(User.full_name.ilike(like), User.email.ilike(like)))
+
+    grouped = base.group_by(
+        User.id, User.full_name, User.email, User.avatar_url, AcademicGroup.name
+    )
+    total = (
+        await db.execute(select(func.count()).select_from(grouped.subquery()))
+    ).scalar_one()
+    stmt = (
+        grouped.order_by(User.full_name)
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+    )
+    rows = (await db.execute(stmt)).all()
+    return list(rows), int(total)
 
 
 # ============================================================================

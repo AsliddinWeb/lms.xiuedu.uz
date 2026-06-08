@@ -245,6 +245,24 @@ class PaginatedStudents(BaseModel):
     total: int
 
 
+class TeacherStudentItem(BaseModel):
+    """`/me/students` — pedagog barcha kurslari bo'yicha noyob talaba (aggregate)."""
+
+    user_id: int
+    full_name: str
+    email: str | None
+    avatar_url: str | None
+    group_name: str | None
+    course_count: int       # shu pedagog kurslaridan nechtasida
+    completed_count: int    # tugatgan kurslar soni
+    avg_grade: float | None  # o'rtacha yakuniy baho
+
+
+class PaginatedTeacherStudents(BaseModel):
+    items: list[TeacherStudentItem]
+    total: int
+
+
 # ============================================================================
 # LessonProgress
 # ============================================================================

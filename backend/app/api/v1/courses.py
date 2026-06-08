@@ -43,7 +43,9 @@ from app.modules.courses.schemas import (
     ModuleUpdateRequest,
     PaginatedCourses,
     PaginatedStudents,
+    PaginatedTeacherStudents,
     ReorderRequest,
+    TeacherStudentItem,
 )
 from app.modules.rbac.service import RBACService, has_permission
 from app.modules.users.models import User
@@ -717,6 +719,38 @@ async def self_unenroll(
     await service.unenroll_user(db, course_id, actor.id)
     await db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.get(
+    "/me/students",
+    response_model=PaginatedTeacherStudents,
+    summary="Pedagog barcha kurslari bo'yicha talabalar (aggregate)",
+)
+async def list_my_students(
+    db: DbSession,
+    actor: CurrentUser,
+    q: str | None = Query(None),
+    page: int = Query(1, ge=1),
+    page_size: int = Query(50, ge=1, le=200),
+    _u: User = Depends(require_permission("enrollment.read")),
+) -> PaginatedTeacherStudents:
+    rows, total = await service.list_my_students(
+        db, actor.id, q=q, page=page, page_size=page_size
+    )
+    items = [
+        TeacherStudentItem(
+            user_id=r.user_id,
+            full_name=r.full_name,
+            email=r.email,
+            avatar_url=r.avatar_url,
+            group_name=r.group_name,
+            course_count=int(r.course_count),
+            completed_count=int(r.completed_count or 0),
+            avg_grade=float(r.avg_grade) if r.avg_grade is not None else None,
+        )
+        for r in rows
+    ]
+    return PaginatedTeacherStudents(items=items, total=total)
 
 
 @router.get("/courses/{course_id}/students", response_model=PaginatedStudents)
