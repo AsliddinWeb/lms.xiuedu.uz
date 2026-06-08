@@ -2162,6 +2162,7 @@
     "col_courses": "Курслар",
     "col_completed": "Тугатган",
     "col_avg": "Ўртача баҳо",
-    "message": "Хабар"
+    "message": "Хабар",
+    "detail": "Батафсил"
   }
 }

@@ -144,6 +144,15 @@ export interface PaginatedTeacherStudents {
   total: number
 }
 
+export interface StudentCourseItem {
+  course_id: number
+  course_title: string
+  progress_percent: number
+  completion_status: CompletionStatus
+  final_grade: number | null
+  enrolled_at: string
+}
+
 export interface LessonProgress {
   id: number
   user_id: number

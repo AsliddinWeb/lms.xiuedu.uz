@@ -2162,6 +2162,7 @@
     "col_courses": "Courses",
     "col_completed": "Completed",
     "col_avg": "Avg grade",
-    "message": "Message"
+    "message": "Message",
+    "detail": "Details"
   }
 }

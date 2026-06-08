@@ -45,6 +45,7 @@ from app.modules.courses.schemas import (
     PaginatedStudents,
     PaginatedTeacherStudents,
     ReorderRequest,
+    StudentCourseItem,
     TeacherStudentItem,
 )
 from app.modules.rbac.service import RBACService, has_permission
@@ -751,6 +752,21 @@ async def list_my_students(
         for r in rows
     ]
     return PaginatedTeacherStudents(items=items, total=total)
+
+
+@router.get(
+    "/me/students/{user_id}/courses",
+    response_model=list[StudentCourseItem],
+    summary="Talabaning pedagog kurslaridagi yozilishlari (detal)",
+)
+async def get_my_student_courses(
+    user_id: int,
+    db: DbSession,
+    actor: CurrentUser,
+    _u: User = Depends(require_permission("enrollment.read")),
+) -> list[StudentCourseItem]:
+    rows = await service.get_my_student_courses(db, actor.id, user_id)
+    return [StudentCourseItem(**r) for r in rows]
 
 
 @router.get("/courses/{course_id}/students", response_model=PaginatedStudents)

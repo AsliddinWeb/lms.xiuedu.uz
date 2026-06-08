@@ -263,6 +263,17 @@ class PaginatedTeacherStudents(BaseModel):
     total: int
 
 
+class StudentCourseItem(BaseModel):
+    """Talaba detali — bitta kurs (pedagog ko'rinishida)."""
+
+    course_id: int
+    course_title: str
+    progress_percent: float
+    completion_status: str
+    final_grade: float | None
+    enrolled_at: datetime
+
+
 # ============================================================================
 # LessonProgress
 # ============================================================================

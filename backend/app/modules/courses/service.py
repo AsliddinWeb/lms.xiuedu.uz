@@ -550,6 +550,48 @@ async def list_my_students(
     return list(rows), int(total)
 
 
+async def get_my_student_courses(
+    db: AsyncSession, teacher_id: int, user_id: int
+) -> list[dict]:
+    """Talabaning shu pedagog kurslaridagi yozilishlari + har biri progress/baho."""
+    rows = (
+        await db.execute(
+            select(
+                Course.id,
+                Course.title,
+                Enrollment.completion_status,
+                Enrollment.final_grade,
+                Enrollment.enrolled_at,
+            )
+            .select_from(Enrollment)
+            .join(
+                Course,
+                and_(
+                    Course.id == Enrollment.course_id,
+                    Course.primary_author_id == teacher_id,
+                    Course.deleted_at.is_(None),
+                ),
+            )
+            .where(Enrollment.user_id == user_id)
+            .order_by(Course.title)
+        )
+    ).all()
+    out: list[dict] = []
+    for cid, title, status, grade, enrolled in rows:
+        pct = await calculate_course_progress(db, user_id=user_id, course_id=cid)
+        out.append(
+            {
+                "course_id": cid,
+                "course_title": title,
+                "progress_percent": float(pct["percent"]),
+                "completion_status": status,
+                "final_grade": float(grade) if grade is not None else None,
+                "enrolled_at": enrolled,
+            }
+        )
+    return out
+
+
 # ============================================================================
 # Lesson progress
 # ============================================================================

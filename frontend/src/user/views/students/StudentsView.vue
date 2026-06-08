@@ -16,6 +16,7 @@ import { chatApi } from '@shared/api/chat'
 import { extractErrorMessage } from '@shared/api/client'
 import { toast } from '@shared/composables/useToast'
 import type { TeacherStudent } from '@shared/types/courses'
+import StudentDrawer from './StudentDrawer.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -26,6 +27,13 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 const searchQ = ref('')
 const messagingId = ref<number | null>(null)
+const drawerOpen = ref(false)
+const selected = ref<TeacherStudent | null>(null)
+
+function openDetail(s: TeacherStudent) {
+  selected.value = s
+  drawerOpen.value = true
+}
 
 async function load() {
   loading.value = true
@@ -182,18 +190,29 @@ const countLabel = computed(() => total.value)
               {{ s.avg_grade !== null ? s.avg_grade.toFixed(1) : '—' }}
             </td>
             <td class="px-4 py-3 align-top text-right">
-              <UiButton
-                variant="outline"
-                size="sm"
-                :loading="messagingId === s.user_id"
-                @click="messageStudent(s)"
-              >
-                {{ t('teacher_students.message') }}
-              </UiButton>
+              <div class="flex justify-end gap-1.5">
+                <UiButton variant="ghost" size="sm" @click="openDetail(s)">
+                  {{ t('teacher_students.detail') }}
+                </UiButton>
+                <UiButton
+                  variant="outline"
+                  size="sm"
+                  :loading="messagingId === s.user_id"
+                  @click="messageStudent(s)"
+                >
+                  {{ t('teacher_students.message') }}
+                </UiButton>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
   </UiCard>
+
+  <StudentDrawer
+    :open="drawerOpen"
+    :student="selected"
+    @close="drawerOpen = false"
+  />
 </template>
