@@ -275,6 +275,46 @@ class StudentCourseItem(BaseModel):
 
 
 # ============================================================================
+# Teacher analytics (Phase 34)
+# ============================================================================
+
+
+class GradeDistribution(BaseModel):
+    excellent: int      # >=86
+    good: int           # >=71
+    satisfactory: int   # >=55
+    fail: int           # <55
+
+
+class CompletionBreakdown(BaseModel):
+    in_progress: int
+    completed: int
+    failed: int
+    dropped: int
+
+
+class EnrollmentPoint(BaseModel):
+    month: str  # "YYYY-MM"
+    count: int
+
+
+class TeacherAnalytics(BaseModel):
+    total_courses: int
+    published_courses: int
+    total_students: int
+    total_enrollments: int
+    completion_rate: float
+    avg_grade: float | None
+    pending_grading: int
+    grade_distribution: GradeDistribution
+    completion_breakdown: CompletionBreakdown
+    enrollments_over_time: list[EnrollmentPoint]
+    exam_attempts: int
+    exam_pass_rate: float | None
+    live_sessions_count: int
+
+
+# ============================================================================
 # LessonProgress
 # ============================================================================
 

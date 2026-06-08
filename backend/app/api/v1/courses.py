@@ -46,8 +46,10 @@ from app.modules.courses.schemas import (
     PaginatedTeacherStudents,
     ReorderRequest,
     StudentCourseItem,
+    TeacherAnalytics,
     TeacherStudentItem,
 )
+from app.modules.courses import analytics as analytics_service
 from app.modules.rbac.service import RBACService, has_permission
 from app.modules.users.models import User
 
@@ -752,6 +754,20 @@ async def list_my_students(
         for r in rows
     ]
     return PaginatedTeacherStudents(items=items, total=total)
+
+
+@router.get(
+    "/me/analytics",
+    response_model=TeacherAnalytics,
+    summary="Pedagog statistikasi (barcha kurslari bo'yicha aggregate)",
+)
+async def get_my_analytics(
+    db: DbSession,
+    actor: CurrentUser,
+    _u: User = Depends(require_permission("enrollment.read")),
+) -> TeacherAnalytics:
+    data = await analytics_service.get_teacher_analytics(db, actor.id)
+    return TeacherAnalytics(**data)
 
 
 @router.get(
