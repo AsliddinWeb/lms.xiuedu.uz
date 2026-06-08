@@ -1789,7 +1789,13 @@
     "waiting_hint": "O'qituvchi sizni darsga qabul qilishini kuting…",
     "admissions_title": "Kirish so'rovlari ({n})",
     "admit": "Qabul",
-    "deny": "Rad"
+    "deny": "Rad",
+    "server_rec": "Server yozuvi",
+    "server_rec_stop": "Yozuvni to'xtatish",
+    "server_rec_hint": "Serverda yozish (egress) — brauzersiz, ishonchli",
+    "server_rec_started": "Server yozuvi boshlandi",
+    "server_rec_stopped": "Server yozuvi to'xtatildi",
+    "server_rec_failed": "Server yozuvini boshlab bo'lmadi"
   },
   "admin_live": {
     "tag": "Admin · Live",

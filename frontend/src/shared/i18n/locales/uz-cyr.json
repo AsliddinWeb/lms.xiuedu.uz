@@ -1789,7 +1789,13 @@
     "waiting_hint": "Ўқитувчи сизни дарсга қабул қилишини кутинг…",
     "admissions_title": "Кириш сўровлари ({n})",
     "admit": "Қабул",
-    "deny": "Рад"
+    "deny": "Рад",
+    "server_rec": "Сервер ёзуви",
+    "server_rec_stop": "Ёзувни тўхтатиш",
+    "server_rec_hint": "Серверда ёзиш (egress) — браузерсиз, ишончли",
+    "server_rec_started": "Сервер ёзуви бошланди",
+    "server_rec_stopped": "Сервер ёзуви тўхтатилди",
+    "server_rec_failed": "Сервер ёзувини бошлаб бўлмади"
   },
   "admin_live": {
     "tag": "Admin · Live",

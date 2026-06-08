@@ -823,6 +823,28 @@ async function toggleRecording() {
   }
 }
 
+// === Server-side recording (egress) — Phase 32 ===
+const serverRecording = ref(false)
+const togglingServerRec = ref(false)
+async function toggleServerRecording() {
+  togglingServerRec.value = true
+  try {
+    if (serverRecording.value) {
+      await liveSessionsApi.egressStop(sessionId.value)
+      serverRecording.value = false
+      showRecordingHint(t('live.server_rec_stopped'))
+    } else {
+      await liveSessionsApi.egressStart(sessionId.value)
+      serverRecording.value = true
+      showRecordingHint(t('live.server_rec_started'))
+    }
+  } catch (e) {
+    setTransientError(extractErrorMessage(e, t('live.server_rec_failed')))
+  } finally {
+    togglingServerRec.value = false
+  }
+}
+
 function onAudioMute(muted: boolean) {
   audioMuted.value = muted
 }
@@ -1065,6 +1087,18 @@ function initials(name: string): string {
               :class="{ active: session.is_recording_enabled }"
             ></span>
             {{ session.is_recording_enabled ? t('live.recording_stop') : t('live.recording_start') }}
+          </button>
+          <!-- Phase 32 — Server yozuvi (egress, host only) -->
+          <button
+            v-if="canManage"
+            class="header-btn"
+            :class="{ recording: serverRecording }"
+            :disabled="togglingServerRec"
+            :title="t('live.server_rec_hint')"
+            @click="toggleServerRecording"
+          >
+            <span class="rec-dot-sm" :class="{ active: serverRecording }"></span>
+            {{ serverRecording ? t('live.server_rec_stop') : t('live.server_rec') }}
           </button>
           <!-- Phase 9c — Captions toggle (host yozadi, talaba ko'radi) -->
           <button

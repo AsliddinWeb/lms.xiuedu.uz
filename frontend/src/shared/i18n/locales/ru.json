@@ -1789,7 +1789,13 @@
     "waiting_hint": "Подождите, пока преподаватель допустит вас…",
     "admissions_title": "Запросы на вход ({n})",
     "admit": "Впустить",
-    "deny": "Отклонить"
+    "deny": "Отклонить",
+    "server_rec": "Запись на сервере",
+    "server_rec_stop": "Остановить запись",
+    "server_rec_hint": "Запись на сервере (egress) — без браузера",
+    "server_rec_started": "Запись на сервере начата",
+    "server_rec_stopped": "Запись на сервере остановлена",
+    "server_rec_failed": "Не удалось начать запись на сервере"
   },
   "admin_live": {
     "tag": "Admin · Live",

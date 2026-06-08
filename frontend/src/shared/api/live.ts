@@ -99,6 +99,17 @@ export const liveSessionsApi = {
     await apiClient.post(`/live-sessions/${id}/admissions/${userId}`, { approve })
   },
 
+  // Server-side recording (egress) — Phase 32
+  async egressStart(id: number): Promise<LiveRecording> {
+    return (
+      await apiClient.post<LiveRecording>(`/live-sessions/${id}/egress/start`)
+    ).data
+  },
+
+  async egressStop(id: number): Promise<void> {
+    await apiClient.post(`/live-sessions/${id}/egress/stop`)
+  },
+
   async uploadRecording(
     id: number,
     file: File,

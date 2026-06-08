@@ -1789,7 +1789,13 @@
     "waiting_hint": "Please wait for the host to admit you…",
     "admissions_title": "Join requests ({n})",
     "admit": "Admit",
-    "deny": "Deny"
+    "deny": "Deny",
+    "server_rec": "Server rec",
+    "server_rec_stop": "Stop rec",
+    "server_rec_hint": "Record on the server (egress) — browserless, reliable",
+    "server_rec_started": "Server recording started",
+    "server_rec_stopped": "Server recording stopped",
+    "server_rec_failed": "Couldn't start server recording"
   },
   "admin_live": {
     "tag": "Admin · Live",
