@@ -588,7 +588,11 @@
     "academic_avg": "Ўртача баҳо",
     "academic_graded": "Баҳоланган",
     "course_type_default": "Курс",
-    "cover": "Муқова"
+    "cover": "Муқова",
+    "hint_published": "{n} та нашр этилган",
+    "hint_completion": "Тугатиш {pct}%",
+    "hint_all_graded": "Ҳаммаси баҳоланган",
+    "hint_avg_grade": "Барча курслар бўйича"
   },
   "my_assignments": {
     "subtitle": "{pending} та янги · {in_review} та кўриб чиқилмоқда · {graded} та баҳоланган",

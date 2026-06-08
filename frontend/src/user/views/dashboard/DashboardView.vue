@@ -20,6 +20,7 @@ import UiChartBar from '@shared/components/ui/UiChartBar.vue'
 import { assignmentsApi } from '@shared/api/assignments'
 import {
   activityApi,
+  analyticsApi,
   coursesApi,
   gradebookApi,
   progressApi,
@@ -35,7 +36,7 @@ import { examsApi } from '@shared/api/exams'
 import { notificationsApi, type NotificationPublic } from '@shared/api/notifications'
 import { intlLocale } from '@shared/i18n'
 import { useAuthStore } from '@shared/stores/auth'
-import type { Course } from '@shared/types/courses'
+import type { Course, TeacherAnalytics } from '@shared/types/courses'
 import type { Exam } from '@shared/types/exams'
 import type { LiveSession } from '@shared/types/live'
 
@@ -49,9 +50,13 @@ const isTeacher = computed(() => auth.hasPermission('course.create'))
 // KPIs
 const enrolledCount = ref(0)
 const myCoursesCount = ref(0)
+const publishedCoursesCount = ref(0)
 const studentsCount = ref(0)
 const activeAssignmentsCount = ref(0)
 const pendingGradingCount = ref(0)
+
+// Phase 36 — pedagog aggregate analitika (dashboard widgetlari uchun)
+const teacherStats = ref<TeacherAnalytics | null>(null)
 const recentCourses = ref<Course[]>([])
 const recentAssignments = ref<{ id: number; title: string; due_date: string; course_id: number | null }[]>([])
 const upcomingLive = ref<LiveSession[]>([])
@@ -273,18 +278,25 @@ async function changeActivityPeriod(p: 7 | 30 | 365) {
 async function loadTeacherData() {
   if (!auth.user) return
   try {
-    const my = await coursesApi.list({
-      primary_author_id: auth.user.id,
-      page_size: 100,
-    })
-    myCoursesCount.value = my.total
-    recentCourses.value = my.items.slice(0, 3)
+    // Aggregate analitika — barcha KPI'lar, per-kurs va ro'yxat dinamikasi
+    const stats = await analyticsApi.mine().catch(() => null)
+    teacherStats.value = stats
 
-    const inbox = await assignmentsApi.inbox({
-      status: 'submitted',
-      page_size: 1,
-    })
-    pendingGradingCount.value = inbox.total
+    if (stats) {
+      myCoursesCount.value = stats.total_courses
+      publishedCoursesCount.value = stats.published_courses
+      studentsCount.value = stats.total_students
+      pendingGradingCount.value = stats.pending_grading
+    } else {
+      // Fallback — analitika muvaffaqiyatsiz bo'lsa, eski yo'l bilan
+      const [my, inbox] = await Promise.all([
+        coursesApi.list({ primary_author_id: auth.user.id, page_size: 100 }),
+        assignmentsApi.inbox({ status: 'submitted', page_size: 1 }),
+      ])
+      myCoursesCount.value = my.total
+      recentCourses.value = my.items.slice(0, 3)
+      pendingGradingCount.value = inbox.total
+    }
   } catch {
     // ignore
   }
@@ -433,23 +445,23 @@ function progressOf(c: Course): number {
       <UiStatCard
         :label="t('dashboard.stat_active_courses')"
         :value="String(myCoursesCount)"
-        :trend="{ direction: 'up', text: t('dashboard.trend_courses_new') }"
+        :hint="t('dashboard.hint_published', { n: publishedCoursesCount })"
       />
       <UiStatCard
         :label="t('dashboard.stat_students')"
-        :value="String(studentsCount || '—')"
-        :hint="t('dashboard.hint_students')"
+        :value="String(studentsCount)"
+        :hint="t('dashboard.hint_completion', { pct: Math.round(teacherStats?.completion_rate ?? 0) })"
       />
       <UiStatCard
         :label="t('dashboard.stat_pending_grading')"
         :value="String(pendingGradingCount)"
-        tone="warning"
-        :hint="t('dashboard.hint_urgent')"
+        :tone="pendingGradingCount > 0 ? 'warning' : 'default'"
+        :hint="pendingGradingCount > 0 ? t('dashboard.hint_urgent') : t('dashboard.hint_all_graded')"
       />
       <UiStatCard
         :label="t('dashboard.stat_avg_grade')"
-        value="—"
-        :hint="t('dashboard.hint_ph6')"
+        :value="teacherStats?.avg_grade != null ? teacherStats.avg_grade.toFixed(1) : '—'"
+        :hint="t('dashboard.hint_avg_grade')"
       />
     </template>
     <template v-else>

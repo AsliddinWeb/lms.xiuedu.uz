@@ -588,7 +588,11 @@
     "academic_avg": "O'rtacha baho",
     "academic_graded": "Baholangan",
     "course_type_default": "Kurs",
-    "cover": "Muqova"
+    "cover": "Muqova",
+    "hint_published": "{n} ta nashr etilgan",
+    "hint_completion": "Tugatish {pct}%",
+    "hint_all_graded": "Hammasi baholangan",
+    "hint_avg_grade": "Barcha kurslar bo'yicha"
   },
   "my_assignments": {
     "subtitle": "{pending} ta yangi · {in_review} ta ko'rib chiqilmoqda · {graded} ta baholangan",

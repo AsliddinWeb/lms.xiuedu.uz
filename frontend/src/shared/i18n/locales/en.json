@@ -588,7 +588,11 @@
     "academic_avg": "Average grade",
     "academic_graded": "Graded",
     "course_type_default": "Course",
-    "cover": "Cover"
+    "cover": "Cover",
+    "hint_published": "{n} published",
+    "hint_completion": "Completion {pct}%",
+    "hint_all_graded": "All graded",
+    "hint_avg_grade": "Across all courses"
   },
   "my_assignments": {
     "subtitle": "{pending} new · {in_review} in review · {graded} graded",

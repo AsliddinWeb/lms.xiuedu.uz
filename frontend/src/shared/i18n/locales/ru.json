@@ -588,7 +588,11 @@
     "academic_avg": "Средний балл",
     "academic_graded": "Оценено",
     "course_type_default": "Курс",
-    "cover": "Обложка"
+    "cover": "Обложка",
+    "hint_published": "Опубликовано: {n}",
+    "hint_completion": "Завершение {pct}%",
+    "hint_all_graded": "Всё оценено",
+    "hint_avg_grade": "По всем курсам"
   },
   "my_assignments": {
     "subtitle": "Новых: {pending} · На проверке: {in_review} · Оценено: {graded}",
