@@ -36,8 +36,9 @@ import {
 import { extractErrorMessage } from '@shared/api/client'
 import { useAuthStore } from '@shared/stores/auth'
 import { useChatSocket } from '@user/composables/useChatSocket'
+import { formatDate } from '@shared/utils/datetime'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
@@ -112,8 +113,7 @@ function convLabel(c: ConversationPublic): string {
 
 function fmtTime(iso: string | null): string {
   if (!iso) return ''
-  const d = new Date(iso)
-  return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  return formatDate(iso, locale.value, { hour: '2-digit', minute: '2-digit' })
 }
 
 async function loadConversations() {

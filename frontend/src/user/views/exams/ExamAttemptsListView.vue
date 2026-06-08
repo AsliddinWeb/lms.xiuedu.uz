@@ -19,9 +19,14 @@ import { attemptsApi, examsApi } from '@shared/api/exams'
 import { extractErrorMessage } from '@shared/api/client'
 import { toast } from '@shared/composables/useToast'
 import { downloadBlob, timestampedFilename } from '@shared/utils/download'
+import { formatDateTime } from '@shared/utils/datetime'
 import type { AttemptPublic, Exam } from '@shared/types/exams'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+function fmtDateTime(s: string): string {
+  return formatDateTime(s, locale.value)
+}
 const route = useRoute()
 const router = useRouter()
 
@@ -199,7 +204,7 @@ onMounted(load)
             </td>
             <td class="px-4 py-3 font-mono text-[11px] text-muted-foreground">
               {{
-                a.submitted_at ? new Date(a.submitted_at).toLocaleString() : '—'
+                a.submitted_at ? fmtDateTime(a.submitted_at) : '—'
               }}
             </td>
             <td class="px-4 py-3 text-right">

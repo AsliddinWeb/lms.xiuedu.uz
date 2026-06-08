@@ -33,10 +33,11 @@ import {
 } from '@shared/api/proctoring'
 import { usersApi } from '@shared/api/users'
 import { extractErrorMessage } from '@shared/api/client'
+import { formatDateTime, formatTime } from '@shared/utils/datetime'
 import type { AttemptPublic, Exam } from '@shared/types/exams'
 import type { UserDetail } from '@shared/types/users'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
@@ -137,11 +138,11 @@ async function handleInvalidate() {
 }
 
 function fmtTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString()
+  return formatTime(iso, locale.value)
 }
 
 function fmtDateTime(iso: string): string {
-  return new Date(iso).toLocaleString()
+  return formatDateTime(iso, locale.value)
 }
 
 function severityVariant(s: string): 'default' | 'warning' | 'danger' {

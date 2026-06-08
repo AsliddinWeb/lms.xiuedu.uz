@@ -21,8 +21,9 @@ import { hemisApi, type HemisSyncLogItem } from '@shared/api/hemis'
 import { extractErrorMessage } from '@shared/api/client'
 import { confirm } from '@shared/composables/useConfirm'
 import { toast } from '@shared/composables/useToast'
+import { formatDateTime } from '@shared/utils/datetime'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const items = ref<HemisSyncLogItem[]>([])
 const total = ref(0)
@@ -87,7 +88,7 @@ function statusVariant(s: string): 'default' | 'success' | 'warning' | 'danger' 
 function fmtDateTime(s: string | null): string {
   if (!s) return '—'
   try {
-    return new Date(s).toLocaleString()
+    return formatDateTime(s, locale.value)
   } catch {
     return s
   }

@@ -15,7 +15,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { intlLocale } from '@shared/i18n'
+import { formatDate } from '@shared/utils/datetime'
 
 import UiAlert from '@shared/components/ui/UiAlert.vue'
 import UiBadge from '@shared/components/ui/UiBadge.vue'
@@ -85,12 +85,12 @@ const isHost = computed(() => session.value?.host_user_id === auth.user?.id)
 
 function fmtDateTime(s: string): string {
   try {
-    return new Intl.DateTimeFormat(intlLocale(locale.value), {
+    return formatDate(s, locale.value, {
       month: 'short',
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-    }).format(new Date(s))
+    })
   } catch {
     return s
   }

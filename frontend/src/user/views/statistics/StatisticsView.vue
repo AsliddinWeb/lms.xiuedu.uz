@@ -15,7 +15,7 @@ import UiProgressBar from '@shared/components/ui/UiProgressBar.vue'
 import UiChartBar from '@shared/components/ui/UiChartBar.vue'
 import { analyticsApi } from '@shared/api/courses'
 import { extractErrorMessage } from '@shared/api/client'
-import { intlLocale } from '@shared/i18n'
+import { formatDate } from '@shared/utils/datetime'
 import type { TeacherAnalytics } from '@shared/types/courses'
 
 const { t, locale } = useI18n()
@@ -74,9 +74,9 @@ const enrollBars = computed(() => {
     const [y, m] = p.month.split('-').map(Number)
     let label = p.month
     try {
-      label = new Intl.DateTimeFormat(intlLocale(locale.value), {
+      label = formatDate(new Date(y, m - 1, 1), locale.value, {
         month: 'short',
-      }).format(new Date(y, m - 1, 1))
+      })
     } catch {
       /* xom fallback */
     }

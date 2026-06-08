@@ -24,7 +24,7 @@ import {
   type MyGamificationStats,
 } from '@shared/api/gamification'
 import { extractErrorMessage } from '@shared/api/client'
-import { intlLocale } from '@shared/i18n'
+import { formatFullDate } from '@shared/utils/datetime'
 import { useAuthStore } from '@shared/stores/auth'
 import BadgeMedal from './BadgeMedal.vue'
 
@@ -74,11 +74,7 @@ watch(scope, () => {
 
 function fmtDate(iso: string | null): string {
   if (!iso) return ''
-  try {
-    return new Date(iso).toLocaleDateString(intlLocale(locale.value))
-  } catch {
-    return new Date(iso).toLocaleDateString()
-  }
+  return formatFullDate(iso, locale.value)
 }
 
 function catLabel(code: string): string {

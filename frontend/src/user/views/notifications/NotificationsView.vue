@@ -17,8 +17,9 @@ import {
   type NotificationPublic,
 } from '@shared/api/notifications'
 import { extractErrorMessage } from '@shared/api/client'
+import { formatDateTime } from '@shared/utils/datetime'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const router = useRouter()
 
 const items = ref<NotificationPublic[]>([])
@@ -78,7 +79,7 @@ function eventLabel(type: string): string {
 }
 
 function fmtDateTime(iso: string): string {
-  return new Date(iso).toLocaleString()
+  return formatDateTime(iso, locale.value)
 }
 
 onMounted(load)

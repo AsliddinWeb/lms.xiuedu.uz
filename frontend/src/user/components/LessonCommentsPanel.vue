@@ -22,9 +22,10 @@ import {
 } from '@shared/api/comments'
 import { extractErrorMessage } from '@shared/api/client'
 import { useAuthStore } from '@shared/stores/auth'
+import { formatDateTime } from '@shared/utils/datetime'
 
 const props = defineProps<{ lessonId: number }>()
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const auth = useAuthStore()
 
 const comments = ref<LessonCommentPublic[]>([])
@@ -165,7 +166,7 @@ function authorLabel(c: LessonCommentPublic): string {
 }
 
 function fmtDateTime(iso: string): string {
-  return new Date(iso).toLocaleString()
+  return formatDateTime(iso, locale.value)
 }
 
 onMounted(load)

@@ -21,8 +21,9 @@ import { forumApi, type ForumThreadPublic } from '@shared/api/forum'
 import { coursesApi } from '@shared/api/courses'
 import { extractErrorMessage } from '@shared/api/client'
 import { useAuthStore } from '@shared/stores/auth'
+import { formatDateTime } from '@shared/utils/datetime'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
@@ -91,7 +92,7 @@ function openThread(thread: ForumThreadPublic) {
 
 function fmtDate(iso: string | null): string {
   if (!iso) return '—'
-  return new Date(iso).toLocaleString()
+  return formatDateTime(iso, locale.value)
 }
 
 onMounted(load)

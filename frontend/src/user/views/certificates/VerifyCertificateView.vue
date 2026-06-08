@@ -19,8 +19,9 @@ import {
   certificatesApi,
   type CertificateVerifyResponse,
 } from '@shared/api/certificates'
+import { formatDateTime } from '@shared/utils/datetime'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const route = useRoute()
 
 const code = ref<string>((route.params.code as string) ?? '')
@@ -44,7 +45,7 @@ async function check() {
 
 function fmtDate(iso: string | null | undefined): string {
   if (!iso) return '—'
-  return new Date(iso).toLocaleString()
+  return formatDateTime(iso, locale.value)
 }
 
 onMounted(() => {

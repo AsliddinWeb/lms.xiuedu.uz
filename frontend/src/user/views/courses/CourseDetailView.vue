@@ -48,6 +48,7 @@ import { forumApi, type ForumThreadPublic } from '@shared/api/forum'
 import { extractErrorMessage, isNotFound } from '@shared/api/client'
 import { usePermissions } from '@shared/composables/usePermissions'
 import { useAuthStore } from '@shared/stores/auth'
+import { formatDate } from '@shared/utils/datetime'
 import type {
   Course,
   CourseProgress,
@@ -458,7 +459,7 @@ function fmtExamDate(iso: string | null): string {
   if (!iso) return '—'
   const d = new Date(iso)
   if (isNaN(d.getTime())) return '—'
-  return d.toLocaleString(undefined, {
+  return formatDate(d, locale.value, {
     day: '2-digit',
     month: 'short',
     hour: '2-digit',
@@ -662,7 +663,7 @@ function fmtRelativeDate(iso: string | null): string {
   if (diffHr < 24) return t('course_detail.hours_ago', { n: diffHr })
   const diffDay = Math.round(diffHr / 24)
   if (diffDay < 7) return t('course_detail.days_ago', { n: diffDay })
-  return d.toLocaleDateString(undefined, {
+  return formatDate(d, locale.value, {
     day: '2-digit',
     month: 'short',
     year: 'numeric',

@@ -50,6 +50,7 @@ import type {
 import type { LiveSession } from '@shared/types/live'
 
 import LessonContentViewer from '@user/components/courses/LessonContentViewer.vue'
+import { formatDate } from '@shared/utils/datetime'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -294,11 +295,11 @@ function fileSizeLabel(bytes: number | null | undefined): string {
 
 function fmtRecordingDate(s: string, locale: string): string {
   try {
-    return new Intl.DateTimeFormat(locale, {
+    return formatDate(s, locale, {
       year: 'numeric',
       month: 'short',
       day: '2-digit',
-    }).format(new Date(s))
+    })
   } catch {
     return s
   }

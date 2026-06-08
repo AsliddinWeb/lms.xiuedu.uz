@@ -28,8 +28,13 @@ import { extractErrorMessage, isNotFound } from '@shared/api/client'
 import { toast } from '@shared/composables/useToast'
 import type { Exam } from '@shared/types/exams'
 import { useFaceDetection } from '@user/composables/useFaceDetection'
+import { formatDateTime } from '@shared/utils/datetime'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+function fmtDateTime(s: string): string {
+  return formatDateTime(s, locale.value)
+}
 const route = useRoute()
 const router = useRouter()
 
@@ -473,7 +478,7 @@ watch(
           <div v-if="exam.available_until" class="flex justify-between gap-3">
             <dt class="text-muted-foreground">{{ t('exam_lobby.info_available_until') }}</dt>
             <dd class="font-mono">
-              {{ new Date(exam.available_until).toLocaleString() }}
+              {{ fmtDateTime(exam.available_until) }}
             </dd>
           </div>
         </dl>

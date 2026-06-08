@@ -25,7 +25,7 @@ import { assignmentsApi } from '@shared/api/assignments'
 import { examsApi } from '@shared/api/exams'
 import { liveSessionsApi } from '@shared/api/live'
 import { extractErrorMessage } from '@shared/api/client'
-import { intlLocale } from '@shared/i18n'
+import { formatDate } from '@shared/utils/datetime'
 import { useAuthStore } from '@shared/stores/auth'
 import type { AcademicCalendar } from '@shared/types/academic'
 import LiveCalendarButton from '@user/components/live/LiveCalendarButton.vue'
@@ -203,21 +203,21 @@ function relDayLabel(d: Date): string {
   if (diff === 1) return t('schedule.tomorrow')
   if (diff === -1) return t('schedule.yesterday')
   try {
-    return new Intl.DateTimeFormat(intlLocale(locale.value), {
+    return formatDate(d, locale.value, {
       weekday: 'long',
       day: '2-digit',
       month: 'long',
-    }).format(d)
+    })
   } catch {
     return dayKey(d)
   }
 }
 function fmtTime(s: string): string {
   try {
-    return new Intl.DateTimeFormat(intlLocale(locale.value), {
+    return formatDate(s, locale.value, {
       hour: '2-digit',
       minute: '2-digit',
-    }).format(new Date(s))
+    })
   } catch {
     return s
   }
@@ -225,8 +225,7 @@ function fmtTime(s: string): string {
 
 function fmtRange(a: string, b: string): string {
   try {
-    const f = new Intl.DateTimeFormat(intlLocale(locale.value), { day: '2-digit', month: 'short' })
-    return `${f.format(new Date(a))} – ${f.format(new Date(b))}`
+    return `${formatDate(a, locale.value, { day: '2-digit', month: 'short' })} – ${formatDate(b, locale.value, { day: '2-digit', month: 'short' })}`
   } catch {
     return ''
   }
@@ -306,10 +305,10 @@ const selectedDay = ref<string>(dayKey(now0))
 
 const monthLabel = computed(() => {
   try {
-    return new Intl.DateTimeFormat(intlLocale(locale.value), {
+    return formatDate(calendarMonth.value, locale.value, {
       month: 'long',
       year: 'numeric',
-    }).format(calendarMonth.value)
+    })
   } catch {
     return ''
   }
@@ -320,7 +319,7 @@ const weekDayNames = computed(() => {
   for (let i = 0; i < 7; i++) {
     // 2024-01-01 — dushanba
     const d = new Date(2024, 0, 1 + i)
-    names.push(new Intl.DateTimeFormat(intlLocale(locale.value), { weekday: 'short' }).format(d))
+    names.push(formatDate(d, locale.value, { weekday: 'short' }))
   }
   return names
 })

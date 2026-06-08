@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import UiAlert from '@shared/components/ui/UiAlert.vue'
 import UiBadge from '@shared/components/ui/UiBadge.vue'
@@ -11,11 +12,13 @@ import UiSelect from '@shared/components/ui/UiSelect.vue'
 import { usersApi } from '@shared/api/users'
 import { confirm } from '@shared/composables/useConfirm'
 import { toast } from '@shared/composables/useToast'
+import { formatDate as fmtDateUtil } from '@shared/utils/datetime'
 import type { UserDetail, UserListItem } from '@shared/types/users'
 
 import UserFormDrawer from '@admin/components/UserFormDrawer.vue'
 import { useUsersStore } from '@admin/stores/users'
 
+const { locale } = useI18n()
 const store = useUsersStore()
 
 const q = ref('')
@@ -116,7 +119,7 @@ async function handleDelete(u: UserListItem) {
 function formatDate(s: string | null): string {
   if (!s) return '—'
   try {
-    return new Date(s).toLocaleString('uz-Latn-UZ', {
+    return fmtDateUtil(s, locale.value, {
       year: 'numeric', month: '2-digit', day: '2-digit',
       hour: '2-digit', minute: '2-digit',
     })

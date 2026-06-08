@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { intlLocale } from '@shared/i18n'
+import { formatDate } from '@shared/utils/datetime'
 
 import UiAlert from '@shared/components/ui/UiAlert.vue'
 import UiBreadcrumb from '@shared/components/ui/UiBreadcrumb.vue'
@@ -98,11 +98,11 @@ function authorLabel(c: ContentItem): string {
 
 function fmtDate(s: string): string {
   try {
-    return new Intl.DateTimeFormat(intlLocale(locale.value), {
+    return formatDate(s, locale.value, {
       year: 'numeric',
       month: 'short',
       day: '2-digit',
-    }).format(new Date(s))
+    })
   } catch {
     return s.slice(0, 10)
   }

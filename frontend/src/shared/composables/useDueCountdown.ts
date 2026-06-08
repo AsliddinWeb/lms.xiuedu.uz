@@ -1,6 +1,6 @@
 import { computed, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { intlLocale } from '@shared/i18n'
+import { formatDate } from '@shared/utils/datetime'
 
 /**
  * Topshiriq due_date'ga nisbatan i18n-aware countdown matn qaytaradi.
@@ -29,10 +29,10 @@ export function useDueCountdown(dueIso: Ref<string | null | undefined>) {
 
     const hours = Math.floor(m / 60)
     const days = Math.floor(hours / 24)
-    const time = new Intl.DateTimeFormat(intlLocale(locale.value), {
+    const time = formatDate(dueDate.value, locale.value, {
       hour: '2-digit',
       minute: '2-digit',
-    }).format(dueDate.value)
+    })
 
     const todayStart = new Date()
     todayStart.setHours(0, 0, 0, 0)

@@ -30,9 +30,10 @@ import {
 } from '@shared/api/gamification'
 import { useAuthStore } from '@shared/stores/auth'
 import { downloadBlob, timestampedFilename } from '@shared/utils/download'
+import { formatFullDate } from '@shared/utils/datetime'
 import type { AcademicCalendar } from '@shared/types/academic'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const auth = useAuthStore()
 
 type Tab = 'current' | 'history' | 'ranking' | 'certificates'
@@ -144,7 +145,7 @@ async function loadHistory() {
 }
 
 function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleDateString()
+  return formatFullDate(iso, locale.value)
 }
 
 const downloading = ref(false)

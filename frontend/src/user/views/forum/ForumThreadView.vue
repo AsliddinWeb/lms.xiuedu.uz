@@ -24,8 +24,9 @@ import {
 import { coursesApi } from '@shared/api/courses'
 import { extractErrorMessage } from '@shared/api/client'
 import { useAuthStore } from '@shared/stores/auth'
+import { formatDateTime } from '@shared/utils/datetime'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const auth = useAuthStore()
@@ -146,7 +147,7 @@ function backToCourse() {
 }
 
 function fmtDateTime(iso: string): string {
-  return new Date(iso).toLocaleString()
+  return formatDateTime(iso, locale.value)
 }
 
 onMounted(load)

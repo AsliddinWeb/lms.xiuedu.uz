@@ -10,7 +10,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { intlLocale } from '@shared/i18n'
+import { formatDate } from '@shared/utils/datetime'
 
 import UiAlert from '@shared/components/ui/UiAlert.vue'
 import UiBadge from '@shared/components/ui/UiBadge.vue'
@@ -163,10 +163,10 @@ function daysUntil(s: string): number {
 
 function fmtDueDate(s: string): string {
   try {
-    return new Intl.DateTimeFormat(intlLocale(locale.value), {
+    return formatDate(s, locale.value, {
       day: '2-digit',
       month: 'short',
-    }).format(new Date(s)).toUpperCase()
+    }).toUpperCase()
   } catch {
     return s.slice(0, 10)
   }

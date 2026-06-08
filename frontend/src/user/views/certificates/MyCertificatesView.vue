@@ -17,8 +17,9 @@ import {
   type CertificateMyItem,
 } from '@shared/api/certificates'
 import { extractErrorMessage } from '@shared/api/client'
+import { formatFullDate } from '@shared/utils/datetime'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 
 const items = ref<CertificateMyItem[]>([])
 const loading = ref(true)
@@ -37,7 +38,7 @@ async function load() {
 }
 
 function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleDateString()
+  return formatFullDate(iso, locale.value)
 }
 
 function openPdf(item: CertificateMyItem) {

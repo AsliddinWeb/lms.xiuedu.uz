@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { intlLocale } from '@shared/i18n'
+import { formatDate } from '@shared/utils/datetime'
 
 import UiBadge from '@shared/components/ui/UiBadge.vue'
 import type { Submission, SubmissionStatus } from '@shared/types/assignments'
@@ -16,13 +16,13 @@ const { t, locale } = useI18n()
 
 function fmtDateTime(s: string): string {
   try {
-    return new Intl.DateTimeFormat(intlLocale(locale.value), {
+    return formatDate(s, locale.value, {
       year: 'numeric',
       month: 'short',
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-    }).format(new Date(s))
+    })
   } catch {
     return s
   }
