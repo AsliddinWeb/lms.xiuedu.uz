@@ -770,6 +770,76 @@ async def get_my_analytics(
     return TeacherAnalytics(**data)
 
 
+def _csv_response(csv_text: str, prefix: str) -> Response:
+    fname = filename_with_timestamp(prefix)
+    return Response(
+        content=csv_text,
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f"attachment; filename={fname}"},
+    )
+
+
+@router.get(
+    "/me/reports/courses.csv",
+    summary="Hisobot — kurslar bo'yicha (CSV)",
+)
+async def report_courses_csv(
+    db: DbSession,
+    actor: CurrentUser,
+    _u: User = Depends(require_permission("enrollment.read")),
+) -> Response:
+    data = await analytics_service.get_teacher_analytics(db, actor.id)
+    headers = [
+        "Kurs",
+        "Holat",
+        "Talabalar",
+        "Tugatgan",
+        "Tugatish %",
+        "O'rtacha baho",
+    ]
+    rows = [
+        {
+            "Kurs": c["title"],
+            "Holat": c["status"],
+            "Talabalar": c["student_count"],
+            "Tugatgan": c["completed_count"],
+            "Tugatish %": c["completion_rate"],
+            "O'rtacha baho": c["avg_grade"] if c["avg_grade"] is not None else "",
+        }
+        for c in data["per_course"]
+    ]
+    return _csv_response(rows_to_csv(headers, rows), "kurslar_hisoboti")
+
+
+@router.get(
+    "/me/reports/students.csv",
+    summary="Hisobot — barcha talabalar (CSV)",
+)
+async def report_students_csv(
+    db: DbSession,
+    actor: CurrentUser,
+    _u: User = Depends(require_permission("enrollment.read")),
+) -> Response:
+    rows_data, _ = await service.list_my_students(
+        db, actor.id, page=1, page_size=10000
+    )
+    headers = ["Ism", "Email", "Guruh", "Kurslar", "Tugatgan", "O'rtacha baho"]
+    rows = [
+        {
+            "Ism": r.full_name,
+            "Email": r.email or "",
+            "Guruh": r.group_name or "",
+            "Kurslar": int(r.course_count),
+            "Tugatgan": int(r.completed_count or 0),
+            "O'rtacha baho": round(float(r.avg_grade), 1)
+            if r.avg_grade is not None
+            else "",
+        }
+        for r in rows_data
+    ]
+    return _csv_response(rows_to_csv(headers, rows), "talabalar_hisoboti")
+
+
 @router.get(
     "/me/students/{user_id}/courses",
     response_model=list[StudentCourseItem],
