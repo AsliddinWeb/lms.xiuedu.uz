@@ -274,7 +274,7 @@ const sections = computed<SidebarSection[]>(() => {
     name: 'students',
     icon: 'students',
     label: t('nav.students'),
-    disabled: true,
+    to: '/app/students',
   })
 
   const analytics: SidebarNavItem[] = [

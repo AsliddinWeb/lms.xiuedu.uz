@@ -2152,5 +2152,16 @@
     "event_forum_reply": "Ответ в форуме",
     "event_certificate_issued": "Сертификат",
     "event_badge_awarded": "Новый значок"
+  },
+  "teacher_students": {
+    "subtitle": "Студенты по всем вашим курсам",
+    "total_short": "студ.",
+    "search_placeholder": "Поиск по имени или email",
+    "empty": "Пока нет студентов",
+    "col_group": "Группа",
+    "col_courses": "Курсы",
+    "col_completed": "Завершено",
+    "col_avg": "Ср. балл",
+    "message": "Сообщение"
   }
 }

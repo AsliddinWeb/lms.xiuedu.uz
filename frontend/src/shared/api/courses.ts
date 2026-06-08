@@ -14,6 +14,7 @@ import type {
   ModulePayload,
   PaginatedCourses,
   PaginatedStudents,
+  PaginatedTeacherStudents,
 } from '@shared/types/courses'
 
 // ============================================================================
@@ -123,6 +124,14 @@ export const enrollmentsApi = {
       await apiClient.get<PaginatedStudents>(`/courses/${courseId}/students`, {
         params,
       })
+    ).data
+  },
+  // Pedagog barcha kurslari bo'yicha noyob talabalar (aggregate)
+  async myStudents(
+    params: { q?: string; page?: number; page_size?: number } = {},
+  ): Promise<PaginatedTeacherStudents> {
+    return (
+      await apiClient.get<PaginatedTeacherStudents>('/me/students', { params })
     ).data
   },
   async addStudent(

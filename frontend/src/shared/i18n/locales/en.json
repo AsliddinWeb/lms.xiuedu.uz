@@ -2152,5 +2152,16 @@
     "event_forum_reply": "Forum reply",
     "event_certificate_issued": "Certificate",
     "event_badge_awarded": "New badge"
+  },
+  "teacher_students": {
+    "subtitle": "Students across all your courses",
+    "total_short": "students",
+    "search_placeholder": "Search by name or email",
+    "empty": "No students yet",
+    "col_group": "Group",
+    "col_courses": "Courses",
+    "col_completed": "Completed",
+    "col_avg": "Avg grade",
+    "message": "Message"
   }
 }

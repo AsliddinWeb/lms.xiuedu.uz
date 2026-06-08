@@ -2152,5 +2152,16 @@
     "event_forum_reply": "Forum javobi",
     "event_certificate_issued": "Sertifikat",
     "event_badge_awarded": "Yangi nishon"
+  },
+  "teacher_students": {
+    "subtitle": "Barcha kurslaringizdagi talabalar",
+    "total_short": "talaba",
+    "search_placeholder": "Ism yoki email bo‘yicha qidirish",
+    "empty": "Hali talaba yo‘q",
+    "col_group": "Guruh",
+    "col_courses": "Kurslar",
+    "col_completed": "Tugatgan",
+    "col_avg": "O‘rtacha baho",
+    "message": "Xabar"
   }
 }

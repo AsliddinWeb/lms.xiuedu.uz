@@ -128,6 +128,22 @@ export interface PaginatedStudents {
   total: number
 }
 
+export interface TeacherStudent {
+  user_id: number
+  full_name: string
+  email: string | null
+  avatar_url: string | null
+  group_name: string | null
+  course_count: number
+  completed_count: number
+  avg_grade: number | null
+}
+
+export interface PaginatedTeacherStudents {
+  items: TeacherStudent[]
+  total: number
+}
+
 export interface LessonProgress {
   id: number
   user_id: number

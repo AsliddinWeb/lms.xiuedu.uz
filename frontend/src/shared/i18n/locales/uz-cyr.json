@@ -2152,5 +2152,16 @@
     "event_forum_reply": "Форум жавоби",
     "event_certificate_issued": "Сертификат",
     "event_badge_awarded": "Янги нишон"
+  },
+  "teacher_students": {
+    "subtitle": "Барча курсларингиздаги талабалар",
+    "total_short": "талаба",
+    "search_placeholder": "Исм ёки email бўйича қидириш",
+    "empty": "Ҳали талаба йўқ",
+    "col_group": "Гуруҳ",
+    "col_courses": "Курслар",
+    "col_completed": "Тугатган",
+    "col_avg": "Ўртача баҳо",
+    "message": "Хабар"
   }
 }

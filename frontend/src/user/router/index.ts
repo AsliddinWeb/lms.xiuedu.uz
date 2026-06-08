@@ -109,6 +109,13 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@user/views/courses/CourseBuilderView.vue'),
         meta: { requiresPermission: 'course.create' },
       },
+      // Pedagog — Talabalar (barcha kurslari bo'yicha)
+      {
+        path: 'students',
+        name: 'teacher-students',
+        component: () => import('@user/views/students/StudentsView.vue'),
+        meta: { requiresPermission: 'course.create' },
+      },
       {
         path: 'grading',
         name: 'grading-inbox',
