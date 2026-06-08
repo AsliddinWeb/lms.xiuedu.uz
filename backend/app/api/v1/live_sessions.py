@@ -38,6 +38,7 @@ from fastapi.responses import PlainTextResponse
 from sqlalchemy import select
 
 from app.core.exceptions import ConflictError, ForbiddenError, NotFoundError
+from app.core.config import settings
 from app.core.storage import (
     delete_object,
     get_presigned_url,
@@ -946,3 +947,73 @@ async def captions_vtt(
         media_type="text/vtt; charset=utf-8",
         headers={"Cache-Control": "no-store"},
     )
+
+
+# ============================================================================
+# LiveKit webhook (egress finalize) — Phase 32.4
+# ============================================================================
+
+
+@router.post("/webhooks/livekit", include_in_schema=False)
+async def livekit_webhook(request: Request, db: DbSession) -> Response:
+    """LiveKit webhook — egress tugaganda yozuvni finalize qiladi.
+
+    Auth: livekit JWT (Authorization header) — API secret bilan imzolangan.
+    Foydalanuvchi tokeni EMAS, shuning uchun require_permission yo'q.
+    """
+    from livekit import api as lkapi
+
+    body = (await request.body()).decode("utf-8")
+    auth = request.headers.get("Authorization", "")
+    receiver = lkapi.WebhookReceiver(
+        lkapi.TokenVerifier(
+            settings.LIVEKIT_API_KEY, settings.LIVEKIT_API_SECRET
+        )
+    )
+    try:
+        event = receiver.receive(body, auth)
+    except Exception:  # noqa: BLE001 — imzo noto'g'ri
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
+
+    info = getattr(event, "egress_info", None)
+    if event.event in ("egress_ended", "egress_updated") and info:
+        await _finalize_egress(db, info)
+        await db.commit()
+    return Response(status_code=status.HTTP_200_OK)
+
+
+async def _finalize_egress(db, info) -> None:  # noqa: ANN001
+    from livekit import api as lkapi
+
+    rec = (
+        await db.execute(
+            select(LiveRecording).where(LiveRecording.egress_id == info.egress_id)
+        )
+    ).scalar_one_or_none()
+    if rec is None:
+        return
+
+    if info.status == lkapi.EgressStatus.EGRESS_COMPLETE:
+        files = list(info.file_results)
+        f = files[0] if files else None
+        rec.status = "finalized"
+        rec.finalized_at = datetime.now(UTC)
+        if f is not None:
+            if f.size:
+                rec.file_size_bytes = int(f.size)
+            if f.duration:  # nanosekund -> sekund
+                rec.duration_seconds = int(f.duration // 1_000_000_000)
+        if rec.object_key:
+            rec.url = get_presigned_url(rec.object_key, ttl_seconds=900)
+            sess = await db.get(LiveSession, rec.session_id)
+            if sess is not None:
+                base = settings.MINIO_PUBLIC_URL.rstrip("/")
+                sess.recording_url = f"{base}/{settings.MINIO_BUCKET}/{rec.object_key}"
+                sess.recording_size_bytes = rec.file_size_bytes
+                sess.recording_duration_seconds = rec.duration_seconds
+                sess.recording_mime_type = "video/mp4"
+    elif info.status in (
+        lkapi.EgressStatus.EGRESS_FAILED,
+        lkapi.EgressStatus.EGRESS_ABORTED,
+    ):
+        rec.status = "failed"
