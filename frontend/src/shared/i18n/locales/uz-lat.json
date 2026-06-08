@@ -2164,5 +2164,28 @@
     "col_avg": "O‘rtacha baho",
     "message": "Xabar",
     "detail": "Batafsil"
+  },
+  "statistics": {
+    "subtitle": "Barcha kurslaringiz bo‘yicha umumiy ko‘rsatkichlar",
+    "kpi_courses": "Kurslar",
+    "kpi_students": "Talabalar",
+    "kpi_enrollments": "Ro‘yxatlar",
+    "kpi_completion": "Tugatish",
+    "kpi_avg_grade": "O‘rtacha baho",
+    "kpi_pending": "Baholash navbati",
+    "published_hint": "{n} ta nashr qilingan",
+    "completion_title": "Tugatish darajasi",
+    "grade_dist_title": "Baho taqsimoti",
+    "enroll_trend_title": "Ro‘yxat dinamikasi (oylar)",
+    "other_title": "Imtihon va jonli darslar",
+    "grade_excellent": "A‘lo (86+)",
+    "grade_good": "Yaxshi (71-85)",
+    "grade_satisfactory": "Qoniqarli (55-70)",
+    "grade_fail": "Qoniqarsiz (<55)",
+    "exam_pass_rate": "Imtihon o‘tish darajasi",
+    "exam_attempts": "{n} ta urinish",
+    "live_sessions": "Jonli darslar",
+    "no_grades": "Hali baholangan kurs yo‘q",
+    "no_data": "Ma‘lumot yo‘q"
   }
 }

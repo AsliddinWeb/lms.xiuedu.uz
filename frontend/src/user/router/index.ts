@@ -116,6 +116,13 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@user/views/students/StudentsView.vue'),
         meta: { requiresPermission: 'course.create' },
       },
+      // Pedagog — Statistika (analitika)
+      {
+        path: 'statistics',
+        name: 'teacher-statistics',
+        component: () => import('@user/views/statistics/StatisticsView.vue'),
+        meta: { requiresPermission: 'course.create' },
+      },
       {
         path: 'grading',
         name: 'grading-inbox',

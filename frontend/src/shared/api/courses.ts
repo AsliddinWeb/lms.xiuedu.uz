@@ -16,6 +16,7 @@ import type {
   PaginatedStudents,
   PaginatedTeacherStudents,
   StudentCourseItem,
+  TeacherAnalytics,
 } from '@shared/types/courses'
 
 // ============================================================================
@@ -155,6 +156,13 @@ export const enrollmentsApi = {
   },
   async removeStudent(courseId: number, userId: number): Promise<void> {
     await apiClient.delete(`/courses/${courseId}/students/${userId}`)
+  },
+}
+
+// Pedagog statistikasi (aggregate)
+export const analyticsApi = {
+  async mine(): Promise<TeacherAnalytics> {
+    return (await apiClient.get<TeacherAnalytics>('/me/analytics')).data
   },
 }
 

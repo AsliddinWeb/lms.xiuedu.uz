@@ -153,6 +153,41 @@ export interface StudentCourseItem {
   enrolled_at: string
 }
 
+export interface GradeDistribution {
+  excellent: number
+  good: number
+  satisfactory: number
+  fail: number
+}
+
+export interface CompletionBreakdown {
+  in_progress: number
+  completed: number
+  failed: number
+  dropped: number
+}
+
+export interface EnrollmentPoint {
+  month: string
+  count: number
+}
+
+export interface TeacherAnalytics {
+  total_courses: number
+  published_courses: number
+  total_students: number
+  total_enrollments: number
+  completion_rate: number
+  avg_grade: number | null
+  pending_grading: number
+  grade_distribution: GradeDistribution
+  completion_breakdown: CompletionBreakdown
+  enrollments_over_time: EnrollmentPoint[]
+  exam_attempts: number
+  exam_pass_rate: number | null
+  live_sessions_count: number
+}
+
 export interface LessonProgress {
   id: number
   user_id: number

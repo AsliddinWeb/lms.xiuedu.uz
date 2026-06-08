@@ -2164,5 +2164,28 @@
     "col_avg": "Ср. балл",
     "message": "Сообщение",
     "detail": "Подробнее"
+  },
+  "statistics": {
+    "subtitle": "Общие показатели по всем вашим курсам",
+    "kpi_courses": "Курсы",
+    "kpi_students": "Студенты",
+    "kpi_enrollments": "Записи",
+    "kpi_completion": "Завершение",
+    "kpi_avg_grade": "Ср. балл",
+    "kpi_pending": "На проверке",
+    "published_hint": "{n} опубликовано",
+    "completion_title": "Уровень завершения",
+    "grade_dist_title": "Распределение оценок",
+    "enroll_trend_title": "Динамика записей (по месяцам)",
+    "other_title": "Экзамены и онлайн-уроки",
+    "grade_excellent": "Отлично (86+)",
+    "grade_good": "Хорошо (71-85)",
+    "grade_satisfactory": "Удовл. (55-70)",
+    "grade_fail": "Неудовл. (<55)",
+    "exam_pass_rate": "Сдача экзаменов",
+    "exam_attempts": "{n} попыток",
+    "live_sessions": "Онлайн-уроки",
+    "no_grades": "Пока нет оценённых курсов",
+    "no_data": "Нет данных"
   }
 }

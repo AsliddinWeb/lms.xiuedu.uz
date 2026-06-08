@@ -2164,5 +2164,28 @@
     "col_avg": "Avg grade",
     "message": "Message",
     "detail": "Details"
+  },
+  "statistics": {
+    "subtitle": "Overview across all your courses",
+    "kpi_courses": "Courses",
+    "kpi_students": "Students",
+    "kpi_enrollments": "Enrollments",
+    "kpi_completion": "Completion",
+    "kpi_avg_grade": "Avg grade",
+    "kpi_pending": "To grade",
+    "published_hint": "{n} published",
+    "completion_title": "Completion rate",
+    "grade_dist_title": "Grade distribution",
+    "enroll_trend_title": "Enrollment trend (monthly)",
+    "other_title": "Exams & live classes",
+    "grade_excellent": "Excellent (86+)",
+    "grade_good": "Good (71-85)",
+    "grade_satisfactory": "Satisfactory (55-70)",
+    "grade_fail": "Fail (<55)",
+    "exam_pass_rate": "Exam pass rate",
+    "exam_attempts": "{n} attempts",
+    "live_sessions": "Live classes",
+    "no_grades": "No graded courses yet",
+    "no_data": "No data"
   }
 }

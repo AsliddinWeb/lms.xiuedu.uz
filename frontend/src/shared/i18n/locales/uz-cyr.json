@@ -2164,5 +2164,28 @@
     "col_avg": "Ўртача баҳо",
     "message": "Хабар",
     "detail": "Батафсил"
+  },
+  "statistics": {
+    "subtitle": "Барча курсларингиз бўйича умумий кўрсаткичлар",
+    "kpi_courses": "Курслар",
+    "kpi_students": "Талабалар",
+    "kpi_enrollments": "Рўйхатлар",
+    "kpi_completion": "Тугатиш",
+    "kpi_avg_grade": "Ўртача баҳо",
+    "kpi_pending": "Баҳолаш навбати",
+    "published_hint": "{n} та нашр қилинган",
+    "completion_title": "Тугатиш даражаси",
+    "grade_dist_title": "Баҳо тақсимоти",
+    "enroll_trend_title": "Рўйхат динамикаси (ойлар)",
+    "other_title": "Имтиҳон ва жонли дарслар",
+    "grade_excellent": "Аъло (86+)",
+    "grade_good": "Яхши (71-85)",
+    "grade_satisfactory": "Қониқарли (55-70)",
+    "grade_fail": "Қониқарсиз (<55)",
+    "exam_pass_rate": "Имтиҳон ўтиш даражаси",
+    "exam_attempts": "{n} та уриниш",
+    "live_sessions": "Жонли дарслар",
+    "no_grades": "Ҳали баҳоланган курс йўқ",
+    "no_data": "Маълумот йўқ"
   }
 }
