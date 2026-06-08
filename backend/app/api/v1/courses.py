@@ -841,6 +841,35 @@ async def report_students_csv(
 
 
 @router.get(
+    "/me/reports/summary.pdf",
+    summary="Hisobot — umumiy xulosa (brendlangan PDF)",
+)
+async def report_summary_pdf(
+    db: DbSession,
+    actor: CurrentUser,
+    _u: User = Depends(require_permission("enrollment.read")),
+) -> Response:
+    from app.core.tenant import ensure_xiu_org
+    from app.modules.courses.report_pdf import render_teacher_report_pdf
+
+    data = await analytics_service.get_teacher_analytics(db, actor.id)
+    org = await ensure_xiu_org(db)
+    pdf_bytes = render_teacher_report_pdf(
+        organization_name=org.short_name or org.name,
+        teacher_name=actor.full_name,
+        generated_at=datetime.now(UTC),
+        analytics=data,
+    )
+    ts = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+    fname = f"pedagog_hisoboti_{ts}.pdf"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={fname}"},
+    )
+
+
+@router.get(
     "/me/students/{user_id}/courses",
     response_model=list[StudentCourseItem],
     summary="Talabaning pedagog kurslaridagi yozilishlari (detal)",
