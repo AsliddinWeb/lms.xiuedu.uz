@@ -596,7 +596,12 @@
     "teacher_courses_title": "My courses",
     "students_short": "students",
     "enroll_trend_title": "Enrollment trend",
-    "total_enrollments": "Total enrollments"
+    "total_enrollments": "Total enrollments",
+    "grading_queue_title": "Grading queue",
+    "grading_queue_desc": "Submissions are waiting for review. Open and grade them.",
+    "grading_queue_cta": "Go to grading",
+    "grading_queue_empty": "No ungraded submissions — all caught up.",
+    "analytics_links_title": "Analytics"
   },
   "my_assignments": {
     "subtitle": "{pending} new · {in_review} in review · {graded} graded",

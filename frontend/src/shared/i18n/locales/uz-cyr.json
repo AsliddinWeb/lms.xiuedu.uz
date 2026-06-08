@@ -596,7 +596,12 @@
     "teacher_courses_title": "Менинг курсларим",
     "students_short": "талаба",
     "enroll_trend_title": "Рўйхатлар динамикаси",
-    "total_enrollments": "Жами рўйхатлар"
+    "total_enrollments": "Жами рўйхатлар",
+    "grading_queue_title": "Баҳолаш навбати",
+    "grading_queue_desc": "Топшириқлар баҳолашни кутмоқда. Кўриб чиқинг ва баҳо қўйинг.",
+    "grading_queue_cta": "Баҳолашга ўтиш",
+    "grading_queue_empty": "Баҳоланмаган топшириқ йўқ — ҳаммаси тартибда.",
+    "analytics_links_title": "Таҳлил"
   },
   "my_assignments": {
     "subtitle": "{pending} та янги · {in_review} та кўриб чиқилмоқда · {graded} та баҳоланган",

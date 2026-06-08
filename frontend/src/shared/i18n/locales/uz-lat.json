@@ -596,7 +596,12 @@
     "teacher_courses_title": "Mening kurslarim",
     "students_short": "talaba",
     "enroll_trend_title": "Ro'yxatlar dinamikasi",
-    "total_enrollments": "Jami ro'yxatlar"
+    "total_enrollments": "Jami ro'yxatlar",
+    "grading_queue_title": "Baholash navbati",
+    "grading_queue_desc": "Topshiriqlar baholashni kutmoqda. Ko'rib chiqing va baho qo'ying.",
+    "grading_queue_cta": "Baholashga o'tish",
+    "grading_queue_empty": "Baholanmagan topshiriq yo'q — hammasi tartibda.",
+    "analytics_links_title": "Tahlil"
   },
   "my_assignments": {
     "subtitle": "{pending} ta yangi · {in_review} ta ko'rib chiqilmoqda · {graded} ta baholangan",

@@ -14,6 +14,7 @@ import UiButton from '@shared/components/ui/UiButton.vue'
 import UiCard from '@shared/components/ui/UiCard.vue'
 import UiStatCard from '@shared/components/ui/UiStatCard.vue'
 import UiBreadcrumb from '@shared/components/ui/UiBreadcrumb.vue'
+import UiNavIcon from '@shared/components/ui/UiNavIcon.vue'
 import UiImagePlaceholder from '@shared/components/ui/UiImagePlaceholder.vue'
 import UiProgressBar from '@shared/components/ui/UiProgressBar.vue'
 import UiChartBar from '@shared/components/ui/UiChartBar.vue'
@@ -191,6 +192,13 @@ function courseStatusVariant(status: string): 'success' | 'warning' | 'default' 
   if (status === 'archived') return 'warning'
   return 'default'
 }
+
+// Phase 36 — pedagog "Tahlil" tezkor havolalari
+const teacherLinks = [
+  { name: 'teacher-students', icon: 'students', label: 'nav.students' },
+  { name: 'teacher-statistics', icon: 'analytics', label: 'nav.statistics' },
+  { name: 'teacher-reports', icon: 'audit', label: 'nav.reports' },
+] as const
 
 async function loadStudentData() {
   if (!auth.user) return
@@ -732,6 +740,61 @@ function progressOf(c: Course): number {
 
     <!-- RIGHT COLUMN -->
     <div class="flex flex-col gap-4">
+      <!-- Pedagog — Baholash navbati -->
+      <UiCard v-if="isTeacher" no-padding>
+        <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+          <span class="text-sm font-semibold">{{ t('dashboard.grading_queue_title') }}</span>
+          <UiBadge v-if="pendingGradingCount > 0" variant="warning">{{ pendingGradingCount }}</UiBadge>
+        </div>
+        <div class="p-5">
+          <div v-if="pendingGradingCount > 0" class="flex items-center gap-4">
+            <div class="text-[34px] font-bold tabular-nums leading-none text-warning-600 shrink-0">
+              {{ pendingGradingCount }}
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-[12px] text-muted-foreground mb-3 leading-snug">
+                {{ t('dashboard.grading_queue_desc') }}
+              </p>
+              <UiButton size="sm" @click="router.push({ name: 'grading-inbox' })">
+                {{ t('dashboard.grading_queue_cta') }}
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 7h8M7 3l4 4-4 4" />
+                </svg>
+              </UiButton>
+            </div>
+          </div>
+          <div v-else class="flex items-center gap-3 text-muted-foreground">
+            <div class="size-9 rounded-full bg-success-50 text-success-600 grid place-items-center text-[18px] shrink-0">
+              ✓
+            </div>
+            <p class="text-[13px]">{{ t('dashboard.grading_queue_empty') }}</p>
+          </div>
+        </div>
+      </UiCard>
+
+      <!-- Pedagog — Tahlil tezkor havolalar -->
+      <UiCard v-if="isTeacher" no-padding>
+        <div class="px-5 py-4 border-b border-border">
+          <span class="text-sm font-semibold">{{ t('dashboard.analytics_links_title') }}</span>
+        </div>
+        <ul class="divide-y divide-border">
+          <li
+            v-for="link in teacherLinks"
+            :key="link.name"
+            class="px-5 py-3 flex items-center gap-3 cursor-pointer hover:bg-muted/40"
+            @click="router.push({ name: link.name })"
+          >
+            <div class="size-8 rounded-lg grid place-items-center bg-primary/10 text-primary shrink-0">
+              <UiNavIcon :name="link.icon" :size="16" />
+            </div>
+            <div class="flex-1 text-[13px] font-medium">{{ t(link.label) }}</div>
+            <svg class="text-muted-foreground shrink-0" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 3l4 4-4 4" />
+            </svg>
+          </li>
+        </ul>
+      </UiCard>
+
       <!-- Akademik ko'rsatkich (GPA) — talaba -->
       <UiCard v-if="!isTeacher" no-padding>
         <div class="px-5 py-4 border-b border-border flex items-center justify-between">
