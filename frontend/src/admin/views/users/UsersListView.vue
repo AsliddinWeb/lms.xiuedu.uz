@@ -18,7 +18,7 @@ import type { UserDetail, UserListItem } from '@shared/types/users'
 import UserFormDrawer from '@admin/components/UserFormDrawer.vue'
 import { useUsersStore } from '@admin/stores/users'
 
-const { locale } = useI18n()
+const { t, locale } = useI18n()
 const store = useUsersStore()
 
 const q = ref('')
@@ -30,10 +30,10 @@ const pageSize = 20
 const drawerOpen = ref(false)
 const editing = ref<UserDetail | null>(null)
 
-const statusOptions = [
-  { value: 'active', label: 'Faol' },
-  { value: 'inactive', label: 'Faolsizlangan' },
-]
+const statusOptions = computed(() => [
+  { value: 'active', label: t('admin_users.status_active') },
+  { value: 'inactive', label: t('admin_users.status_inactive') },
+])
 
 const roleOptions = computed(() =>
   store.roles.map((r) => ({ value: r.code, label: `${r.code} — ${r.name}` })),
@@ -92,26 +92,28 @@ async function handleToggleActive(u: UserListItem) {
     if (u.is_active) await store.deactivate(u.id)
     else await store.activate(u.id)
     await load()
+    toast.success(t('admin_users.toast_bulk_updated', { n: 1 }))
   } catch (e) {
+    toast.error(t('admin_users.toast_toggle_error'))
     console.error(e)
   }
 }
 
 async function handleDelete(u: UserListItem) {
   const ok = await confirm({
-    title: 'Foydalanuvchini o\'chirish (soft-delete)?',
+    title: t('admin_users.delete_title'),
     description: u.email,
     variant: 'danger',
-    confirmLabel: 'O\'chirish',
-    cancelLabel: 'Bekor',
+    confirmLabel: t('admin_users.delete_confirm'),
+    cancelLabel: t('admin_users.cancel'),
   })
   if (!ok) return
   try {
     await store.remove(u.id)
     await load()
-    toast.success('O\'chirildi')
+    toast.success(t('admin_users.toast_deleted'))
   } catch (e) {
-    toast.error('O\'chirishda xato')
+    toast.error(t('admin_users.toast_delete_error'))
     console.error(e)
   }
 }
@@ -160,10 +162,10 @@ async function bulkSetActive(active: boolean) {
   if (selected.value.size === 0) return
   const ok = await confirm({
     title: active
-      ? `${selected.value.size} ta foydalanuvchini faollashtirish?`
-      : `${selected.value.size} ta foydalanuvchini faolsizlantirish?`,
-    confirmLabel: 'Tasdiqlash',
-    cancelLabel: 'Bekor',
+      ? t('admin_users.bulk_activate_confirm', { n: selected.value.size })
+      : t('admin_users.bulk_deactivate_confirm', { n: selected.value.size }),
+    confirmLabel: t('admin_users.confirm'),
+    cancelLabel: t('admin_users.cancel'),
   })
   if (!ok) return
   bulkActing.value = true
@@ -181,46 +183,44 @@ async function bulkSetActive(active: boolean) {
   bulkActing.value = false
   selected.value.clear()
   if (fail_count === 0) {
-    toast.success(`${ok_count} ta yangilandi`)
+    toast.success(t('admin_users.toast_bulk_updated', { n: ok_count }))
   } else {
-    toast.warning(`${ok_count} ta yangilandi, ${fail_count} xato`)
+    toast.warning(t('admin_users.toast_bulk_partial', { ok: ok_count, fail: fail_count }))
   }
   await load()
 }
 </script>
 
 <template>
-  <UiBreadcrumb :items="['Admin', 'Boshqaruv', 'Foydalanuvchilar']" class="mb-6" />
+  <UiBreadcrumb :items="['Admin', t('admin_nav.management'), t('admin_nav.users')]" class="mb-6" />
   <!-- Page header -->
   <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
     <div>
-      <h1 class="page-title mb-1.5">Foydalanuvchilar</h1>
-      <p class="page-subtitle">
-        Tizim foydalanuvchilarini boshqarish — yaratish, tahrirlash, rollar biriktirish.
-      </p>
+      <h1 class="page-title mb-1.5">{{ t('admin_nav.users') }}</h1>
+      <p class="page-subtitle">{{ t('admin_users.subtitle') }}</p>
     </div>
     <UiButton v-permission="'users.manage'" @click="openCreate">
       <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2"
         stroke-linecap="round" stroke-linejoin="round">
         <path d="M7 2v10M2 7h10" />
       </svg>
-      Yangi foydalanuvchi
+      {{ t('admin_users.new_user') }}
     </UiButton>
   </div>
 
   <!-- Filters -->
   <UiCard class="mb-4" no-padding>
     <div class="grid grid-cols-1 md:grid-cols-[1fr_200px_180px] gap-3 p-4">
-      <UiInput v-model="q" type="search" placeholder="Email, ism yoki telefon bo'yicha qidirish..." />
+      <UiInput v-model="q" type="search" :placeholder="t('admin_users.search_placeholder')" />
       <UiSelect
         v-model="roleFilter"
         :options="roleOptions"
-        placeholder="Hamma rollar"
+        :placeholder="t('admin_users.filter_all_roles')"
       />
       <UiSelect
         v-model="statusFilter"
         :options="statusOptions"
-        placeholder="Hamma statuslar"
+        :placeholder="t('admin_users.filter_all_statuses')"
       />
     </div>
   </UiCard>
@@ -244,7 +244,7 @@ async function bulkSetActive(active: boolean) {
         :loading="bulkActing"
         @click="bulkSetActive(true)"
       >
-        Faollashtirish
+        {{ t('admin_users.bulk_activate') }}
       </UiButton>
       <UiButton
         v-permission="'users.manage'"
@@ -253,7 +253,7 @@ async function bulkSetActive(active: boolean) {
         :loading="bulkActing"
         @click="bulkSetActive(false)"
       >
-        Faolsizlantirish
+        {{ t('admin_users.bulk_deactivate') }}
       </UiButton>
       <UiButton variant="ghost" size="sm" @click="selected.clear()">
         ✕
@@ -275,20 +275,20 @@ async function bulkSetActive(active: boolean) {
               />
             </th>
             <th scope="col" class="text-left px-4 py-3 mono-tag">ID</th>
-            <th scope="col" class="text-left px-4 py-3 mono-tag">Foydalanuvchi</th>
-            <th scope="col" class="text-left px-4 py-3 mono-tag">Rollar</th>
-            <th scope="col" class="text-left px-4 py-3 mono-tag">Status</th>
-            <th scope="col" class="text-left px-4 py-3 mono-tag">Oxirgi kirish</th>
-            <th scope="col" class="px-4 py-3"></th>
+            <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_users.col_user') }}</th>
+            <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_users.col_roles') }}</th>
+            <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_users.col_status') }}</th>
+            <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_users.col_last_login') }}</th>
+            <th scope="col" class="px-4 py-3"><span class="sr-only">{{ t('admin_users.col_actions') }}</span></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-border">
           <tr v-if="store.loading && store.list.items.length === 0">
-            <td colspan="7" class="text-center py-12 text-muted-foreground">Yuklanmoqda...</td>
+            <td colspan="7" class="text-center py-12 text-muted-foreground">{{ t('admin_users.loading') }}</td>
           </tr>
           <tr v-else-if="store.list.items.length === 0">
             <td colspan="7" class="text-center py-12 text-muted-foreground">
-              Hech narsa topilmadi
+              {{ t('admin_users.no_results') }}
             </td>
           </tr>
           <tr
@@ -314,17 +314,17 @@ async function bulkSetActive(active: boolean) {
               <div class="flex flex-wrap gap-1">
                 <UiBadge v-for="r in u.roles" :key="r" variant="info">{{ r }}</UiBadge>
                 <span v-if="u.roles.length === 0" class="text-[11px] text-muted-foreground italic">
-                  rolsiz
+                  {{ t('admin_users.role_none') }}
                 </span>
               </div>
             </td>
             <td class="px-4 py-3">
               <div class="flex flex-col gap-1">
                 <UiBadge :variant="u.is_active ? 'success' : 'default'" with-dot>
-                  {{ u.is_active ? 'Faol' : 'Faolsiz' }}
+                  {{ u.is_active ? t('admin_users.badge_active') : t('admin_users.badge_inactive') }}
                 </UiBadge>
-                <UiBadge v-if="u.is_verified" variant="success" with-dot>Tasdiqlangan</UiBadge>
-                <UiBadge v-if="u.is_2fa_enabled" variant="info" with-dot>2FA</UiBadge>
+                <UiBadge v-if="u.is_verified" variant="success" with-dot>{{ t('admin_users.badge_verified') }}</UiBadge>
+                <UiBadge v-if="u.is_2fa_enabled" variant="info" with-dot>{{ t('admin_users.badge_2fa') }}</UiBadge>
               </div>
             </td>
             <td class="px-4 py-3 font-mono text-[12px] text-muted-foreground">
@@ -338,7 +338,7 @@ async function bulkSetActive(active: boolean) {
                 class="mr-1"
                 @click="openEdit(u)"
               >
-                Tahrir
+                {{ t('admin_users.action_edit') }}
               </UiButton>
               <UiButton
                 v-permission="'users.manage'"
@@ -347,7 +347,7 @@ async function bulkSetActive(active: boolean) {
                 class="mr-1"
                 @click="handleToggleActive(u)"
               >
-                {{ u.is_active ? 'Faolsizlash' : "Faollashtirish" }}
+                {{ u.is_active ? t('admin_users.action_deactivate') : t('admin_users.action_activate') }}
               </UiButton>
               <UiButton
                 v-permission="'users.manage'"
@@ -356,7 +356,7 @@ async function bulkSetActive(active: boolean) {
                 class="text-danger-600"
                 @click="handleDelete(u)"
               >
-                O'chirish
+                {{ t('admin_users.action_delete') }}
               </UiButton>
             </td>
           </tr>
@@ -369,8 +369,8 @@ async function bulkSetActive(active: boolean) {
       class="flex items-center justify-between px-4 py-3 border-t border-border text-[12px] text-muted-foreground"
     >
       <div>
-        Jami: <span class="font-mono text-foreground">{{ store.list.total }}</span> ·
-        Sahifa
+        {{ t('admin_users.page_total') }}: <span class="font-mono text-foreground">{{ store.list.total }}</span> ·
+        {{ t('admin_users.page_label') }}
         <span class="font-mono text-foreground">{{ page }}</span> /
         <span class="font-mono">{{ totalPages }}</span>
       </div>
@@ -381,7 +381,7 @@ async function bulkSetActive(active: boolean) {
           :disabled="page <= 1 || store.loading"
           @click="page--"
         >
-          ← Oldin
+          ← {{ t('admin_users.page_prev') }}
         </UiButton>
         <UiButton
           variant="outline"
@@ -389,7 +389,7 @@ async function bulkSetActive(active: boolean) {
           :disabled="page >= totalPages || store.loading"
           @click="page++"
         >
-          Keyingi →
+          {{ t('admin_users.page_next') }} →
         </UiButton>
       </div>
     </div>
