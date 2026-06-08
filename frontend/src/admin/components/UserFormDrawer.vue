@@ -182,7 +182,7 @@ async function handleSubmit() {
               @change="toggleRole(r.code)"
               class="w-3.5 h-3.5 accent-foreground"
             />
-            <span class="font-mono text-[12px]">{{ r.code }}</span>
+            <span class="truncate">{{ r.name }}</span>
           </label>
         </div>
       </div>

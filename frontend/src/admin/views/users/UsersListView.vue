@@ -36,8 +36,16 @@ const statusOptions = computed(() => [
 ])
 
 const roleOptions = computed(() =>
-  store.roles.map((r) => ({ value: r.code, label: `${r.code} — ${r.name}` })),
+  store.roles.map((r) => ({ value: r.code, label: r.name })),
 )
+
+// Rol code -> do'stona nom (masalan "super_admin" -> "Administrator")
+const roleNameMap = computed<Record<string, string>>(() =>
+  Object.fromEntries(store.roles.map((r) => [r.code, r.name])),
+)
+function roleName(code: string): string {
+  return roleNameMap.value[code] ?? code
+}
 
 async function load() {
   await store.fetchList({
@@ -312,7 +320,7 @@ async function bulkSetActive(active: boolean) {
             </td>
             <td class="px-4 py-3">
               <div class="flex flex-wrap gap-1">
-                <UiBadge v-for="r in u.roles" :key="r" variant="info">{{ r }}</UiBadge>
+                <UiBadge v-for="r in u.roles" :key="r" variant="info">{{ roleName(r) }}</UiBadge>
                 <span v-if="u.roles.length === 0" class="text-[11px] text-muted-foreground italic">
                   {{ t('admin_users.role_none') }}
                 </span>
