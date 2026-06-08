@@ -7,6 +7,7 @@ import { useI18n } from 'vue-i18n'
 
 import UiAlert from '@shared/components/ui/UiAlert.vue'
 import UiBreadcrumb from '@shared/components/ui/UiBreadcrumb.vue'
+import UiBadge from '@shared/components/ui/UiBadge.vue'
 import UiCard from '@shared/components/ui/UiCard.vue'
 import UiStatCard from '@shared/components/ui/UiStatCard.vue'
 import UiProgressRing from '@shared/components/ui/UiProgressRing.vue'
@@ -193,5 +194,61 @@ const enrollBars = computed(() => {
         </div>
       </UiCard>
     </div>
+
+    <!-- Kurslar bo'yicha breakdown -->
+    <h2 class="text-[14px] font-semibold uppercase tracking-wider text-muted-foreground mt-6 mb-2">
+      {{ t('statistics.per_course_title') }}
+    </h2>
+    <UiCard no-padding>
+      <div class="overflow-x-auto">
+        <table class="w-full text-[13px]">
+          <thead>
+            <tr class="bg-muted">
+              <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+                {{ t('my_courses.col_course') }}
+              </th>
+              <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+                {{ t('my_courses.col_students') }}
+              </th>
+              <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground w-[240px]">
+                {{ t('statistics.kpi_completion') }}
+              </th>
+              <th scope="col" class="text-left px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-muted-foreground">
+                {{ t('statistics.kpi_avg_grade') }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="c in data.per_course"
+              :key="c.course_id"
+              class="border-t border-border hover:bg-muted/30"
+            >
+              <td class="px-4 py-3 align-top">
+                <div class="font-medium truncate">{{ c.title }}</div>
+                <UiBadge
+                  :variant="c.status === 'published' ? 'success' : c.status === 'archived' ? 'warning' : 'default'"
+                  class="mt-1"
+                >
+                  {{ t(`courses.status_${c.status}`) }}
+                </UiBadge>
+              </td>
+              <td class="px-4 py-3 align-top font-mono tabular-nums">{{ c.student_count }}</td>
+              <td class="px-4 py-3 align-top">
+                <div class="flex items-center gap-2">
+                  <UiProgressBar :value="Math.round(c.completion_rate)" size="sm" />
+                  <span class="font-mono text-[11px] text-muted-foreground shrink-0 tabular-nums w-9 text-right">
+                    {{ Math.round(c.completion_rate) }}%
+                  </span>
+                </div>
+              </td>
+              <td class="px-4 py-3 align-top font-mono tabular-nums">
+                {{ c.avg_grade !== null ? c.avg_grade.toFixed(1) : '—' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </UiCard>
   </template>
 </template>

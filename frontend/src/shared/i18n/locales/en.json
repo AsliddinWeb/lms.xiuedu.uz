@@ -2186,6 +2186,7 @@
     "exam_attempts": "{n} attempts",
     "live_sessions": "Live classes",
     "no_grades": "No graded courses yet",
-    "no_data": "No data"
+    "no_data": "No data",
+    "per_course_title": "By course"
   }
 }

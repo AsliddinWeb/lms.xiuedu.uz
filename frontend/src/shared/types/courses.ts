@@ -172,6 +172,16 @@ export interface EnrollmentPoint {
   count: number
 }
 
+export interface PerCourseStat {
+  course_id: number
+  title: string
+  status: CourseStatus
+  student_count: number
+  completed_count: number
+  completion_rate: number
+  avg_grade: number | null
+}
+
 export interface TeacherAnalytics {
   total_courses: number
   published_courses: number
@@ -186,6 +196,7 @@ export interface TeacherAnalytics {
   exam_attempts: number
   exam_pass_rate: number | null
   live_sessions_count: number
+  per_course: PerCourseStat[]
 }
 
 export interface LessonProgress {

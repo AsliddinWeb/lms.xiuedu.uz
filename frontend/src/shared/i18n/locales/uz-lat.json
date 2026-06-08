@@ -2186,6 +2186,7 @@
     "exam_attempts": "{n} ta urinish",
     "live_sessions": "Jonli darslar",
     "no_grades": "Hali baholangan kurs yo‘q",
-    "no_data": "Ma‘lumot yo‘q"
+    "no_data": "Ma‘lumot yo‘q",
+    "per_course_title": "Kurslar bo‘yicha"
   }
 }

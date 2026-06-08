@@ -298,6 +298,16 @@ class EnrollmentPoint(BaseModel):
     count: int
 
 
+class PerCourseStat(BaseModel):
+    course_id: int
+    title: str
+    status: str
+    student_count: int
+    completed_count: int
+    completion_rate: float
+    avg_grade: float | None
+
+
 class TeacherAnalytics(BaseModel):
     total_courses: int
     published_courses: int
@@ -312,6 +322,7 @@ class TeacherAnalytics(BaseModel):
     exam_attempts: int
     exam_pass_rate: float | None
     live_sessions_count: int
+    per_course: list[PerCourseStat]
 
 
 # ============================================================================

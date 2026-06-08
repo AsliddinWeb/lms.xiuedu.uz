@@ -2186,6 +2186,7 @@
     "exam_attempts": "{n} попыток",
     "live_sessions": "Онлайн-уроки",
     "no_grades": "Пока нет оценённых курсов",
-    "no_data": "Нет данных"
+    "no_data": "Нет данных",
+    "per_course_title": "По курсам"
   }
 }

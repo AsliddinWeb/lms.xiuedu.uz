@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import and_, case, distinct, func, select
+from sqlalchemy import and_, case, desc, distinct, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -194,6 +194,46 @@ async def get_teacher_analytics(db: AsyncSession, teacher_id: int) -> dict:
         round(exam_passed / exam_attempts * 100, 1) if exam_attempts else None
     )
 
+    # --- Per-kurs breakdown (talaba/tugatish/baho) ---
+    pc_rows = (
+        await db.execute(
+            select(
+                Course.id,
+                Course.title,
+                Course.status,
+                func.count(Enrollment.id),
+                func.coalesce(
+                    func.sum(
+                        case((Enrollment.completion_status == "completed", 1), else_=0)
+                    ),
+                    0,
+                ),
+                func.avg(Enrollment.final_grade),
+            )
+            .select_from(Course)
+            .outerjoin(Enrollment, Enrollment.course_id == Course.id)
+            .where(
+                Course.primary_author_id == teacher_id, Course.deleted_at.is_(None)
+            )
+            .group_by(Course.id, Course.title, Course.status)
+            .order_by(desc(func.count(Enrollment.id)), Course.title)
+        )
+    ).all()
+    per_course = []
+    for cid, title, cstatus, scount, ccount, cavg in pc_rows:
+        scount = int(scount)
+        per_course.append(
+            {
+                "course_id": cid,
+                "title": title,
+                "status": cstatus,
+                "student_count": scount,
+                "completed_count": int(ccount),
+                "completion_rate": round(int(ccount) / scount * 100, 1) if scount else 0.0,
+                "avg_grade": float(cavg) if cavg is not None else None,
+            }
+        )
+
     # --- Live sessiyalar ---
     from app.modules.live.models import LiveSession
 
@@ -231,4 +271,5 @@ async def get_teacher_analytics(db: AsyncSession, teacher_id: int) -> dict:
         "exam_attempts": exam_attempts,
         "exam_pass_rate": exam_pass_rate,
         "live_sessions_count": live_sessions_count,
+        "per_course": per_course,
     }
