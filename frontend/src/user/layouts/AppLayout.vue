@@ -16,7 +16,7 @@ import { assignmentsApi } from '@shared/api/assignments'
 import { certificatesApi } from '@shared/api/certificates'
 import { chatApi } from '@shared/api/chat'
 import { useChatSocket } from '@user/composables/useChatSocket'
-import { coursesApi } from '@shared/api/courses'
+import { coursesApi, enrollmentsApi } from '@shared/api/courses'
 import { examsApi } from '@shared/api/exams'
 import { gamificationApi } from '@shared/api/gamification'
 import { liveSessionsApi } from '@shared/api/live'
@@ -50,6 +50,7 @@ const counts = ref({
   certificates: 0,
   badges: 0,
   chatUnread: 0,
+  students: 0,
 })
 
 async function loadSidebarCounts() {
@@ -108,6 +109,14 @@ async function loadSidebarCounts() {
             page_size: 1,
           })
           .then((r) => (counts.value.live = r.total))
+          .catch(() => undefined),
+      )
+    }
+    if (auth.hasPermission('enrollment.read')) {
+      tasks.push(
+        enrollmentsApi
+          .myStudents({ page_size: 1 })
+          .then((r) => (counts.value.students = r.total))
           .catch(() => undefined),
       )
     }
@@ -273,7 +282,7 @@ const sections = computed<SidebarSection[]>(() => {
   main.push({
     name: 'students',
     icon: 'students',
-    label: t('nav.students'),
+    label: withCount(t('nav.students'), counts.value.students),
     to: '/app/students',
   })
 
