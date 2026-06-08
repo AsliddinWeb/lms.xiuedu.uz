@@ -1,0 +1,29 @@
+# LiveKit server config — Phase 32 (egress uchun redis + webhook).
+# `--dev` rejimga ekvivalent localhost sozlamalari (node_ip 127.0.0.1).
+# Rollback: docker-compose.yml'da `command: --dev --bind 0.0.0.0` ga qaytarish.
+port: 7880
+bind_addresses:
+  - ""
+
+rtc:
+  tcp_port: 7881
+  udp_port: 7882
+  use_external_ip: false
+  # Localhost dev — brauzer 127.0.0.1 ga ulanadi (mapped portlar orqali)
+  node_ip: 127.0.0.1
+
+# Egress va server holatni redis orqali bo'lishadi (egress uchun MAJBURIY)
+redis:
+  address: redis:6379
+
+keys:
+  devkey: devsecret_at_least_32_characters_long
+
+# Egress holatini backend'ga yuboradi (egress_started / egress_ended ...)
+webhook:
+  api_key: devkey
+  urls:
+    - http://backend:8000/api/v1/webhooks/livekit
+
+logging:
+  level: info

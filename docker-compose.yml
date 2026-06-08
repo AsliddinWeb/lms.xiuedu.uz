@@ -67,7 +67,14 @@ services:
     image: livekit/livekit-server:latest
     container_name: lms_livekit
     restart: unless-stopped
-    command: --dev --bind 0.0.0.0
+    # Phase 32 — egress uchun config fayl (redis + webhook). Rollback uchun:
+    #   command: --dev --bind 0.0.0.0   (va volumes/depends_on'ni olib tashlang)
+    command: --config /etc/livekit.yaml --bind 0.0.0.0
+    volumes:
+      - ./livekit/livekit.yaml:/etc/livekit.yaml:ro
+    depends_on:
+      redis:
+        condition: service_healthy
     ports:
       - "${LIVEKIT_PORT:-7880}:7880"     # WS signaling
       - "${LIVEKIT_TCP_PORT:-7881}:7881" # TCP RTC fallback
