@@ -3,7 +3,7 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { matches } from '@shared/composables/usePermissions'
 import { useAuthStore } from '@shared/stores/auth'
 
-const ADMIN_ROLES = ['super_admin', 'otm_admin', 'dean', 'department_head', 'support']
+const ADMIN_ROLES = ['super_admin', 'dean', 'department_head', 'support']
 
 const routes: RouteRecordRaw[] = [
   {

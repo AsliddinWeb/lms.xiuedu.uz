@@ -112,32 +112,9 @@ PERMISSIONS: list[tuple[str, str, str]] = [
 ROLES: list[dict] = [
     {
         "code": "super_admin",
-        "name": "Super Administrator",
-        "description": "Butun platformani boshqaradi (multi-tenant darajasida)",
+        "name": "Administrator",
+        "description": "Universitetning barcha jarayonlarini boshqaradi (to'liq ruxsat)",
         "permissions": ["platform.*"],
-    },
-    {
-        "code": "otm_admin",
-        "name": "OTM Administratori",
-        "description": "Bitta OTM doirasidagi barcha jarayonlar",
-        "permissions": [
-            "org.read", "org.manage", "org.users.manage",
-            "users.read", "users.manage",
-            "faculty.manage", "faculty.read",
-            "department.read", "department.manage", "department.teachers.manage",
-            "specialty.read", "specialty.manage",
-            "subject.read", "subject.manage",
-            "curriculum.read", "curriculum.manage",
-            "calendar.read", "calendar.manage",
-            "course.read", "course.create", "course.edit", "course.publish",
-            "enrollment.read", "enrollment.manage", "progress.read.all",
-            "content.read", "content.create", "content.publish",
-            "assignment.read", "assignment.manage", "assignment.grade",
-            "rubric.read", "rubric.manage", "appeal.review",
-            "live.read", "live.host",
-            "reports.view", "audit.read.*",
-            "payment.manage",
-        ],
     },
     {
         "code": "dean",
@@ -341,13 +318,6 @@ DEMO_USERS: list[dict] = [
         "password": "Dean!2026",
         "full_name": "Demo Dekan",
         "role": "dean",
-        "is_verified": True,
-    },
-    {
-        "email": "otm-admin@xiuedu.uz",
-        "password": "OtmAdmin!2026",
-        "full_name": "Demo OTM Administrator",
-        "role": "otm_admin",
         "is_verified": True,
     },
     {

@@ -10,7 +10,7 @@ import UiInput from '@shared/components/ui/UiInput.vue'
 import UiAuthLayout from '@shared/components/layout/UiAuthLayout.vue'
 import { useAuthStore } from '@shared/stores/auth'
 
-const ADMIN_ROLES = ['super_admin', 'otm_admin', 'dean', 'department_head', 'support']
+const ADMIN_ROLES = ['super_admin', 'dean', 'department_head', 'support']
 
 const { t } = useI18n()
 const router = useRouter()
