@@ -20,7 +20,7 @@ from __future__ import annotations
 import asyncio
 import secrets
 import tempfile
-from datetime import datetime
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import (
@@ -37,7 +37,7 @@ from fastapi import (
 from fastapi.responses import PlainTextResponse
 from sqlalchemy import select
 
-from app.core.exceptions import ForbiddenError, NotFoundError
+from app.core.exceptions import ConflictError, ForbiddenError, NotFoundError
 from app.core.storage import (
     delete_object,
     get_presigned_url,
@@ -51,6 +51,7 @@ from app.modules.auth.dependencies import (
     require_permission,
 )
 from app.modules.live import captions as captions_service
+from app.modules.live import egress as egress_service
 from app.modules.live import recordings as recordings_service
 from app.modules.live import service
 from app.modules.live.ical import (
@@ -58,7 +59,7 @@ from app.modules.live.ical import (
     make_calendar_token,
     verify_calendar_token,
 )
-from app.modules.live.models import LiveSession
+from app.modules.live.models import LiveRecording, LiveSession
 from app.modules.live.recording import (
     ALLOWED_RECORDING_MIME,
     RECORDING_HARD_MAX_BYTES,
@@ -784,6 +785,105 @@ async def delete_recording(
 ) -> Response:
     await recordings_service.delete_recording(db, recording_id, user_id=user.id)
     await db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+# ============================================================================
+# Server-side recording (LiveKit Egress) — Phase 32
+# ============================================================================
+
+
+@router.post(
+    "/live-sessions/{session_id}/egress/start",
+    response_model=LiveRecordingPublic,
+    summary="Server yozuvini boshlash (egress, host)",
+)
+async def egress_start(
+    session_id: int,
+    db: DbSession,
+    actor: CurrentUser,
+    redis: RedisClient,
+    _u: User = Depends(require_permission("live.host")),
+) -> LiveRecordingPublic:
+    if not await _user_can_manage_session(db, redis, actor, session_id):
+        raise ForbiddenError("Yozuvni boshlash huquqi yo'q")
+    session = await service.get_session(db, session_id)
+    if session.status != "live":
+        raise ConflictError("Faqat jonli sessiyani yozish mumkin")
+    # Allaqachon faol egress yozuvi bormi?
+    existing = (
+        await db.execute(
+            select(LiveRecording).where(
+                LiveRecording.session_id == session_id,
+                LiveRecording.status == "recording",
+                LiveRecording.egress_id.isnot(None),
+            )
+        )
+    ).scalar_one_or_none()
+    if existing is not None:
+        return _sign_recording(
+            LiveRecordingPublic.model_validate(existing), existing.object_key
+        )
+
+    object_key = f"recordings/{session_id}/egress-{secrets.token_hex(6)}.mp4"
+    room = session.provider_meeting_id or service.get_provider(
+        session.provider
+    ).make_room_name(session.id)
+    try:
+        egress_id = await egress_service.start_room_composite(room, object_key)
+    except Exception as exc:  # noqa: BLE001 — twirp xatolari (xona faol emas, ...)
+        raise ConflictError(
+            "Server yozuvini boshlab bo'lmadi — xonada faol ishtirokchi yo'q "
+            "yoki egress xizmati mavjud emas. Avval darsni boshlang."
+        ) from exc
+
+    rec = LiveRecording(
+        session_id=session_id,
+        recorded_by=actor.id,
+        status="recording",
+        object_key=object_key,
+        egress_id=egress_id,
+        mime_type="video/mp4",
+        started_at=datetime.now(UTC),
+    )
+    db.add(rec)
+    await db.commit()
+    await db.refresh(rec)
+    return _sign_recording(LiveRecordingPublic.model_validate(rec), rec.object_key)
+
+
+@router.post(
+    "/live-sessions/{session_id}/egress/stop",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Server yozuvini to'xtatish (egress, host)",
+)
+async def egress_stop(
+    session_id: int,
+    db: DbSession,
+    actor: CurrentUser,
+    redis: RedisClient,
+    _u: User = Depends(require_permission("live.host")),
+) -> Response:
+    if not await _user_can_manage_session(db, redis, actor, session_id):
+        raise ForbiddenError("Yozuvni to'xtatish huquqi yo'q")
+    rec = (
+        await db.execute(
+            select(LiveRecording)
+            .where(
+                LiveRecording.session_id == session_id,
+                LiveRecording.status == "recording",
+                LiveRecording.egress_id.isnot(None),
+            )
+            .order_by(LiveRecording.started_at.desc())
+        )
+    ).scalars().first()
+    if rec is not None and rec.egress_id:
+        try:
+            await egress_service.stop(rec.egress_id)
+        except Exception:  # noqa: BLE001 — webhook baribir finalize qiladi
+            pass
+        rec.status = "stopping"
+        await db.commit()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 

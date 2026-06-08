@@ -250,6 +250,8 @@ class LiveRecording(Base, IDMixin, TimestampMixin):
     object_key: Mapped[str | None] = mapped_column(String(500), nullable=True)
     url: Mapped[str | None] = mapped_column(Text, nullable=True)
     mime_type: Mapped[str] = mapped_column(String(60), nullable=False, default="video/webm")
+    # Phase 32 — server-side (egress) yozuv id'si (webhook mapping uchun)
+    egress_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
     started_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False
     )
