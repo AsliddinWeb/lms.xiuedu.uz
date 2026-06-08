@@ -2188,5 +2188,16 @@
     "no_grades": "Hali baholangan kurs yo‘q",
     "no_data": "Ma‘lumot yo‘q",
     "per_course_title": "Kurslar bo‘yicha"
+  },
+  "reports": {
+    "subtitle": "Kurslar, talabalar va umumiy ko'rsatkichlarni CSV yoki PDF ko'rinishida yuklab oling",
+    "download": "Yuklab olish",
+    "download_error": "Hisobotni yuklab bo'lmadi",
+    "courses_title": "Kurslar hisoboti",
+    "courses_desc": "Har bir kurs bo'yicha talabalar soni, tugatganlar, tugatish foizi va o'rtacha baho.",
+    "students_title": "Talabalar hisoboti",
+    "students_desc": "Barcha talabalaringiz: guruh, kurslar soni, tugatgan kurslar va o'rtacha baho.",
+    "summary_title": "Umumiy xulosa",
+    "summary_desc": "Brendlangan PDF: asosiy ko'rsatkichlar, baho taqsimoti va kurslar jadvali."
   }
 }

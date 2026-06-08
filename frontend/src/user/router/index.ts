@@ -123,6 +123,13 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@user/views/statistics/StatisticsView.vue'),
         meta: { requiresPermission: 'course.create' },
       },
+      // Pedagog — Hisobotlar (CSV / PDF eksport)
+      {
+        path: 'reports',
+        name: 'teacher-reports',
+        component: () => import('@user/views/reports/ReportsView.vue'),
+        meta: { requiresPermission: 'course.create' },
+      },
       {
         path: 'grading',
         name: 'grading-inbox',

@@ -2188,5 +2188,16 @@
     "no_grades": "No graded courses yet",
     "no_data": "No data",
     "per_course_title": "By course"
+  },
+  "reports": {
+    "subtitle": "Download reports on courses, students and overall metrics as CSV or PDF",
+    "download": "Download",
+    "download_error": "Failed to download the report",
+    "courses_title": "Courses report",
+    "courses_desc": "Per course: student count, completions, completion rate and average grade.",
+    "students_title": "Students report",
+    "students_desc": "All your students: group, number of courses, completed courses and average grade.",
+    "summary_title": "Summary report",
+    "summary_desc": "Branded PDF: key metrics, grade distribution and per-course table."
   }
 }

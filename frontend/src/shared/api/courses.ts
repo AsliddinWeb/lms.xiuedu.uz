@@ -166,6 +166,27 @@ export const analyticsApi = {
   },
 }
 
+export const reportsApi = {
+  async coursesCsv(): Promise<Blob> {
+    const { data } = await apiClient.get<Blob>('/me/reports/courses.csv', {
+      responseType: 'blob',
+    })
+    return data
+  },
+  async studentsCsv(): Promise<Blob> {
+    const { data } = await apiClient.get<Blob>('/me/reports/students.csv', {
+      responseType: 'blob',
+    })
+    return data
+  },
+  async summaryPdf(): Promise<Blob> {
+    const { data } = await apiClient.get<Blob>('/me/reports/summary.pdf', {
+      responseType: 'blob',
+    })
+    return data
+  },
+}
+
 export const progressApi = {
   async myCourseProgress(courseId: number): Promise<CourseProgress> {
     return (await apiClient.get<CourseProgress>(`/courses/${courseId}/my-progress`)).data
