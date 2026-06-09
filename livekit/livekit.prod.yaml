@@ -19,9 +19,9 @@ rtc:
   # Tashqi IP'ni STUN orqali avtomatik aniqlaydi va shuni mijozlarga e'lon qiladi
   use_external_ip: true
 
-# Egress va server holatini redis orqali bo'lishadi
-redis:
-  address: redis:6379
+# Eslatma: redis ataylab YO'Q. Bitta livekit node'i uchun redis kerak emas;
+# u faqat ko'p-node klaster yoki egress (server yozuvi) uchun. Prod redis parol
+# talab qiladi (NOAUTH) — egress qo'shilganda redis'ni parol bilan qo'shamiz.
 
 logging:
   level: info
