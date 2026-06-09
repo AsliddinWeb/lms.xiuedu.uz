@@ -20,8 +20,13 @@ ENV_FILE=".env.production"
 log "1/4 — Image'larni qayta build qilish..."
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" build --pull
 
-log "2/4 — Alembic migration (backend ishlamoqda)..."
-docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" exec -T backend alembic upgrade head || {
+log "2/4 — Alembic migration (yangi build qilingan image bilan)..."
+# MUHIM: kod image'ga bake qilingan (prod'da source volume yo'q). Shu sababli
+# migration'ni ESKI ishlab turgan container'da `exec` qilish yangi migration'ni
+# KO'RMAYDI. Yangi image'dan bir martalik `run --rm` container ishga tushiramiz —
+# bu yangi migration fayllarni ko'radi va eski backend hali ishlab turibdi
+# (zero-downtime: schema avval ko'chadi, keyin step 3 da yangi kod ishga tushadi).
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" run --rm --no-deps backend alembic upgrade head || {
   err "Migration xato. Eski versiyada qoldik."
 }
 
