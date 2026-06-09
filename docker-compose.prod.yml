@@ -74,7 +74,11 @@ services:
     image: livekit/livekit-server:latest
     container_name: lms_livekit
     restart: always
-    command: --dev --bind 0.0.0.0
+    # PROD: --dev EMAS. Config orqali use_external_ip:true -> media tashqi IP'da.
+    # Kalitlar LIVEKIT_KEYS env orqali config ustiga qo'shiladi.
+    command: --config /etc/livekit/livekit.yaml
+    volumes:
+      - ./livekit/livekit.prod.yaml:/etc/livekit/livekit.yaml:ro
     ports:
       - "${LIVEKIT_PORT:-7880}:7880"
       - "${LIVEKIT_TCP_PORT:-7881}:7881"

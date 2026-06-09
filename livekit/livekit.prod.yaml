@@ -1,0 +1,27 @@
+# LiveKit — PRODUCTION config.
+#
+# Muhim: --dev rejim node_ip=127.0.0.1 e'lon qiladi -> masofaviy brauzer media
+# o'rnata olmaydi ("could not establish pc connection"). Prod'da LiveKit o'zining
+# TASHQI (public) IP'sini e'lon qilishi shart.
+#
+# Kalitlar compose'dan `LIVEKIT_KEYS` env orqali keladi (bu yerda hardcode emas).
+#
+# TALAB: serverda UDP 7882 (media) va TCP 7881 (ICE-TCP fallback) tashqaridan
+# ochiq bo'lishi kerak (cloud security group + ufw). Signal (7880) proxy orqali
+# wss://lms-api.xiuedu.uz/livekit ... bilan keladi.
+port: 7880
+bind_addresses:
+  - ""
+
+rtc:
+  tcp_port: 7881
+  udp_port: 7882
+  # Tashqi IP'ni STUN orqali avtomatik aniqlaydi va shuni mijozlarga e'lon qiladi
+  use_external_ip: true
+
+# Egress va server holatini redis orqali bo'lishadi
+redis:
+  address: redis:6379
+
+logging:
+  level: info
