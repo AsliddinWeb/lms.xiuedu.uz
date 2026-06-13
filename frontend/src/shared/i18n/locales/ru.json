@@ -1562,7 +1562,9 @@
     "field_logo_url": "Logo URL",
     "field_hemis_base_url": "HEMIS API URL",
     "hemis_description": "Base URL для аутентификации студентов через HEMIS SSO.",
-    "hemis_hint": "Пусто — используется HEMIS_API_URL из env"
+    "hemis_hint": "Пусто — используется HEMIS_API_URL из env",
+    "not_found": "Организация XIU не найдена — сначала запустите seed",
+    "saved": "Сохранено"
   },
   "admin_dashboard": {
     "title": "Панель управления",

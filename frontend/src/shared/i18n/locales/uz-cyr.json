@@ -1562,7 +1562,9 @@
     "field_logo_url": "Logo URL",
     "field_hemis_base_url": "HEMIS API URL",
     "hemis_description": "HEMIS SSO орқали талаба аутентификацияси учун base URL.",
-    "hemis_hint": "Бўш қолдирилса env'даги HEMIS_API_URL ишлатилади"
+    "hemis_hint": "Бўш қолдирилса env'даги HEMIS_API_URL ишлатилади",
+    "not_found": "XIU ташкилоти топилмади — аввал seed ишга туширинг",
+    "saved": "Сақланди"
   },
   "admin_dashboard": {
     "title": "Бошқарув панели",

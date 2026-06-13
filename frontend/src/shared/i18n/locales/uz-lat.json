@@ -1562,7 +1562,9 @@
     "field_logo_url": "Logo URL",
     "field_hemis_base_url": "HEMIS API URL",
     "hemis_description": "HEMIS SSO orqali talaba autentifikatsiyasi uchun base URL.",
-    "hemis_hint": "Bo'sh qoldirilsa env'dagi HEMIS_API_URL ishlatiladi"
+    "hemis_hint": "Bo'sh qoldirilsa env'dagi HEMIS_API_URL ishlatiladi",
+    "not_found": "XIU tashkiloti topilmadi — avval seed ishga tushiring",
+    "saved": "Saqlandi"
   },
   "admin_dashboard": {
     "title": "Boshqaruv paneli",

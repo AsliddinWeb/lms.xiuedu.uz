@@ -39,7 +39,7 @@ async function load() {
     const list = await orgsApi.list('XIU')
     const found = list.find((o) => o.code === 'XIU') ?? list[0]
     if (!found) {
-      error.value = 'XIU organization not found — run seed first'
+      error.value = t('university.not_found')
       return
     }
     xiu.value = found
@@ -83,7 +83,7 @@ async function save() {
       logo_url: logoUrl.value.trim() || null,
       settings: newSettings,
     })
-    successMsg.value = t('common.save') + ' ✓'
+    successMsg.value = t('university.saved') + ' ✓'
   } catch (e) {
     error.value = extractErrorMessage(e, t('common.save_error'))
   } finally {
@@ -97,7 +97,7 @@ onMounted(load)
 <template>
   <div class="mb-6 flex items-end justify-between gap-6">
     <div>
-      <UiBreadcrumb :items="['Admin', 'Akademik', t('university.title')]" class="mb-6" />
+      <UiBreadcrumb :items="['Admin', t('admin_nav.management'), t('university.title')]" class="mb-6" />
       <h1 class="page-title mb-1.5">{{ t('university.title') }}</h1>
       <p class="page-subtitle">{{ t('university.subtitle') }}</p>
     </div>
