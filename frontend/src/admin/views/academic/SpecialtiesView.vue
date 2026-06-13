@@ -82,6 +82,7 @@ watch([depFilter, levelFilter, distanceFilter], () => {
   page.value = 1
   void load()
 })
+watch(page, load)
 
 onMounted(async () => {
   const deps = await departmentsApi.list({ page_size: 200 })
