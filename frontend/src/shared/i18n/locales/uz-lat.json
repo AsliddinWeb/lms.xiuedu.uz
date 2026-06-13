@@ -954,7 +954,20 @@
     "department_edit": "Kafedra tahrirlash",
     "department_no_faculty": "Fakultet tanlanmagan",
     "col_head": "Mudir",
-    "department_head_none": "Mudir tanlanmagan"
+    "department_head_none": "Mudir tanlanmagan",
+    "level_bachelor": "Bakalavr",
+    "level_master": "Magistr",
+    "level_phd": "PhD",
+    "form_fulltime": "Kunduzgi",
+    "form_parttime": "Sirtqi",
+    "form_evening": "Kechki",
+    "form_distance": "Masofaviy",
+    "lang_uz_lat": "O'zbek (lotin)",
+    "lang_uz_cyr": "O'zbek (kirill)",
+    "lang_ru": "Rus",
+    "lang_en": "Ingliz",
+    "years_short": "yil",
+    "spec_distance_only": "Faqat masofaviy"
   },
   "admin_users": {
     "subtitle": "Tizim foydalanuvchilarini boshqarish — yaratish, tahrirlash, rollar biriktirish.",

@@ -954,7 +954,20 @@
     "department_edit": "Edit department",
     "department_no_faculty": "No faculty selected",
     "col_head": "Head",
-    "department_head_none": "No head selected"
+    "department_head_none": "No head selected",
+    "level_bachelor": "Bachelor",
+    "level_master": "Master",
+    "level_phd": "PhD",
+    "form_fulltime": "Full-time",
+    "form_parttime": "Part-time",
+    "form_evening": "Evening",
+    "form_distance": "Distance",
+    "lang_uz_lat": "Uzbek (Latin)",
+    "lang_uz_cyr": "Uzbek (Cyrillic)",
+    "lang_ru": "Russian",
+    "lang_en": "English",
+    "years_short": "yr",
+    "spec_distance_only": "Distance only"
   },
   "admin_users": {
     "subtitle": "Manage system users — create, edit, assign roles.",

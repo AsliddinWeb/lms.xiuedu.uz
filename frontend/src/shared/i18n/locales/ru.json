@@ -954,7 +954,20 @@
     "department_edit": "Редактировать кафедру",
     "department_no_faculty": "Факультет не выбран",
     "col_head": "Завкафедрой",
-    "department_head_none": "Завкафедрой не выбран"
+    "department_head_none": "Завкафедрой не выбран",
+    "level_bachelor": "Бакалавр",
+    "level_master": "Магистр",
+    "level_phd": "PhD",
+    "form_fulltime": "Очная",
+    "form_parttime": "Заочная",
+    "form_evening": "Вечерняя",
+    "form_distance": "Дистанционная",
+    "lang_uz_lat": "Узбекский (лат.)",
+    "lang_uz_cyr": "Узбекский (кир.)",
+    "lang_ru": "Русский",
+    "lang_en": "Английский",
+    "years_short": "г.",
+    "spec_distance_only": "Только дистанционные"
   },
   "admin_users": {
     "subtitle": "Управление пользователями системы — создание, редактирование, назначение ролей.",

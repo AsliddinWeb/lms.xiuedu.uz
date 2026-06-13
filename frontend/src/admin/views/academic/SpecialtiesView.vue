@@ -39,15 +39,35 @@ const editing = ref<Specialty | null>(null)
 const depOptions = computed(() =>
   departments.value.map((d) => ({ value: d.id, label: `${d.code} — ${d.name}` })),
 )
-const levelOptions = [
-  { value: 'bachelor', label: 'Bakalavr' },
-  { value: 'master', label: 'Magistr' },
-  { value: 'phd', label: 'PhD' },
-]
-const distanceOptions = [
-  { value: 'true', label: 'Faqat masofaviy' },
-  { value: 'false', label: 'Hammasi' },
-]
+// Enum -> i18n kalit xaritalari (jadval + filtrlar uchun)
+const LEVEL_KEY: Record<string, string> = {
+  bachelor: 'level_bachelor', master: 'level_master', phd: 'level_phd',
+}
+const FORM_KEY: Record<string, string> = {
+  fulltime: 'form_fulltime', parttime: 'form_parttime', evening: 'form_evening', distance: 'form_distance',
+}
+const LANG_KEY: Record<string, string> = {
+  'uz-lat': 'lang_uz_lat', 'uz-cyr': 'lang_uz_cyr', ru: 'lang_ru', en: 'lang_en',
+}
+function levelLabel(v: string): string {
+  return LEVEL_KEY[v] ? t(`admin_academic.${LEVEL_KEY[v]}`) : v
+}
+function formLabel(v: string): string {
+  return FORM_KEY[v] ? t(`admin_academic.${FORM_KEY[v]}`) : v
+}
+function langLabel(v: string): string {
+  return LANG_KEY[v] ? t(`admin_academic.${LANG_KEY[v]}`) : v
+}
+
+const levelOptions = computed(() => [
+  { value: 'bachelor', label: t('admin_academic.level_bachelor') },
+  { value: 'master', label: t('admin_academic.level_master') },
+  { value: 'phd', label: t('admin_academic.level_phd') },
+])
+const distanceOptions = computed(() => [
+  { value: 'true', label: t('admin_academic.spec_distance_only') },
+  { value: 'false', label: t('common.all') },
+])
 
 async function load() {
   loading.value = true
@@ -177,15 +197,15 @@ const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize))
             <td class="px-4 py-3 font-medium">{{ s.name }}</td>
             <td class="px-4 py-3">
               <UiBadge :variant="s.level === 'bachelor' ? 'info' : 'warning'">
-                {{ s.level }}
+                {{ levelLabel(s.level) }}
               </UiBadge>
               <span class="ml-2 font-mono text-[11px] text-muted-foreground">
-                {{ s.duration_years }} yil
+                {{ s.duration_years }} {{ t('admin_academic.years_short') }}
               </span>
             </td>
             <td class="px-4 py-3">
               <span class="font-mono text-[11px] text-muted-foreground">
-                {{ s.education_form }} · {{ s.language }}
+                {{ formLabel(s.education_form) }} · {{ langLabel(s.language) }}
               </span>
             </td>
             <td class="px-4 py-3 font-mono text-[12px] tabular-nums">

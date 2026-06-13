@@ -954,7 +954,20 @@
     "department_edit": "Кафедра таҳрирлаш",
     "department_no_faculty": "Факультет танланмаган",
     "col_head": "Мудир",
-    "department_head_none": "Мудир танланмаган"
+    "department_head_none": "Мудир танланмаган",
+    "level_bachelor": "Бакалавр",
+    "level_master": "Магистр",
+    "level_phd": "PhD",
+    "form_fulltime": "Кундузги",
+    "form_parttime": "Сиртқи",
+    "form_evening": "Кечки",
+    "form_distance": "Масофавий",
+    "lang_uz_lat": "Ўзбек (лотин)",
+    "lang_uz_cyr": "Ўзбек (кирилл)",
+    "lang_ru": "Рус",
+    "lang_en": "Инглиз",
+    "years_short": "йил",
+    "spec_distance_only": "Фақат масофавий"
   },
   "admin_users": {
     "subtitle": "Тизим фойдаланувчиларини бошқариш — яратиш, таҳрирлаш, роллар бириктириш.",
