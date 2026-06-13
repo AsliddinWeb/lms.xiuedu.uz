@@ -993,7 +993,13 @@
     "subject_h_seminar": "Семинар",
     "subject_h_self": "Мустақил иш",
     "subject_prereq_n": "Пре-реквизитлар ({n} танланган)",
-    "subject_no_other": "Бошқа фан йўқ"
+    "subject_no_other": "Бошқа фан йўқ",
+    "curricula_clone_version": "Янги версия номи:",
+    "curricula_clone_date": "Янги амал қилиш санаси (YYYY-MM-DD):",
+    "curricula_approve": "Режани тасдиқлаш?",
+    "curricula_delete": "Режани ўчириш?",
+    "curricula_n_subjects": "{n} та фан",
+    "based_prof": "Касбий стандарт"
   },
   "admin_users": {
     "subtitle": "Тизим фойдаланувчиларини бошқариш — яратиш, таҳрирлаш, роллар бириктириш.",

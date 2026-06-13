@@ -993,7 +993,13 @@
     "subject_h_seminar": "Seminar",
     "subject_h_self": "Self-study",
     "subject_prereq_n": "Prerequisites ({n} selected)",
-    "subject_no_other": "No other subjects"
+    "subject_no_other": "No other subjects",
+    "curricula_clone_version": "New version name:",
+    "curricula_clone_date": "New valid-from date (YYYY-MM-DD):",
+    "curricula_approve": "Approve curriculum?",
+    "curricula_delete": "Delete curriculum?",
+    "curricula_n_subjects": "{n} subjects",
+    "based_prof": "Professional standard"
   },
   "admin_users": {
     "subtitle": "Manage system users — create, edit, assign roles.",

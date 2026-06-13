@@ -993,7 +993,13 @@
     "subject_h_seminar": "Семинар",
     "subject_h_self": "Самост. работа",
     "subject_prereq_n": "Пререквизиты (выбрано: {n})",
-    "subject_no_other": "Других предметов нет"
+    "subject_no_other": "Других предметов нет",
+    "curricula_clone_version": "Название новой версии:",
+    "curricula_clone_date": "Новая дата действия (YYYY-MM-DD):",
+    "curricula_approve": "Утвердить план?",
+    "curricula_delete": "Удалить план?",
+    "curricula_n_subjects": "{n} предметов",
+    "based_prof": "Проф. стандарт"
   },
   "admin_users": {
     "subtitle": "Управление пользователями системы — создание, редактирование, назначение ролей.",

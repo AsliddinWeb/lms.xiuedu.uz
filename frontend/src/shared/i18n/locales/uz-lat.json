@@ -993,7 +993,13 @@
     "subject_h_seminar": "Seminar",
     "subject_h_self": "Mustaqil ish",
     "subject_prereq_n": "Pre-rekvizitlar ({n} tanlangan)",
-    "subject_no_other": "Boshqa fan yo'q"
+    "subject_no_other": "Boshqa fan yo'q",
+    "curricula_clone_version": "Yangi versiya nomi:",
+    "curricula_clone_date": "Yangi amal qilish sanasi (YYYY-MM-DD):",
+    "curricula_approve": "Rejani tasdiqlash?",
+    "curricula_delete": "Rejani o'chirish?",
+    "curricula_n_subjects": "{n} ta fan",
+    "based_prof": "Kasbiy standart"
   },
   "admin_users": {
     "subtitle": "Tizim foydalanuvchilarini boshqarish — yaratish, tahrirlash, rollar biriktirish.",

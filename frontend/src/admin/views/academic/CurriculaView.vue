@@ -58,6 +58,7 @@ watch(spFilter, () => {
   page.value = 1
   void load()
 })
+watch(page, load)
 
 onMounted(async () => {
   const sp = await specialtiesApi.list({ page_size: 200 })
@@ -75,9 +76,9 @@ function openEdit(c: Curriculum) {
 }
 
 async function handleClone(c: Curriculum) {
-  const newVersion = window.prompt('Yangi versiya nomi:', `${c.version || 'v'}.next`)
+  const newVersion = window.prompt(t('admin_academic.curricula_clone_version'), `${c.version || 'v'}.next`)
   if (!newVersion) return
-  const newDate = window.prompt('Yangi valid_from (YYYY-MM-DD):', c.valid_from)
+  const newDate = window.prompt(t('admin_academic.curricula_clone_date'), c.valid_from)
   if (!newDate) return
   await curriculaApi.clone(c.id, newVersion, newDate)
   await load()
@@ -85,7 +86,7 @@ async function handleClone(c: Curriculum) {
 
 async function handleApprove(c: Curriculum) {
   const ok = await confirm({
-    title: 'Rejani tasdiqlash?',
+    title: t('admin_academic.curricula_approve'),
     description: c.name,
     confirmLabel: t('common.confirm'),
     cancelLabel: t('common.cancel'),
@@ -96,13 +97,13 @@ async function handleApprove(c: Curriculum) {
     await load()
     toast.success(t('common.saved'))
   } catch (e) {
-    toast.error(extractErrorMessage(e, 'Saqlashda xato'))
+    toast.error(extractErrorMessage(e, t('common.save_error')))
   }
 }
 
 async function handleDelete(c: Curriculum) {
   const ok = await confirm({
-    title: 'Rejani o\'chirish?',
+    title: t('admin_academic.curricula_delete'),
     description: c.name,
     variant: 'danger',
     confirmLabel: t('common.delete'),
@@ -121,6 +122,11 @@ async function handleDelete(c: Curriculum) {
 function spLabel(spId: number) {
   const s = specialties.value.find((x) => x.id === spId)
   return s ? s.code : `#${spId}`
+}
+function basedOnLabel(v: string | null): string {
+  if (v === 'DTS') return 'DTS'
+  if (v === 'professional_standard') return t('admin_academic.based_prof')
+  return v ?? '—'
 }
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize)))
@@ -176,7 +182,7 @@ const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize))
             <td class="px-4 py-3">
               <div class="font-medium">{{ c.name }}</div>
               <div class="text-[11px] text-muted-foreground">
-                {{ c.subjects.length }} ta fan
+                {{ t('admin_academic.curricula_n_subjects', { n: c.subjects.length }) }}
               </div>
             </td>
             <td class="px-4 py-3 font-mono text-[12px]">{{ spLabel(c.specialty_id) }}</td>
@@ -187,7 +193,7 @@ const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize))
             <td class="px-4 py-3 font-mono text-[12px] tabular-nums">{{ c.total_credits }}</td>
             <td class="px-4 py-3">
               <UiBadge v-if="c.based_on === 'DTS'" variant="info">DTS</UiBadge>
-              <UiBadge v-else-if="c.based_on" variant="default">{{ c.based_on }}</UiBadge>
+              <UiBadge v-else-if="c.based_on" variant="default">{{ basedOnLabel(c.based_on) }}</UiBadge>
               <span v-else class="text-[11px] text-muted-foreground">—</span>
             </td>
             <td class="px-4 py-3">
