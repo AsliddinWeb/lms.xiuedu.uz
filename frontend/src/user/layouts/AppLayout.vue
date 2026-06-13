@@ -172,12 +172,6 @@ onBeforeUnmount(() => {
  * Disabled (Ph.N badge) — kelajak fazalar uchun placeholder.
  * Profile + Security + Logout — topbar dropdown'ida.
  */
-// Count'ni label ichiga inline qo'shadi: "Kurslar (12)"
-function withCount(label: string, n: number): string {
-  if (n > 0) return `${label} (${n})`
-  return label
-}
-
 const sections = computed<SidebarSection[]>(() => {
   if (isStudent.value) {
     const main: SidebarNavItem[] = [
@@ -185,7 +179,8 @@ const sections = computed<SidebarSection[]>(() => {
       {
         name: 'my-learning',
         icon: 'courses',
-        label: withCount(t('nav.courses_student'), counts.value.courses),
+        label: t('nav.courses_student'),
+        badge: counts.value.courses,
         to: '/app/learning',
         match: ['/app/course', '/app/forum'],
       },
@@ -198,7 +193,8 @@ const sections = computed<SidebarSection[]>(() => {
       {
         name: 'assignments',
         icon: 'assignments',
-        label: withCount(t('nav.assignments'), counts.value.assignments),
+        label: t('nav.assignments'),
+        badge: counts.value.assignments,
         to: '/app/assignments',
       },
     ]
@@ -206,7 +202,8 @@ const sections = computed<SidebarSection[]>(() => {
       main.push({
         name: 'my-exams',
         icon: 'exams',
-        label: withCount(t('nav.exams'), counts.value.exams),
+        label: t('nav.exams'),
+        badge: counts.value.exams,
         to: '/app/exams',
       })
     }
@@ -214,7 +211,8 @@ const sections = computed<SidebarSection[]>(() => {
       main.push({
         name: 'live-upcoming',
         icon: 'live',
-        label: withCount(t('nav.live_upcoming'), counts.value.live),
+        label: t('nav.live_upcoming'),
+        badge: counts.value.live,
         to: '/app/live/upcoming',
       })
     }
@@ -232,19 +230,22 @@ const sections = computed<SidebarSection[]>(() => {
       {
         name: 'chat',
         icon: 'messages',
-        label: withCount(t('nav.chat'), counts.value.chatUnread),
+        label: t('nav.chat'),
+        badge: counts.value.chatUnread,
         to: '/app/chat',
       },
       {
         name: 'certificates',
         icon: 'certificates',
-        label: withCount(t('nav.certificates'), counts.value.certificates),
+        label: t('nav.certificates'),
+        badge: counts.value.certificates,
         to: '/app/certificates',
       },
       {
         name: 'achievements',
         icon: 'achievements',
-        label: withCount(t('nav.achievements'), counts.value.badges),
+        label: t('nav.achievements'),
+        badge: counts.value.badges,
         to: '/app/achievements',
       },
     ]
@@ -261,13 +262,15 @@ const sections = computed<SidebarSection[]>(() => {
     {
       name: 'courses',
       icon: 'courses',
-      label: withCount(t('nav.courses'), counts.value.courses),
+      label: t('nav.courses'),
+      badge: counts.value.courses,
       to: '/app/courses',
     },
     {
       name: 'grading',
       icon: 'assignments',
-      label: withCount(t('nav.assignments'), counts.value.assignments),
+      label: t('nav.assignments'),
+      badge: counts.value.assignments,
       to: '/app/grading',
     },
   ]
@@ -275,14 +278,16 @@ const sections = computed<SidebarSection[]>(() => {
     main.push({
       name: 'live-host',
       icon: 'live',
-      label: withCount(t('nav.live_host'), counts.value.live),
+      label: t('nav.live_host'),
+      badge: counts.value.live,
       to: '/app/live',
     })
   }
   main.push({
     name: 'students',
     icon: 'students',
-    label: withCount(t('nav.students'), counts.value.students),
+    label: t('nav.students'),
+    badge: counts.value.students,
     to: '/app/students',
   })
 
