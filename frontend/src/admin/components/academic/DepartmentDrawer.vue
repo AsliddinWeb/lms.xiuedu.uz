@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import UiAlert from '@shared/components/ui/UiAlert.vue'
 import UiButton from '@shared/components/ui/UiButton.vue'
@@ -20,6 +21,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), { department: null })
 const emit = defineEmits<{ close: []; saved: [] }>()
 
+const { t } = useI18n()
 const store = useAcademicStore()
 
 const facultyId = ref<number | null>(null)
@@ -57,7 +59,7 @@ watch(
 async function handleSubmit() {
   errorMsg.value = null
   if (!facultyId.value) {
-    errorMsg.value = 'Fakultet tanlanmagan'
+    errorMsg.value = t('admin_academic.department_no_faculty')
     return
   }
   submitting.value = true
@@ -78,7 +80,7 @@ async function handleSubmit() {
     emit('saved')
     emit('close')
   } catch (e) {
-    errorMsg.value = extractErrorMessage(e, 'Saqlashda xato')
+    errorMsg.value = extractErrorMessage(e, t('common.save_error'))
   } finally {
     submitting.value = false
   }
@@ -86,28 +88,28 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <UiDrawer :open="open" :title="department ? 'Kafedra tahrir' : 'Yangi kafedra'" @close="emit('close')">
+  <UiDrawer :open="open" :title="department ? t('admin_academic.department_edit') : t('admin_academic.departments_new')" @close="emit('close')">
     <UiAlert v-if="errorMsg" variant="danger" class="mb-4">{{ errorMsg }}</UiAlert>
     <form id="dept-form" @submit.prevent="handleSubmit">
-      <UiFormField label="Fakultet" required>
+      <UiFormField :label="t('admin_academic.col_faculty')" required>
         <UiSelect v-model="facultyId" :options="facOptions" :disabled="!!department" />
       </UiFormField>
-      <UiFormField label="Kod" required>
+      <UiFormField :label="t('admin_academic.col_code')" required>
         <UiInput v-model="code" required />
       </UiFormField>
-      <UiFormField label="Nom" required>
+      <UiFormField :label="t('admin_academic.col_name')" required>
         <UiInput v-model="name" required />
       </UiFormField>
       <label class="flex items-center gap-2 mb-4 cursor-pointer">
         <input v-model="isActive" type="checkbox" class="w-3.5 h-3.5 accent-foreground" />
-        <span class="text-[13px]">Faol</span>
+        <span class="text-[13px]">{{ t('common.active') }}</span>
       </label>
     </form>
     <template #footer>
       <div class="flex items-center justify-end gap-2">
-        <UiButton variant="outline" :disabled="submitting" @click="emit('close')">Bekor</UiButton>
+        <UiButton variant="outline" :disabled="submitting" @click="emit('close')">{{ t('common.cancel') }}</UiButton>
         <UiButton type="submit" form="dept-form" :loading="submitting">
-          {{ department ? 'Saqlash' : 'Yaratish' }}
+          {{ department ? t('common.save') : t('common.create') }}
         </UiButton>
       </div>
     </template>
