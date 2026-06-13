@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import UiAlert from '@shared/components/ui/UiAlert.vue'
 import UiButton from '@shared/components/ui/UiButton.vue'
@@ -24,6 +25,8 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), { specialty: null })
 const emit = defineEmits<{ close: []; saved: [] }>()
 
+const { t } = useI18n()
+
 const allDepartments = ref<Department[]>([])
 
 const departmentId = ref<number | null>(null)
@@ -44,23 +47,23 @@ const depOptions = computed(() =>
   allDepartments.value.map((d) => ({ value: d.id, label: `${d.code} — ${d.name}` })),
 )
 
-const levelOptions = [
-  { value: 'bachelor', label: 'Bakalavr' },
-  { value: 'master', label: 'Magistr' },
-  { value: 'phd', label: 'PhD' },
-]
-const formOptions = [
-  { value: 'fulltime', label: 'Kunduzgi' },
-  { value: 'parttime', label: 'Sirtqi' },
-  { value: 'evening', label: 'Kechki' },
-  { value: 'distance', label: 'Masofaviy' },
-]
-const langOptions = [
-  { value: 'uz-lat', label: "O'zbek (lotin)" },
-  { value: 'uz-cyr', label: "O'zbek (kirill)" },
-  { value: 'ru', label: 'Rus' },
-  { value: 'en', label: 'Ingliz' },
-]
+const levelOptions = computed(() => [
+  { value: 'bachelor', label: t('admin_academic.level_bachelor') },
+  { value: 'master', label: t('admin_academic.level_master') },
+  { value: 'phd', label: t('admin_academic.level_phd') },
+])
+const formOptions = computed(() => [
+  { value: 'fulltime', label: t('admin_academic.form_fulltime') },
+  { value: 'parttime', label: t('admin_academic.form_parttime') },
+  { value: 'evening', label: t('admin_academic.form_evening') },
+  { value: 'distance', label: t('admin_academic.form_distance') },
+])
+const langOptions = computed(() => [
+  { value: 'uz-lat', label: t('admin_academic.lang_uz_lat') },
+  { value: 'uz-cyr', label: t('admin_academic.lang_uz_cyr') },
+  { value: 'ru', label: t('admin_academic.lang_ru') },
+  { value: 'en', label: t('admin_academic.lang_en') },
+])
 
 // 559-qaror 15-band: real-time UI tekshiruvi
 const quotaMax = computed(() => {
@@ -71,9 +74,13 @@ const quotaMax = computed(() => {
 const quotaError = computed(() => {
   if (annualQuota.value == null || quotaMax.value == null) return null
   if (annualQuota.value > quotaMax.value) {
-    return `${level.value === 'bachelor' ? 'Bakalavr' : 'Magistr'} uchun max ${
-      quotaMax.value
-    } (559-qaror 15-band)`
+    return t('admin_academic.spec_quota_error', {
+      level:
+        level.value === 'bachelor'
+          ? t('admin_academic.level_bachelor')
+          : t('admin_academic.level_master'),
+      max: quotaMax.value,
+    })
   }
   return null
 })
@@ -117,7 +124,7 @@ watch(
 async function handleSubmit() {
   errorMsg.value = null
   if (!departmentId.value) {
-    errorMsg.value = 'Kafedra tanlanmagan'
+    errorMsg.value = t('admin_academic.spec_no_department')
     return
   }
   if (quotaError.value) {
@@ -147,7 +154,7 @@ async function handleSubmit() {
     emit('saved')
     emit('close')
   } catch (e) {
-    errorMsg.value = extractErrorMessage(e, 'Saqlashda xato')
+    errorMsg.value = extractErrorMessage(e, t('common.save_error'))
   } finally {
     submitting.value = false
   }
@@ -155,50 +162,45 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <UiDrawer :open="open" :title="specialty ? 'Yo\'nalish tahrir' : 'Yangi yo\'nalish'" width="lg" @close="emit('close')">
+  <UiDrawer :open="open" :title="specialty ? t('admin_academic.spec_edit') : t('admin_academic.specialties_new')" width="lg" @close="emit('close')">
     <UiAlert v-if="errorMsg" variant="danger" class="mb-4">{{ errorMsg }}</UiAlert>
     <UiAlert v-if="distanceEnabled" variant="info" class="mb-4">
-      <strong>559-qaror 14-band:</strong> Masofaviy ta'limga ruxsat berilgan yo'nalish.
-      Talabalar onlayn o'qishi mumkin.
+      {{ t('admin_academic.spec_decree14') }}
     </UiAlert>
 
     <form id="specialty-form" @submit.prevent="handleSubmit">
-      <UiFormField label="Kafedra" required>
+      <UiFormField :label="t('admin_academic.col_department')" required>
         <UiSelect v-model="departmentId" :options="depOptions" :disabled="!!specialty" />
       </UiFormField>
 
       <div class="grid grid-cols-2 gap-3">
-        <UiFormField label="DTS kodi" hint="60611100" required>
+        <UiFormField :label="t('admin_academic.spec_dts_code')" hint="60611100" required>
           <UiInput v-model="code" required :disabled="!!specialty" />
         </UiFormField>
-        <UiFormField label="Daraja" required>
+        <UiFormField :label="t('admin_academic.spec_level')" required>
           <UiSelect v-model="level" :options="levelOptions" />
         </UiFormField>
       </div>
 
-      <UiFormField label="Yo'nalish nomi" required>
+      <UiFormField :label="t('admin_academic.spec_name')" required>
         <UiInput v-model="name" required />
       </UiFormField>
 
       <div class="grid grid-cols-3 gap-3">
-        <UiFormField label="Davomiyligi (yil)" required>
+        <UiFormField :label="t('admin_academic.spec_duration')" required>
           <UiInput v-model="durationYears" type="number" required />
         </UiFormField>
-        <UiFormField label="Ta'lim shakli" required>
+        <UiFormField :label="t('admin_academic.spec_form')" required>
           <UiSelect v-model="educationForm" :options="formOptions" />
         </UiFormField>
-        <UiFormField label="Til" required>
+        <UiFormField :label="t('admin_academic.col_language')" required>
           <UiSelect v-model="language" :options="langOptions" />
         </UiFormField>
       </div>
 
       <UiFormField
-        :label="`Yillik qabul rejasi (annual quota)${quotaMax ? ` — max ${quotaMax}` : ''}`"
-        :hint="
-          quotaMax
-            ? `559-qaror 15-band: bakalavr 300, magistr 30, PhD chegarasiz`
-            : 'PhD uchun chegarasiz'
-        "
+        :label="quotaMax ? `${t('admin_academic.spec_quota')} — ${t('admin_academic.spec_quota_max', { n: quotaMax })}` : t('admin_academic.spec_quota')"
+        :hint="quotaMax ? t('admin_academic.spec_quota_hint') : t('admin_academic.spec_quota_phd')"
         :error="quotaError"
       >
         <UiInput v-model="annualQuota" type="number" :has-error="!!quotaError" />
@@ -206,20 +208,20 @@ async function handleSubmit() {
 
       <label class="flex items-center gap-2 mb-3 cursor-pointer">
         <input v-model="distanceEnabled" type="checkbox" class="w-3.5 h-3.5 accent-foreground" />
-        <span class="text-[13px]">Masofaviy ta'limga ruxsat (559-qaror 14-band)</span>
+        <span class="text-[13px]">{{ t('admin_academic.spec_distance_label') }}</span>
       </label>
       <label class="flex items-center gap-2 mb-4 cursor-pointer">
         <input v-model="isActive" type="checkbox" class="w-3.5 h-3.5 accent-foreground" />
-        <span class="text-[13px]">Faol</span>
+        <span class="text-[13px]">{{ t('common.active') }}</span>
       </label>
     </form>
 
     <template #footer>
       <div class="flex items-center justify-end gap-2">
-        <UiButton variant="outline" :disabled="submitting" @click="emit('close')">Bekor</UiButton>
+        <UiButton variant="outline" :disabled="submitting" @click="emit('close')">{{ t('common.cancel') }}</UiButton>
         <UiButton type="submit" form="specialty-form" :loading="submitting"
           :disabled="!!quotaError">
-          {{ specialty ? 'Saqlash' : 'Yaratish' }}
+          {{ specialty ? t('common.save') : t('common.create') }}
         </UiButton>
       </div>
     </template>

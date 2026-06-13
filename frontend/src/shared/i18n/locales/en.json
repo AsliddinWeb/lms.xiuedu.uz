@@ -967,7 +967,21 @@
     "lang_ru": "Russian",
     "lang_en": "English",
     "years_short": "yr",
-    "spec_distance_only": "Distance only"
+    "spec_distance_only": "Distance only",
+    "spec_edit": "Edit specialty",
+    "spec_dts_code": "DTS code",
+    "spec_level": "Level",
+    "spec_name": "Specialty name",
+    "spec_duration": "Duration (years)",
+    "spec_form": "Education form",
+    "spec_quota": "Annual admission quota",
+    "spec_quota_max": "max {n}",
+    "spec_quota_hint": "Decree 559 §15: bachelor 300, master 30, PhD unlimited",
+    "spec_quota_phd": "Unlimited for PhD",
+    "spec_quota_error": "Max {max} for {level} (Decree 559 §15)",
+    "spec_no_department": "No department selected",
+    "spec_distance_label": "Distance learning allowed (Decree 559 §14)",
+    "spec_decree14": "Decree 559 §14: specialty with distance learning allowed. Students may study online."
   },
   "admin_users": {
     "subtitle": "Manage system users — create, edit, assign roles.",

@@ -967,7 +967,21 @@
     "lang_ru": "Rus",
     "lang_en": "Ingliz",
     "years_short": "yil",
-    "spec_distance_only": "Faqat masofaviy"
+    "spec_distance_only": "Faqat masofaviy",
+    "spec_edit": "Yo'nalish tahrirlash",
+    "spec_dts_code": "DTS kodi",
+    "spec_level": "Daraja",
+    "spec_name": "Yo'nalish nomi",
+    "spec_duration": "Davomiyligi (yil)",
+    "spec_form": "Ta'lim shakli",
+    "spec_quota": "Yillik qabul rejasi",
+    "spec_quota_max": "max {n}",
+    "spec_quota_hint": "559-qaror 15-band: bakalavr 300, magistr 30, PhD chegarasiz",
+    "spec_quota_phd": "PhD uchun chegarasiz",
+    "spec_quota_error": "{level} uchun max {max} (559-qaror 15-band)",
+    "spec_no_department": "Kafedra tanlanmagan",
+    "spec_distance_label": "Masofaviy ta'limga ruxsat (559-qaror 14-band)",
+    "spec_decree14": "559-qaror 14-band: Masofaviy ta'limga ruxsat berilgan yo'nalish. Talabalar onlayn o'qishi mumkin."
   },
   "admin_users": {
     "subtitle": "Tizim foydalanuvchilarini boshqarish — yaratish, tahrirlash, rollar biriktirish.",
