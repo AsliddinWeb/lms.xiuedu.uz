@@ -947,7 +947,9 @@
     "faculty_edit": "Fakultet tahrirlash",
     "faculty_f_code": "Kod",
     "faculty_f_name": "To'liq nom",
-    "faculty_f_short": "Qisqa nom"
+    "faculty_f_short": "Qisqa nom",
+    "col_dean": "Dekan",
+    "faculty_dean_none": "Dekan tanlanmagan"
   },
   "admin_users": {
     "subtitle": "Tizim foydalanuvchilarini boshqarish — yaratish, tahrirlash, rollar biriktirish.",

@@ -947,7 +947,9 @@
     "faculty_edit": "Факультет таҳрирлаш",
     "faculty_f_code": "Код",
     "faculty_f_name": "Тўлиқ ном",
-    "faculty_f_short": "Қисқа ном"
+    "faculty_f_short": "Қисқа ном",
+    "col_dean": "Декан",
+    "faculty_dean_none": "Декан танланмаган"
   },
   "admin_users": {
     "subtitle": "Тизим фойдаланувчиларини бошқариш — яратиш, таҳрирлаш, роллар бириктириш.",

@@ -10,9 +10,11 @@ import UiCard from '@shared/components/ui/UiCard.vue'
 import UiInput from '@shared/components/ui/UiInput.vue'
 import { extractErrorMessage } from '@shared/api/client'
 import { facultiesApi } from '@shared/api/academic'
+import { usersApi } from '@shared/api/users'
 import { confirm } from '@shared/composables/useConfirm'
 import { toast } from '@shared/composables/useToast'
 import type { Faculty } from '@shared/types/academic'
+import type { UserListItem } from '@shared/types/users'
 
 import FacultyDrawer from '@admin/components/academic/FacultyDrawer.vue'
 
@@ -22,6 +24,17 @@ const items = ref<Faculty[]>([])
 const total = ref(0)
 const loading = ref(false)
 const error = ref<string | null>(null)
+
+// Dekan nomlarini ko'rsatish uchun foydalanuvchilar (id -> nom)
+const users = ref<UserListItem[]>([])
+const deanNameById = computed(() => {
+  const m = new Map<number, string>()
+  for (const u of users.value) m.set(u.id, u.full_name)
+  return m
+})
+function deanName(id: number | null): string {
+  return id != null ? (deanNameById.value.get(id) ?? '—') : '—'
+}
 
 const q = ref('')
 const page = ref(1)
@@ -59,7 +72,14 @@ watch(q, () => {
 
 watch(page, load)
 
-onMounted(load)
+onMounted(() => {
+  void load()
+  // Dekan nomzodlari + nomlarini ko'rsatish uchun (xato yutiladi)
+  usersApi
+    .list({ page: 1, page_size: 200 })
+    .then((r) => (users.value = r.items))
+    .catch(() => {})
+})
 
 function openCreate() {
   editing.value = null
@@ -122,16 +142,17 @@ const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize))
           <tr class="border-b border-border bg-muted/50">
             <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_academic.col_code') }}</th>
             <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_academic.col_faculty') }}</th>
+            <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_academic.col_dean') }}</th>
             <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_academic.col_status') }}</th>
             <th scope="col" class="px-4 py-3"><span class="sr-only">{{ t('admin_academic.col_actions') }}</span></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-border">
           <tr v-if="loading && items.length === 0">
-            <td colspan="4" class="text-center py-12 text-muted-foreground">{{ t('common.loading') }}</td>
+            <td colspan="5" class="text-center py-12 text-muted-foreground">{{ t('common.loading') }}</td>
           </tr>
           <tr v-else-if="items.length === 0">
-            <td colspan="4" class="text-center py-12 text-muted-foreground">{{ t('common.not_found') }}</td>
+            <td colspan="5" class="text-center py-12 text-muted-foreground">{{ t('common.not_found') }}</td>
           </tr>
           <tr v-for="f in items" :key="f.id" class="hover:bg-muted/40">
             <td class="px-4 py-3 font-mono text-[12px]">{{ f.code }}</td>
@@ -140,6 +161,9 @@ const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize))
               <div v-if="f.short_name" class="text-[11px] text-muted-foreground">
                 {{ f.short_name }}
               </div>
+            </td>
+            <td class="px-4 py-3 text-[13px]" :class="f.dean_id == null ? 'text-muted-foreground' : ''">
+              {{ deanName(f.dean_id) }}
             </td>
             <td class="px-4 py-3">
               <UiBadge :variant="f.is_active ? 'success' : 'default'" with-dot>
@@ -174,6 +198,7 @@ const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize))
   <FacultyDrawer
     :open="drawerOpen"
     :faculty="editing"
+    :users="users"
     @close="drawerOpen = false"
     @saved="load"
   />

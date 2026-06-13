@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import UiAlert from '@shared/components/ui/UiAlert.vue'
@@ -7,15 +7,18 @@ import UiButton from '@shared/components/ui/UiButton.vue'
 import UiDrawer from '@shared/components/ui/UiDrawer.vue'
 import UiFormField from '@shared/components/ui/UiFormField.vue'
 import UiInput from '@shared/components/ui/UiInput.vue'
+import UiSelect from '@shared/components/ui/UiSelect.vue'
 import { extractErrorMessage } from '@shared/api/client'
 import { facultiesApi } from '@shared/api/academic'
 import type { Faculty } from '@shared/types/academic'
+import type { UserListItem } from '@shared/types/users'
 
 interface Props {
   open: boolean
   faculty?: Faculty | null
+  users?: UserListItem[]
 }
-const props = withDefaults(defineProps<Props>(), { faculty: null })
+const props = withDefaults(defineProps<Props>(), { faculty: null, users: () => [] })
 const emit = defineEmits<{ close: []; saved: [] }>()
 
 const { t } = useI18n()
@@ -23,7 +26,15 @@ const { t } = useI18n()
 const code = ref('')
 const name = ref('')
 const shortName = ref('')
+const deanId = ref<string | null>(null)
 const isActive = ref(true)
+
+// Dekan nomzodlari — talaba/mehmondan boshqa rolli foydalanuvchilar (xodimlar)
+const deanOptions = computed(() =>
+  props.users
+    .filter((u) => !u.roles.every((r) => r === 'student' || r === 'guest'))
+    .map((u) => ({ value: String(u.id), label: u.full_name })),
+)
 
 const errorMsg = ref<string | null>(null)
 const submitting = ref(false)
@@ -37,11 +48,13 @@ watch(
       code.value = props.faculty.code
       name.value = props.faculty.name
       shortName.value = props.faculty.short_name ?? ''
+      deanId.value = props.faculty.dean_id != null ? String(props.faculty.dean_id) : null
       isActive.value = props.faculty.is_active
     } else {
       code.value = ''
       name.value = ''
       shortName.value = ''
+      deanId.value = null
       isActive.value = true
     }
   },
@@ -57,7 +70,7 @@ async function handleSubmit() {
       code: code.value.trim(),
       name: name.value.trim(),
       short_name: shortName.value.trim() || null,
-      dean_id: props.faculty?.dean_id ?? null,
+      dean_id: deanId.value ? Number(deanId.value) : null,
       is_active: isActive.value,
     }
     if (props.faculty) {
@@ -94,6 +107,14 @@ async function handleSubmit() {
 
       <UiFormField :label="t('admin_academic.faculty_f_short')">
         <UiInput v-model="shortName" />
+      </UiFormField>
+
+      <UiFormField :label="t('admin_academic.col_dean')">
+        <UiSelect
+          v-model="deanId"
+          :options="deanOptions"
+          :placeholder="t('admin_academic.faculty_dean_none')"
+        />
       </UiFormField>
 
       <label class="flex items-center gap-2 mb-4 cursor-pointer">
