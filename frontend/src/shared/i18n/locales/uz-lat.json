@@ -1564,7 +1564,9 @@
     "hemis_description": "HEMIS SSO orqali talaba autentifikatsiyasi uchun base URL.",
     "hemis_hint": "Bo'sh qoldirilsa env'dagi HEMIS_API_URL ishlatiladi",
     "not_found": "XIU tashkiloti topilmadi — avval seed ishga tushiring",
-    "saved": "Saqlandi"
+    "saved": "Saqlandi",
+    "logo_invalid": "Rasm yuklanmadi — URL'ni tekshiring",
+    "logo_preview": "Ko'rinish"
   },
   "admin_dashboard": {
     "title": "Boshqaruv paneli",

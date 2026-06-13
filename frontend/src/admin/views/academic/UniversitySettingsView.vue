@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import UiAlert from '@shared/components/ui/UiAlert.vue'
@@ -31,6 +31,12 @@ const domain = ref('')
 const address = ref('')
 const logoUrl = ref('')
 const hemisBaseUrl = ref('')
+
+// Logo preview holati — URL o'zgarsa qayta urinish
+const logoError = ref(false)
+watch(logoUrl, () => {
+  logoError.value = false
+})
 
 async function load() {
   loading.value = true
@@ -163,6 +169,21 @@ onMounted(load)
 
       <UiFormField :label="t('university.field_logo_url')">
         <UiInput v-model="logoUrl" type="url" />
+        <div v-if="logoUrl.trim()" class="mt-2 flex items-center gap-3">
+          <img
+            v-show="!logoError"
+            :src="logoUrl"
+            :alt="t('university.logo_preview')"
+            class="h-12 w-auto max-w-[160px] object-contain rounded border border-border bg-muted/30 p-1"
+            @error="logoError = true"
+          />
+          <span v-if="logoError" class="text-[11px] text-danger-600">
+            {{ t('university.logo_invalid') }}
+          </span>
+          <span v-else class="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+            {{ t('university.logo_preview') }}
+          </span>
+        </div>
       </UiFormField>
     </UiCard>
 

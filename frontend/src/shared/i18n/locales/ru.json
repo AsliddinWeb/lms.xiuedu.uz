@@ -1564,7 +1564,9 @@
     "hemis_description": "Base URL для аутентификации студентов через HEMIS SSO.",
     "hemis_hint": "Пусто — используется HEMIS_API_URL из env",
     "not_found": "Организация XIU не найдена — сначала запустите seed",
-    "saved": "Сохранено"
+    "saved": "Сохранено",
+    "logo_invalid": "Изображение не загрузилось — проверьте URL",
+    "logo_preview": "Превью"
   },
   "admin_dashboard": {
     "title": "Панель управления",

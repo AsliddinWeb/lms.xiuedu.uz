@@ -1564,7 +1564,9 @@
     "hemis_description": "Base URL for student authentication via HEMIS SSO.",
     "hemis_hint": "Leave empty to fall back to HEMIS_API_URL env",
     "not_found": "XIU organization not found — run seed first",
-    "saved": "Saved"
+    "saved": "Saved",
+    "logo_invalid": "Image failed to load — check the URL",
+    "logo_preview": "Preview"
   },
   "admin_dashboard": {
     "title": "Dashboard",
