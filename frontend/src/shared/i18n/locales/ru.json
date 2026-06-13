@@ -952,7 +952,9 @@
     "faculty_dean_none": "Декан не выбран",
     "departments_delete": "Удалить кафедру?",
     "department_edit": "Редактировать кафедру",
-    "department_no_faculty": "Факультет не выбран"
+    "department_no_faculty": "Факультет не выбран",
+    "col_head": "Завкафедрой",
+    "department_head_none": "Завкафедрой не выбран"
   },
   "admin_users": {
     "subtitle": "Управление пользователями системы — создание, редактирование, назначение ролей.",

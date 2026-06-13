@@ -952,7 +952,9 @@
     "faculty_dean_none": "Декан танланмаган",
     "departments_delete": "Кафедрани ўчириш?",
     "department_edit": "Кафедра таҳрирлаш",
-    "department_no_faculty": "Факультет танланмаган"
+    "department_no_faculty": "Факультет танланмаган",
+    "col_head": "Мудир",
+    "department_head_none": "Мудир танланмаган"
   },
   "admin_users": {
     "subtitle": "Тизим фойдаланувчиларини бошқариш — яратиш, таҳрирлаш, роллар бириктириш.",

@@ -952,7 +952,9 @@
     "faculty_dean_none": "No dean selected",
     "departments_delete": "Delete department?",
     "department_edit": "Edit department",
-    "department_no_faculty": "No faculty selected"
+    "department_no_faculty": "No faculty selected",
+    "col_head": "Head",
+    "department_head_none": "No head selected"
   },
   "admin_users": {
     "subtitle": "Manage system users — create, edit, assign roles.",

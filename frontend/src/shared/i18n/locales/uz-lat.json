@@ -952,7 +952,9 @@
     "faculty_dean_none": "Dekan tanlanmagan",
     "departments_delete": "Kafedrani o'chirish?",
     "department_edit": "Kafedra tahrirlash",
-    "department_no_faculty": "Fakultet tanlanmagan"
+    "department_no_faculty": "Fakultet tanlanmagan",
+    "col_head": "Mudir",
+    "department_head_none": "Mudir tanlanmagan"
   },
   "admin_users": {
     "subtitle": "Tizim foydalanuvchilarini boshqarish — yaratish, tahrirlash, rollar biriktirish.",

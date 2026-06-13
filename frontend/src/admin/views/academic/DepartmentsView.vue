@@ -11,9 +11,11 @@ import UiInput from '@shared/components/ui/UiInput.vue'
 import UiSelect from '@shared/components/ui/UiSelect.vue'
 import { extractErrorMessage } from '@shared/api/client'
 import { departmentsApi } from '@shared/api/academic'
+import { usersApi } from '@shared/api/users'
 import { confirm } from '@shared/composables/useConfirm'
 import { toast } from '@shared/composables/useToast'
 import type { Department } from '@shared/types/academic'
+import type { UserListItem } from '@shared/types/users'
 
 import DepartmentDrawer from '@admin/components/academic/DepartmentDrawer.vue'
 import { useAcademicStore } from '@admin/stores/academic'
@@ -37,6 +39,17 @@ const editing = ref<Department | null>(null)
 const facOptions = computed(() =>
   store.faculties.map((f) => ({ value: f.id, label: `${f.code} — ${f.name}` })),
 )
+
+// Mudir nomlarini ko'rsatish uchun foydalanuvchilar (id -> nom)
+const users = ref<UserListItem[]>([])
+const headNameById = computed(() => {
+  const m = new Map<number, string>()
+  for (const u of users.value) m.set(u.id, u.full_name)
+  return m
+})
+function headName(id: number | null): string {
+  return id != null ? (headNameById.value.get(id) ?? '—') : '—'
+}
 
 async function load() {
   loading.value = true
@@ -73,6 +86,10 @@ watch(page, load)
 
 onMounted(async () => {
   await store.fetchFaculties()
+  usersApi
+    .list({ page: 1, page_size: 200 })
+    .then((r) => (users.value = r.items))
+    .catch(() => {})
   await load()
 })
 
@@ -143,22 +160,26 @@ const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize))
             <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_academic.col_code') }}</th>
             <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_academic.col_department') }}</th>
             <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_academic.col_faculty') }}</th>
+            <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_academic.col_head') }}</th>
             <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_academic.col_status') }}</th>
             <th scope="col" class="px-4 py-3"><span class="sr-only">{{ t('admin_academic.col_actions') }}</span></th>
           </tr>
         </thead>
         <tbody class="divide-y divide-border">
           <tr v-if="loading && items.length === 0">
-            <td colspan="5" class="text-center py-12 text-muted-foreground">{{ t('common.loading') }}</td>
+            <td colspan="6" class="text-center py-12 text-muted-foreground">{{ t('common.loading') }}</td>
           </tr>
           <tr v-else-if="items.length === 0">
-            <td colspan="5" class="text-center py-12 text-muted-foreground">{{ t('common.not_found') }}</td>
+            <td colspan="6" class="text-center py-12 text-muted-foreground">{{ t('common.not_found') }}</td>
           </tr>
           <tr v-for="d in items" :key="d.id" class="hover:bg-muted/40">
             <td class="px-4 py-3 font-mono text-[12px]">{{ d.code }}</td>
             <td class="px-4 py-3 font-medium">{{ d.name }}</td>
             <td class="px-4 py-3 font-mono text-[12px] text-muted-foreground">
               {{ facLabel(d.faculty_id) }}
+            </td>
+            <td class="px-4 py-3 text-[13px]" :class="d.head_id == null ? 'text-muted-foreground' : ''">
+              {{ headName(d.head_id) }}
             </td>
             <td class="px-4 py-3">
               <UiBadge :variant="d.is_active ? 'success' : 'default'" with-dot>
@@ -193,6 +214,7 @@ const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize))
   <DepartmentDrawer
     :open="drawerOpen"
     :department="editing"
+    :users="users"
     @close="drawerOpen = false"
     @saved="load"
   />
