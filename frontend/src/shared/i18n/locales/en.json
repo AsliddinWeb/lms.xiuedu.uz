@@ -1005,6 +1005,17 @@
     "create": "Create",
     "save_error": "Save failed"
   },
+  "admin_roles": {
+    "title": "Roles & permissions",
+    "subtitle": "{n} roles in the system and their permissions (read-only).",
+    "loading": "Loading...",
+    "perms": "Permissions",
+    "catalog_title": "Permissions catalog",
+    "search_placeholder": "Search permission — code or name...",
+    "no_results": "Nothing found",
+    "system": "system",
+    "load_error": "Load failed"
+  },
   "calendar": {
     "tag": "Admin · Academic",
     "title": "Academic calendar",

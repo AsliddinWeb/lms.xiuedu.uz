@@ -1005,6 +1005,17 @@
     "create": "Yaratish",
     "save_error": "Saqlashda xato"
   },
+  "admin_roles": {
+    "title": "Rollar va ruxsatlar",
+    "subtitle": "Tizimdagi {n} ta rol va ularning ruxsatlari (faqat o'qish).",
+    "loading": "Yuklanmoqda...",
+    "perms": "Ruxsatlar",
+    "catalog_title": "Ruxsatlar katalogi",
+    "search_placeholder": "Ruxsat qidirish — kod yoki nom...",
+    "no_results": "Hech narsa topilmadi",
+    "system": "tizim",
+    "load_error": "Yuklashda xato"
+  },
   "calendar": {
     "tag": "Admin · Akademik",
     "title": "Akademik kalendar",
