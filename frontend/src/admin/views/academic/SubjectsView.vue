@@ -38,12 +38,18 @@ const editing = ref<Subject | null>(null)
 const depOptions = computed(() =>
   departments.value.map((d) => ({ value: d.id, label: `${d.code} — ${d.name}` })),
 )
-const langOptions = [
-  { value: 'uz-lat', label: "O'zbek (lotin)" },
-  { value: 'uz-cyr', label: "O'zbek (kirill)" },
-  { value: 'ru', label: 'Rus' },
-  { value: 'en', label: 'Ingliz' },
-]
+const LANG_KEY: Record<string, string> = {
+  'uz-lat': 'lang_uz_lat', 'uz-cyr': 'lang_uz_cyr', ru: 'lang_ru', en: 'lang_en',
+}
+function langLabel(v: string): string {
+  return LANG_KEY[v] ? t(`admin_academic.${LANG_KEY[v]}`) : v
+}
+const langOptions = computed(() => [
+  { value: 'uz-lat', label: t('admin_academic.lang_uz_lat') },
+  { value: 'uz-cyr', label: t('admin_academic.lang_uz_cyr') },
+  { value: 'ru', label: t('admin_academic.lang_ru') },
+  { value: 'en', label: t('admin_academic.lang_en') },
+])
 
 async function load() {
   loading.value = true
@@ -77,6 +83,7 @@ watch([depFilter, langFilter], () => {
   page.value = 1
   void load()
 })
+watch(page, load)
 
 onMounted(async () => {
   const deps = await departmentsApi.list({ page_size: 200 })
@@ -94,7 +101,7 @@ function openEdit(s: Subject) {
 }
 async function handleDelete(s: Subject) {
   const ok = await confirm({
-    title: 'Fanni o\'chirish?',
+    title: t('admin_academic.subjects_delete'),
     description: s.name,
     variant: 'danger',
     confirmLabel: t('common.delete'),
@@ -170,7 +177,7 @@ const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize))
               {{ s.lecture_hours }}·{{ s.practice_hours }}·{{ s.seminar_hours }}·{{ s.self_study_hours }}
             </td>
             <td class="px-4 py-3">
-              <UiBadge variant="default">{{ s.language }}</UiBadge>
+              <UiBadge variant="default">{{ langLabel(s.language) }}</UiBadge>
             </td>
             <td class="px-4 py-3 font-mono text-[12px] text-muted-foreground tabular-nums">
               {{ s.prerequisite_ids.length }}

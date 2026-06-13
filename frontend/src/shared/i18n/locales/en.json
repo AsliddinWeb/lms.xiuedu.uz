@@ -981,7 +981,8 @@
     "spec_quota_error": "Max {max} for {level}",
     "spec_no_department": "No department selected",
     "spec_distance_label": "Distance learning allowed",
-    "spec_decree14": "Specialty with distance learning allowed. Students may study online."
+    "spec_decree14": "Specialty with distance learning allowed. Students may study online.",
+    "subjects_delete": "Delete subject?"
   },
   "admin_users": {
     "subtitle": "Manage system users — create, edit, assign roles.",
