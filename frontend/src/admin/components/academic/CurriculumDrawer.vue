@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import UiAlert from '@shared/components/ui/UiAlert.vue'
 import UiBadge from '@shared/components/ui/UiBadge.vue'
@@ -18,6 +19,8 @@ interface Props {
 }
 const props = withDefaults(defineProps<Props>(), { curriculum: null })
 const emit = defineEmits<{ close: []; saved: [] }>()
+
+const { t } = useI18n()
 
 const allSpecialties = ref<Specialty[]>([])
 const allSubjects = ref<Subject[]>([])
@@ -47,10 +50,10 @@ const spOptions = computed(() =>
 const subjectOptions = computed(() =>
   allSubjects.value.map((s) => ({ value: s.id, label: `${s.code} — ${s.name} (${s.credits}c)` })),
 )
-const basedOnOptions = [
-  { value: 'DTS', label: 'DTS (Davlat ta\'lim standarti)' },
-  { value: 'professional_standard', label: 'Kasbiy standart' },
-]
+const basedOnOptions = computed(() => [
+  { value: 'DTS', label: t('admin_academic.based_dts_full') },
+  { value: 'professional_standard', label: t('admin_academic.based_prof') },
+])
 
 watch(
   () => [props.open, props.curriculum],
@@ -116,7 +119,7 @@ const groupedBySemester = computed(() => {
 async function handleSubmit() {
   errorMsg.value = null
   if (!specialtyId.value) {
-    errorMsg.value = 'Yo\'nalish tanlanmagan'
+    errorMsg.value = t('admin_academic.curr_no_specialty')
     return
   }
   if (!validFrom.value) {
@@ -157,7 +160,7 @@ async function handleSubmit() {
     emit('saved')
     emit('close')
   } catch (e) {
-    errorMsg.value = extractErrorMessage(e, 'Saqlashda xato')
+    errorMsg.value = extractErrorMessage(e, t('common.save_error'))
   } finally {
     submitting.value = false
   }
@@ -167,49 +170,48 @@ async function handleSubmit() {
 <template>
   <UiDrawer
     :open="open"
-    :title="curriculum ? 'O\'quv reja tahrir' : 'Yangi o\'quv reja'"
+    :title="curriculum ? t('admin_academic.curr_edit') : t('admin_academic.curricula_new')"
     width="lg"
     @close="emit('close')"
   >
     <UiAlert v-if="errorMsg" variant="danger" class="mb-4">{{ errorMsg }}</UiAlert>
 
     <UiAlert v-if="curriculum" variant="info" class="mb-4">
-      Tahrir rejimida fanlar ro'yxati read-only. Yangi versiya yaratish uchun
-      <strong>Clone</strong> tugmasini ishlating.
+      {{ t('admin_academic.curr_edit_info') }}
     </UiAlert>
 
     <form id="curr-form" @submit.prevent="handleSubmit">
-      <UiFormField label="Yo'nalish" required>
+      <UiFormField :label="t('admin_academic.col_specialty')" required>
         <UiSelect v-model="specialtyId" :options="spOptions" :disabled="!!curriculum" />
       </UiFormField>
 
-      <UiFormField label="Reja nomi" required>
+      <UiFormField :label="t('admin_academic.curr_f_name')" required>
         <UiInput v-model="name" required placeholder="Dasturiy injiniring 2026-2030" />
       </UiFormField>
 
       <div class="grid grid-cols-2 gap-3">
-        <UiFormField label="Versiya">
+        <UiFormField :label="t('admin_academic.col_version')">
           <UiInput v-model="version" placeholder="2026-v1" />
         </UiFormField>
-        <UiFormField label="Jami kreditlar" required>
+        <UiFormField :label="t('admin_academic.curr_f_credits')" required>
           <UiInput v-model="totalCredits" type="number" required />
         </UiFormField>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
-        <UiFormField label="Boshlanish (valid_from)" required>
+        <UiFormField :label="t('admin_academic.curr_f_valid_from')" required>
           <UiInput v-model="validFrom" type="text" placeholder="2026-09-01" required />
         </UiFormField>
-        <UiFormField label="Tugash (valid_until)">
+        <UiFormField :label="t('admin_academic.curr_f_valid_until')">
           <UiInput v-model="validUntil" type="text" placeholder="2030-06-30" />
         </UiFormField>
       </div>
 
       <div class="grid grid-cols-2 gap-3">
-        <UiFormField label="Asosi">
-          <UiSelect v-model="basedOn" :options="basedOnOptions" placeholder="Belgilanmagan" />
+        <UiFormField :label="t('admin_academic.col_basis')">
+          <UiSelect v-model="basedOn" :options="basedOnOptions" :placeholder="t('admin_academic.curr_unset')" />
         </UiFormField>
-        <UiFormField label="Standart kodi">
+        <UiFormField :label="t('admin_academic.curr_f_standard')">
           <UiInput v-model="standardCode" placeholder="OʻzDSt 36.2030" />
         </UiFormField>
       </div>
@@ -217,13 +219,13 @@ async function handleSubmit() {
       <div v-if="!curriculum" class="mt-4">
         <div class="flex items-center justify-between mb-2">
           <div class="text-xs font-medium text-foreground">
-            Fanlar va semestr taqsimoti ({{ rows.length }})
+            {{ t('admin_academic.curr_subjects_n', { n: rows.length }) }}
           </div>
-          <UiButton type="button" variant="outline" size="sm" @click="addRow">+ Fan qo'shish</UiButton>
+          <UiButton type="button" variant="outline" size="sm" @click="addRow">{{ t('admin_academic.curr_add_subject') }}</UiButton>
         </div>
 
         <div v-if="rows.length === 0" class="text-[12px] text-muted-foreground italic p-3 border border-border rounded-md">
-          Hech qanday fan qo'shilmagan
+          {{ t('admin_academic.curr_no_subjects') }}
         </div>
 
         <div v-else class="border border-border rounded-md divide-y divide-border">
@@ -233,20 +235,20 @@ async function handleSubmit() {
             class="flex items-center gap-2 p-2"
           >
             <div class="flex-1">
-              <UiSelect v-model="r.subject_id" :options="subjectOptions" placeholder="Fan tanlang" />
+              <UiSelect v-model="r.subject_id" :options="subjectOptions" :placeholder="t('admin_academic.curr_pick_subject')" />
             </div>
             <div class="w-24">
-              <UiInput v-model="r.semester" type="number" placeholder="sem." />
+              <UiInput v-model="r.semester" type="number" :placeholder="t('admin_academic.curr_sem_short')" />
             </div>
             <label class="flex items-center gap-1.5 px-2 cursor-pointer text-[12px]">
               <input v-model="r.is_required" type="checkbox" class="w-3.5 h-3.5 accent-foreground" />
-              majburiy
+              {{ t('admin_academic.curr_required') }}
             </label>
             <button
               type="button"
               @click="removeRow(idx)"
               class="text-danger-600 hover:bg-danger-50 dark:hover:bg-danger-700/15 rounded p-1.5"
-              aria-label="O'chirish"
+              :aria-label="t('common.delete')"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor"
                 stroke-width="2" stroke-linecap="round">
@@ -259,7 +261,7 @@ async function handleSubmit() {
 
       <div v-else class="mt-4">
         <div class="text-xs font-medium text-foreground mb-2">
-          Joriy fanlar ({{ groupedBySemester.length }} semestr):
+          {{ t('admin_academic.curr_current_n', { n: groupedBySemester.length }) }}
         </div>
         <div class="space-y-2">
           <div
@@ -267,10 +269,10 @@ async function handleSubmit() {
             :key="g.semester"
             class="border border-border rounded-md p-3"
           >
-            <div class="mono-tag mb-1.5">Semestr {{ g.semester }}</div>
+            <div class="mono-tag mb-1.5">{{ t('admin_academic.curr_semester_n', { n: g.semester }) }}</div>
             <div class="flex flex-wrap gap-1.5">
               <UiBadge v-for="r in g.items" :key="`${g.semester}-${r.subject_id}`" variant="default">
-                #{{ r.subject_id }}{{ r.is_required ? '' : ' (tanlov)' }}
+                #{{ r.subject_id }}{{ r.is_required ? '' : ` ${t('admin_academic.curr_elective')}` }}
               </UiBadge>
             </div>
           </div>
@@ -280,9 +282,9 @@ async function handleSubmit() {
 
     <template #footer>
       <div class="flex items-center justify-end gap-2">
-        <UiButton variant="outline" :disabled="submitting" @click="emit('close')">Bekor</UiButton>
+        <UiButton variant="outline" :disabled="submitting" @click="emit('close')">{{ t('common.cancel') }}</UiButton>
         <UiButton type="submit" form="curr-form" :loading="submitting">
-          {{ curriculum ? 'Saqlash' : 'Yaratish' }}
+          {{ curriculum ? t('common.save') : t('common.create') }}
         </UiButton>
       </div>
     </template>
