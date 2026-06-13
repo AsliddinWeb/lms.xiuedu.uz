@@ -982,7 +982,18 @@
     "spec_no_department": "Кафедра не выбрана",
     "spec_distance_label": "Разрешено дистанционное обучение",
     "spec_decree14": "Направление с разрешённым дистанционным обучением. Студенты могут учиться онлайн.",
-    "subjects_delete": "Удалить предмет?"
+    "subjects_delete": "Удалить предмет?",
+    "subject_edit": "Редактировать предмет",
+    "subject_f_credits": "Кредиты",
+    "subject_f_name": "Название предмета",
+    "subject_f_desc": "Описание",
+    "subject_hours": "Распределение часов",
+    "subject_h_lecture": "Лекции",
+    "subject_h_practice": "Практика",
+    "subject_h_seminar": "Семинар",
+    "subject_h_self": "Самост. работа",
+    "subject_prereq_n": "Пререквизиты (выбрано: {n})",
+    "subject_no_other": "Других предметов нет"
   },
   "admin_users": {
     "subtitle": "Управление пользователями системы — создание, редактирование, назначение ролей.",

@@ -982,7 +982,18 @@
     "spec_no_department": "Kafedra tanlanmagan",
     "spec_distance_label": "Masofaviy ta'limga ruxsat",
     "spec_decree14": "Masofaviy ta'limga ruxsat berilgan yo'nalish. Talabalar onlayn o'qishi mumkin.",
-    "subjects_delete": "Fanni o'chirish?"
+    "subjects_delete": "Fanni o'chirish?",
+    "subject_edit": "Fan tahrirlash",
+    "subject_f_credits": "Kreditlar",
+    "subject_f_name": "Fan nomi",
+    "subject_f_desc": "Tavsif",
+    "subject_hours": "Soatlar taqsimoti",
+    "subject_h_lecture": "Ma'ruza",
+    "subject_h_practice": "Amaliyot",
+    "subject_h_seminar": "Seminar",
+    "subject_h_self": "Mustaqil ish",
+    "subject_prereq_n": "Pre-rekvizitlar ({n} tanlangan)",
+    "subject_no_other": "Boshqa fan yo'q"
   },
   "admin_users": {
     "subtitle": "Tizim foydalanuvchilarini boshqarish — yaratish, tahrirlash, rollar biriktirish.",

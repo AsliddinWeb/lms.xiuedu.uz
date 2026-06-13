@@ -982,7 +982,18 @@
     "spec_no_department": "No department selected",
     "spec_distance_label": "Distance learning allowed",
     "spec_decree14": "Specialty with distance learning allowed. Students may study online.",
-    "subjects_delete": "Delete subject?"
+    "subjects_delete": "Delete subject?",
+    "subject_edit": "Edit subject",
+    "subject_f_credits": "Credits",
+    "subject_f_name": "Subject name",
+    "subject_f_desc": "Description",
+    "subject_hours": "Hours breakdown",
+    "subject_h_lecture": "Lecture",
+    "subject_h_practice": "Practice",
+    "subject_h_seminar": "Seminar",
+    "subject_h_self": "Self-study",
+    "subject_prereq_n": "Prerequisites ({n} selected)",
+    "subject_no_other": "No other subjects"
   },
   "admin_users": {
     "subtitle": "Manage system users — create, edit, assign roles.",

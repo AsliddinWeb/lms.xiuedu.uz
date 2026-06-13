@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import UiAlert from '@shared/components/ui/UiAlert.vue'
 import UiButton from '@shared/components/ui/UiButton.vue'
@@ -17,6 +18,8 @@ interface Props {
 }
 const props = withDefaults(defineProps<Props>(), { subject: null })
 const emit = defineEmits<{ close: []; saved: [] }>()
+
+const { t } = useI18n()
 
 const departmentId = ref<number | null>(null)
 const code = ref('')
@@ -38,12 +41,12 @@ const submitting = ref(false)
 const allDepartments = ref<Department[]>([])
 const allSubjects = ref<Subject[]>([])
 
-const langOptions = [
-  { value: 'uz-lat', label: "O'zbek (lotin)" },
-  { value: 'uz-cyr', label: "O'zbek (kirill)" },
-  { value: 'ru', label: 'Rus' },
-  { value: 'en', label: 'Ingliz' },
-]
+const langOptions = computed(() => [
+  { value: 'uz-lat', label: t('admin_academic.lang_uz_lat') },
+  { value: 'uz-cyr', label: t('admin_academic.lang_uz_cyr') },
+  { value: 'ru', label: t('admin_academic.lang_ru') },
+  { value: 'en', label: t('admin_academic.lang_en') },
+])
 
 const depOptions = computed(() =>
   allDepartments.value.map((d) => ({ value: d.id, label: `${d.code} — ${d.name}` })),
@@ -107,7 +110,7 @@ function togglePrereq(id: number) {
 async function handleSubmit() {
   errorMsg.value = null
   if (!departmentId.value) {
-    errorMsg.value = 'Kafedra tanlanmagan'
+    errorMsg.value = t('admin_academic.spec_no_department')
     return
   }
   submitting.value = true
@@ -136,7 +139,7 @@ async function handleSubmit() {
     emit('saved')
     emit('close')
   } catch (e) {
-    errorMsg.value = extractErrorMessage(e, 'Saqlashda xato')
+    errorMsg.value = extractErrorMessage(e, t('common.save_error'))
   } finally {
     submitting.value = false
   }
@@ -144,31 +147,31 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <UiDrawer :open="open" :title="subject ? 'Fan tahrir' : 'Yangi fan'" width="lg" @close="emit('close')">
+  <UiDrawer :open="open" :title="subject ? t('admin_academic.subject_edit') : t('admin_academic.subjects_new')" width="lg" @close="emit('close')">
     <UiAlert v-if="errorMsg" variant="danger" class="mb-4">{{ errorMsg }}</UiAlert>
     <form id="subject-form" @submit.prevent="handleSubmit">
-      <UiFormField label="Kafedra" required>
+      <UiFormField :label="t('admin_academic.col_department')" required>
         <UiSelect v-model="departmentId" :options="depOptions" :disabled="!!subject" />
       </UiFormField>
 
       <div class="grid grid-cols-2 gap-3">
-        <UiFormField label="Kod" required>
+        <UiFormField :label="t('admin_academic.col_code')" required>
           <UiInput v-model="code" required :disabled="!!subject" placeholder="PROG-101" />
         </UiFormField>
-        <UiFormField label="Kreditlar" required>
+        <UiFormField :label="t('admin_academic.subject_f_credits')" required>
           <UiInput v-model="credits" type="number" required />
         </UiFormField>
       </div>
 
-      <UiFormField label="Fan nomi" required>
+      <UiFormField :label="t('admin_academic.subject_f_name')" required>
         <UiInput v-model="name" required />
       </UiFormField>
 
-      <UiFormField label="Qisqa nom">
+      <UiFormField :label="t('admin_academic.faculty_f_short')">
         <UiInput v-model="shortName" />
       </UiFormField>
 
-      <UiFormField label="Tavsif">
+      <UiFormField :label="t('admin_academic.subject_f_desc')">
         <textarea
           v-model="description"
           rows="2"
@@ -176,29 +179,29 @@ async function handleSubmit() {
         ></textarea>
       </UiFormField>
 
-      <UiFormField label="Til">
+      <UiFormField :label="t('admin_academic.col_language')">
         <UiSelect v-model="language" :options="langOptions" />
       </UiFormField>
 
-      <div class="text-xs font-medium text-foreground mb-2 mt-2">Soatlar taqsimoti</div>
+      <div class="text-xs font-medium text-foreground mb-2 mt-2">{{ t('admin_academic.subject_hours') }}</div>
       <div class="grid grid-cols-4 gap-2">
-        <UiFormField label="Ma'ruza">
+        <UiFormField :label="t('admin_academic.subject_h_lecture')">
           <UiInput v-model="lectureHours" type="number" />
         </UiFormField>
-        <UiFormField label="Amaliyot">
+        <UiFormField :label="t('admin_academic.subject_h_practice')">
           <UiInput v-model="practiceHours" type="number" />
         </UiFormField>
-        <UiFormField label="Seminar">
+        <UiFormField :label="t('admin_academic.subject_h_seminar')">
           <UiInput v-model="seminarHours" type="number" />
         </UiFormField>
-        <UiFormField label="Mustaqil ish">
+        <UiFormField :label="t('admin_academic.subject_h_self')">
           <UiInput v-model="selfStudyHours" type="number" />
         </UiFormField>
       </div>
 
       <div class="mt-2 mb-4">
         <div class="text-xs font-medium text-foreground mb-2">
-          Pre-rekvizitlar ({{ prereqIds.size }} tanlangan)
+          {{ t('admin_academic.subject_prereq_n', { n: prereqIds.size }) }}
         </div>
         <div class="border border-border rounded-md p-2 max-h-48 overflow-y-auto">
           <label
@@ -216,21 +219,21 @@ async function handleSubmit() {
             <span class="text-[13px] text-muted-foreground">{{ s.name }}</span>
           </label>
           <div v-if="allSubjects.length === 0" class="text-[12px] text-muted-foreground p-2 italic">
-            Boshqa fan yo'q
+            {{ t('admin_academic.subject_no_other') }}
           </div>
         </div>
       </div>
 
       <label class="flex items-center gap-2 mb-4 cursor-pointer">
         <input v-model="isActive" type="checkbox" class="w-3.5 h-3.5 accent-foreground" />
-        <span class="text-[13px]">Faol</span>
+        <span class="text-[13px]">{{ t('common.active') }}</span>
       </label>
     </form>
     <template #footer>
       <div class="flex items-center justify-end gap-2">
-        <UiButton variant="outline" :disabled="submitting" @click="emit('close')">Bekor</UiButton>
+        <UiButton variant="outline" :disabled="submitting" @click="emit('close')">{{ t('common.cancel') }}</UiButton>
         <UiButton type="submit" form="subject-form" :loading="submitting">
-          {{ subject ? 'Saqlash' : 'Yaratish' }}
+          {{ subject ? t('common.save') : t('common.create') }}
         </UiButton>
       </div>
     </template>

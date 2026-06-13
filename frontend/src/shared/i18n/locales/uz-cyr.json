@@ -982,7 +982,18 @@
     "spec_no_department": "Кафедра танланмаган",
     "spec_distance_label": "Масофавий таълимга рухсат",
     "spec_decree14": "Масофавий таълимга рухсат берилган йўналиш. Талабалар онлайн ўқиши мумкин.",
-    "subjects_delete": "Фанни ўчириш?"
+    "subjects_delete": "Фанни ўчириш?",
+    "subject_edit": "Фан таҳрирлаш",
+    "subject_f_credits": "Кредитлар",
+    "subject_f_name": "Фан номи",
+    "subject_f_desc": "Тавсиф",
+    "subject_hours": "Соатлар тақсимоти",
+    "subject_h_lecture": "Маъруза",
+    "subject_h_practice": "Амалиёт",
+    "subject_h_seminar": "Семинар",
+    "subject_h_self": "Мустақил иш",
+    "subject_prereq_n": "Пре-реквизитлар ({n} танланган)",
+    "subject_no_other": "Бошқа фан йўқ"
   },
   "admin_users": {
     "subtitle": "Тизим фойдаланувчиларини бошқариш — яратиш, таҳрирлаш, роллар бириктириш.",
