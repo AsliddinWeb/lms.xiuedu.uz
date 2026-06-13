@@ -165,9 +165,9 @@ class SpecialtyCreateRequest(BaseModel):
         if self.annual_quota is None:
             return self
         if self.level == "bachelor" and self.annual_quota > 300:
-            raise ValueError("Bakalavr yo'nalishi uchun annual_quota max 300 (559-qaror 15-band)")
+            raise ValueError("Bakalavr yo'nalishi uchun annual_quota maksimal 300")
         if self.level == "master" and self.annual_quota > 30:
-            raise ValueError("Magistr yo'nalishi uchun annual_quota max 30 (559-qaror 15-band)")
+            raise ValueError("Magistr yo'nalishi uchun annual_quota maksimal 30")
         return self
 
 

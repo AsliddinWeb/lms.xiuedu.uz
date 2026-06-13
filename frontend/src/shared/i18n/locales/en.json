@@ -976,12 +976,12 @@
     "spec_form": "Education form",
     "spec_quota": "Annual admission quota",
     "spec_quota_max": "max {n}",
-    "spec_quota_hint": "Decree 559 §15: bachelor 300, master 30, PhD unlimited",
+    "spec_quota_hint": "Bachelor 300, master 30, PhD unlimited",
     "spec_quota_phd": "Unlimited for PhD",
-    "spec_quota_error": "Max {max} for {level} (Decree 559 §15)",
+    "spec_quota_error": "Max {max} for {level}",
     "spec_no_department": "No department selected",
-    "spec_distance_label": "Distance learning allowed (Decree 559 §14)",
-    "spec_decree14": "Decree 559 §14: specialty with distance learning allowed. Students may study online."
+    "spec_distance_label": "Distance learning allowed",
+    "spec_decree14": "Specialty with distance learning allowed. Students may study online."
   },
   "admin_users": {
     "subtitle": "Manage system users — create, edit, assign roles.",

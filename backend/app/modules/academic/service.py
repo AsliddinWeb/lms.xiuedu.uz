@@ -326,11 +326,11 @@ async def update_specialty(
     if new_quota is not None:
         if new_level == "bachelor" and new_quota > 300:
             raise ConflictError(
-                "Bakalavr yo'nalishi uchun annual_quota max 300 (559-qaror 15-band)"
+                "Bakalavr yo'nalishi uchun annual_quota maksimal 300"
             )
         if new_level == "master" and new_quota > 30:
             raise ConflictError(
-                "Magistr yo'nalishi uchun annual_quota max 30 (559-qaror 15-band)"
+                "Magistr yo'nalishi uchun annual_quota maksimal 30"
             )
 
     for k, v in data.model_dump(exclude_unset=True).items():

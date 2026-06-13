@@ -206,7 +206,7 @@ async function handleSubmit() {
       </div>
 
       <div class="grid grid-cols-2 gap-3">
-        <UiFormField label="Asosi (559-qaror 9-band)">
+        <UiFormField label="Asosi">
           <UiSelect v-model="basedOn" :options="basedOnOptions" placeholder="Belgilanmagan" />
         </UiFormField>
         <UiFormField label="Standart kodi">

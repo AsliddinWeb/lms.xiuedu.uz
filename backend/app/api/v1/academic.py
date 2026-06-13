@@ -347,7 +347,7 @@ async def delete_specialty(
 @router.post(
     "/specialties/{sp_id}/enable-distance",
     response_model=SpecialtyPublic,
-    summary="559-qaror 14-band — masofaviy ta'limga ruxsat berish",
+    summary="Masofaviy ta'limga ruxsat berish",
 )
 async def enable_distance(
     sp_id: int,

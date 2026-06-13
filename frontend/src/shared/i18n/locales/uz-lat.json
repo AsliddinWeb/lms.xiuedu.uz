@@ -976,12 +976,12 @@
     "spec_form": "Ta'lim shakli",
     "spec_quota": "Yillik qabul rejasi",
     "spec_quota_max": "max {n}",
-    "spec_quota_hint": "559-qaror 15-band: bakalavr 300, magistr 30, PhD chegarasiz",
+    "spec_quota_hint": "Bakalavr 300, magistr 30, PhD chegarasiz",
     "spec_quota_phd": "PhD uchun chegarasiz",
-    "spec_quota_error": "{level} uchun max {max} (559-qaror 15-band)",
+    "spec_quota_error": "{level} uchun maksimal {max}",
     "spec_no_department": "Kafedra tanlanmagan",
-    "spec_distance_label": "Masofaviy ta'limga ruxsat (559-qaror 14-band)",
-    "spec_decree14": "559-qaror 14-band: Masofaviy ta'limga ruxsat berilgan yo'nalish. Talabalar onlayn o'qishi mumkin."
+    "spec_distance_label": "Masofaviy ta'limga ruxsat",
+    "spec_decree14": "Masofaviy ta'limga ruxsat berilgan yo'nalish. Talabalar onlayn o'qishi mumkin."
   },
   "admin_users": {
     "subtitle": "Tizim foydalanuvchilarini boshqarish — yaratish, tahrirlash, rollar biriktirish.",
