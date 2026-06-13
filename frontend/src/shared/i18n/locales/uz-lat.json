@@ -943,7 +943,11 @@
     "col_basis": "Asos",
     "col_approval": "Tasdiq",
     "col_dts": "DTS",
-    "faculties_delete": "Fakultetni o'chirish?"
+    "faculties_delete": "Fakultetni o'chirish?",
+    "faculty_edit": "Fakultet tahrirlash",
+    "faculty_f_code": "Kod",
+    "faculty_f_name": "To'liq nom",
+    "faculty_f_short": "Qisqa nom"
   },
   "admin_users": {
     "subtitle": "Tizim foydalanuvchilarini boshqarish — yaratish, tahrirlash, rollar biriktirish.",

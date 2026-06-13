@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import UiAlert from '@shared/components/ui/UiAlert.vue'
 import UiButton from '@shared/components/ui/UiButton.vue'
@@ -16,6 +17,8 @@ interface Props {
 }
 const props = withDefaults(defineProps<Props>(), { faculty: null })
 const emit = defineEmits<{ close: []; saved: [] }>()
+
+const { t } = useI18n()
 
 const code = ref('')
 const name = ref('')
@@ -65,7 +68,7 @@ async function handleSubmit() {
     emit('saved')
     emit('close')
   } catch (e) {
-    errorMsg.value = extractErrorMessage(e, 'Saqlashda xato')
+    errorMsg.value = extractErrorMessage(e, t('common.save_error'))
   } finally {
     submitting.value = false
   }
@@ -75,35 +78,35 @@ async function handleSubmit() {
 <template>
   <UiDrawer
     :open="open"
-    :title="faculty ? 'Fakultet tahrir' : 'Yangi fakultet'"
+    :title="faculty ? t('admin_academic.faculty_edit') : t('admin_academic.faculties_new')"
     @close="emit('close')"
   >
     <UiAlert v-if="errorMsg" variant="danger" class="mb-4">{{ errorMsg }}</UiAlert>
 
     <form id="faculty-form" @submit.prevent="handleSubmit">
-      <UiFormField label="Kod" required>
+      <UiFormField :label="t('admin_academic.faculty_f_code')" required>
         <UiInput v-model="code" required />
       </UiFormField>
 
-      <UiFormField label="To'liq nom" required>
+      <UiFormField :label="t('admin_academic.faculty_f_name')" required>
         <UiInput v-model="name" required />
       </UiFormField>
 
-      <UiFormField label="Qisqa nom">
+      <UiFormField :label="t('admin_academic.faculty_f_short')">
         <UiInput v-model="shortName" />
       </UiFormField>
 
       <label class="flex items-center gap-2 mb-4 cursor-pointer">
         <input v-model="isActive" type="checkbox" class="w-3.5 h-3.5 accent-foreground" />
-        <span class="text-[13px]">Faol</span>
+        <span class="text-[13px]">{{ t('common.active') }}</span>
       </label>
     </form>
 
     <template #footer>
       <div class="flex items-center justify-end gap-2">
-        <UiButton variant="outline" :disabled="submitting" @click="emit('close')">Bekor</UiButton>
+        <UiButton variant="outline" :disabled="submitting" @click="emit('close')">{{ t('common.cancel') }}</UiButton>
         <UiButton type="submit" form="faculty-form" :loading="submitting">
-          {{ faculty ? 'Saqlash' : 'Yaratish' }}
+          {{ faculty ? t('common.save') : t('common.create') }}
         </UiButton>
       </div>
     </template>

@@ -943,7 +943,11 @@
     "col_basis": "Асос",
     "col_approval": "Тасдиқ",
     "col_dts": "ДТС",
-    "faculties_delete": "Факультетни ўчириш?"
+    "faculties_delete": "Факультетни ўчириш?",
+    "faculty_edit": "Факультет таҳрирлаш",
+    "faculty_f_code": "Код",
+    "faculty_f_name": "Тўлиқ ном",
+    "faculty_f_short": "Қисқа ном"
   },
   "admin_users": {
     "subtitle": "Тизим фойдаланувчиларини бошқариш — яратиш, таҳрирлаш, роллар бириктириш.",

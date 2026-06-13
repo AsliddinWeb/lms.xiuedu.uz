@@ -943,7 +943,11 @@
     "col_basis": "Basis",
     "col_approval": "Approval",
     "col_dts": "DTS",
-    "faculties_delete": "Delete faculty?"
+    "faculties_delete": "Delete faculty?",
+    "faculty_edit": "Edit faculty",
+    "faculty_f_code": "Code",
+    "faculty_f_name": "Full name",
+    "faculty_f_short": "Short name"
   },
   "admin_users": {
     "subtitle": "Manage system users — create, edit, assign roles.",
