@@ -942,7 +942,8 @@
     "col_period": "Davr",
     "col_basis": "Asos",
     "col_approval": "Tasdiq",
-    "col_dts": "DTS"
+    "col_dts": "DTS",
+    "faculties_delete": "Fakultetni o'chirish?"
   },
   "admin_users": {
     "subtitle": "Tizim foydalanuvchilarini boshqarish — yaratish, tahrirlash, rollar biriktirish.",

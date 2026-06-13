@@ -57,6 +57,8 @@ watch(q, () => {
   }, 300)
 })
 
+watch(page, load)
+
 onMounted(load)
 
 function openCreate() {
@@ -69,7 +71,7 @@ function openEdit(f: Faculty) {
 }
 async function handleDelete(f: Faculty) {
   const ok = await confirm({
-    title: 'Fakultetni o\'chirish?',
+    title: t('admin_academic.faculties_delete'),
     description: f.name,
     variant: 'danger',
     confirmLabel: t('common.delete'),
