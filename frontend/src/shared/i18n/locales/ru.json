@@ -949,7 +949,8 @@
     "faculty_f_name": "Полное название",
     "faculty_f_short": "Краткое название",
     "col_dean": "Декан",
-    "faculty_dean_none": "Декан не выбран"
+    "faculty_dean_none": "Декан не выбран",
+    "departments_delete": "Удалить кафедру?"
   },
   "admin_users": {
     "subtitle": "Управление пользователями системы — создание, редактирование, назначение ролей.",

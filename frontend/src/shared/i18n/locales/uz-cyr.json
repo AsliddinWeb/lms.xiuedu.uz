@@ -949,7 +949,8 @@
     "faculty_f_name": "Тўлиқ ном",
     "faculty_f_short": "Қисқа ном",
     "col_dean": "Декан",
-    "faculty_dean_none": "Декан танланмаган"
+    "faculty_dean_none": "Декан танланмаган",
+    "departments_delete": "Кафедрани ўчириш?"
   },
   "admin_users": {
     "subtitle": "Тизим фойдаланувчиларини бошқариш — яратиш, таҳрирлаш, роллар бириктириш.",

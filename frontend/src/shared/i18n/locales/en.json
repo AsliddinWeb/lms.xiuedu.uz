@@ -949,7 +949,8 @@
     "faculty_f_name": "Full name",
     "faculty_f_short": "Short name",
     "col_dean": "Dean",
-    "faculty_dean_none": "No dean selected"
+    "faculty_dean_none": "No dean selected",
+    "departments_delete": "Delete department?"
   },
   "admin_users": {
     "subtitle": "Manage system users — create, edit, assign roles.",

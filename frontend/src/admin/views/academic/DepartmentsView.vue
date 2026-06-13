@@ -69,6 +69,7 @@ watch(facultyFilter, () => {
   page.value = 1
   void load()
 })
+watch(page, load)
 
 onMounted(async () => {
   await store.fetchFaculties()
@@ -85,7 +86,7 @@ function openEdit(d: Department) {
 }
 async function handleDelete(d: Department) {
   const ok = await confirm({
-    title: 'Kafedrani o\'chirish?',
+    title: t('admin_academic.departments_delete'),
     description: d.name,
     variant: 'danger',
     confirmLabel: t('common.delete'),

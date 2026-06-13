@@ -949,7 +949,8 @@
     "faculty_f_name": "To'liq nom",
     "faculty_f_short": "Qisqa nom",
     "col_dean": "Dekan",
-    "faculty_dean_none": "Dekan tanlanmagan"
+    "faculty_dean_none": "Dekan tanlanmagan",
+    "departments_delete": "Kafedrani o'chirish?"
   },
   "admin_users": {
     "subtitle": "Tizim foydalanuvchilarini boshqarish — yaratish, tahrirlash, rollar biriktirish.",
