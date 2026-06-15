@@ -2247,7 +2247,8 @@
     "col_attempts": "Urinishlar",
     "col_avg": "O'rtacha %",
     "col_pass_rate": "Pass %",
-    "col_flagged": "Flagged"
+    "col_flagged": "Flagged",
+    "kpi_flagged": "Belgilangan (flagged)"
   },
   "attempt_review": {
     "title": "Tekshiruv",

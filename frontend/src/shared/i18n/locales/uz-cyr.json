@@ -2247,7 +2247,8 @@
     "col_attempts": "Уринишлар",
     "col_avg": "Ўртача %",
     "col_pass_rate": "Pass %",
-    "col_flagged": "Flagged"
+    "col_flagged": "Flagged",
+    "kpi_flagged": "Белгиланган (flagged)"
   },
   "attempt_review": {
     "title": "Текширув",

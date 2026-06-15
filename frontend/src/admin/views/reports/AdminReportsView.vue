@@ -19,6 +19,7 @@ import UiSelect from '@shared/components/ui/UiSelect.vue'
 import UiStatCard from '@shared/components/ui/UiStatCard.vue'
 import { reportsApi, type ExamReportSummary } from '@shared/api/reports'
 import { extractErrorMessage } from '@shared/api/client'
+import { downloadBlob, timestampedFilename } from '@shared/utils/download'
 
 const { t } = useI18n()
 
@@ -30,6 +31,10 @@ const dateTo = ref<string>('')
 const summary = ref<ExamReportSummary | null>(null)
 const loading = ref(false)
 const error = ref<string | null>(null)
+
+const totalFlagged = computed(() =>
+  (summary.value?.items ?? []).reduce((acc, r) => acc + r.flagged_count, 0),
+)
 
 const typeOptions = computed(() => [
   { value: '', label: t('admin_reports.all_types') },
@@ -69,12 +74,7 @@ async function downloadCsv() {
       date_from: fromLocalInput(dateFrom.value),
       date_to: fromLocalInput(dateTo.value),
     })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `exam_report_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '')}.csv`
-    a.click()
-    URL.revokeObjectURL(url)
+    downloadBlob(blob, timestampedFilename('imtihon_hisoboti'))
   } catch (e) {
     error.value = extractErrorMessage(e, t('admin_reports.csv_error'))
   }
@@ -92,10 +92,7 @@ onMounted(load)
 </script>
 
 <template>
-  <UiBreadcrumb
-    :items="[t('admin_nav.dashboard'), t('admin_reports.title')]"
-    class="mb-6"
-  />
+  <UiBreadcrumb :items="['Admin', t('admin_reports.title')]" class="mb-6" />
 
   <div class="mb-6 flex items-start justify-between gap-4">
     <div>
@@ -134,7 +131,7 @@ onMounted(load)
   </UiCard>
 
   <!-- Stat cards -->
-  <div v-if="summary" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+  <div v-if="summary" class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
     <UiStatCard
       :label="t('admin_reports.kpi_exams')"
       :value="String(summary.total_exams)"
@@ -150,6 +147,12 @@ onMounted(load)
     <UiStatCard
       :label="t('admin_reports.kpi_pass_rate')"
       :value="`${summary.pass_rate}%`"
+      tone="success"
+    />
+    <UiStatCard
+      :label="t('admin_reports.kpi_flagged')"
+      :value="String(totalFlagged)"
+      :tone="totalFlagged > 0 ? 'warning' : 'default'"
     />
   </div>
 
