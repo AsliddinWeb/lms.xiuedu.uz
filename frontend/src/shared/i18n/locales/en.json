@@ -1736,7 +1736,9 @@
     "status_draft": "Draft",
     "status_review": "In review",
     "status_published": "Published",
-    "status_archived": "Archived"
+    "status_archived": "Archived",
+    "kpi_total": "Total content",
+    "col_size": "Size"
   },
   "user_picker": {
     "search_placeholder": "Search by email or name",

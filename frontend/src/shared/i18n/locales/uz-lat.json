@@ -1736,7 +1736,9 @@
     "status_draft": "Qoralama",
     "status_review": "Ko'rib chiqilmoqda",
     "status_published": "Nashr etilgan",
-    "status_archived": "Arxiv"
+    "status_archived": "Arxiv",
+    "kpi_total": "Jami kontent",
+    "col_size": "Hajmi"
   },
   "user_picker": {
     "search_placeholder": "Email yoki ism bo'yicha qidirish",

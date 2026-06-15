@@ -9,6 +9,7 @@ import UiBadge from '@shared/components/ui/UiBadge.vue'
 import UiButton from '@shared/components/ui/UiButton.vue'
 import UiCard from '@shared/components/ui/UiCard.vue'
 import UiSelect from '@shared/components/ui/UiSelect.vue'
+import UiStatCard from '@shared/components/ui/UiStatCard.vue'
 import { contentApi } from '@shared/api/content'
 import { usersApi } from '@shared/api/users'
 import { useAuthStore } from '@shared/stores/auth'
@@ -29,6 +30,21 @@ const acting = ref<number | null>(null)
 const searchQ = ref('')
 const typeFilter = ref<ContentType | ''>('')
 const statusFilter = ref<ContentStatus | ''>('')
+
+const page = ref(1)
+const pageSize = 20
+const total = ref(0)
+const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize)))
+
+const stats = ref({ total: 0, published: 0, draft: 0, review: 0, archived: 0 })
+async function loadStats() {
+  const count = (status?: ContentStatus) =>
+    contentApi.list({ status, page: 1, page_size: 1 }).then((r) => r.total).catch(() => 0)
+  const [tot, pub, dr, rev, arc] = await Promise.all([
+    count(), count('published'), count('draft'), count('review'), count('archived'),
+  ])
+  stats.value = { total: tot, published: pub, draft: dr, review: rev, archived: arc }
+}
 
 const typeOptions = computed(() => [
   { value: '' as ContentType | '', label: t('admin_content.all_types') },
@@ -58,9 +74,11 @@ async function load() {
       type: typeFilter.value || undefined,
       status: statusFilter.value || undefined,
       q: searchQ.value || undefined,
-      page_size: 100,
+      page: page.value,
+      page_size: pageSize,
     })
     items.value = data.items
+    total.value = data.total
 
     const authorIds = Array.from(new Set(items.value.map((c) => c.author_id)))
     const missing = authorIds.filter((id) => !(id in authorNames.value))
@@ -81,13 +99,20 @@ async function load() {
   }
 }
 
-onMounted(load)
+onMounted(() => {
+  void loadStats()
+  void load()
+})
 
 let searchTimer: ReturnType<typeof setTimeout> | null = null
 watch([searchQ, typeFilter, statusFilter], () => {
   if (searchTimer) clearTimeout(searchTimer)
-  searchTimer = setTimeout(load, 250)
+  searchTimer = setTimeout(() => {
+    page.value = 1
+    void load()
+  }, 250)
 })
+watch(page, load)
 
 function statusVariant(s: ContentStatus): 'default' | 'success' | 'warning' {
   if (s === 'published') return 'success'
@@ -97,6 +122,19 @@ function statusVariant(s: ContentStatus): 'default' | 'success' | 'warning' {
 
 function authorLabel(c: ContentItem): string {
   return authorNames.value[c.author_id] ?? `#${c.author_id}`
+}
+
+function humanFileSize(bytes: number | null): string {
+  if (bytes == null) return '—'
+  if (bytes < 1024) return `${bytes} B`
+  const units = ['KB', 'MB', 'GB']
+  let v = bytes / 1024
+  let i = 0
+  while (v >= 1024 && i < units.length - 1) {
+    v /= 1024
+    i++
+  }
+  return `${v.toFixed(1)} ${units[i]}`
 }
 
 function fmtDate(s: string): string {
@@ -153,8 +191,17 @@ function canArchive(c: ContentItem): boolean {
 <template>
   <div class="mb-6">
     <UiBreadcrumb :items="['Admin', t('admin_content.title')]" class="mb-6" />
-      <h1 class="page-title mb-1.5">{{ t('admin_content.title') }}</h1>
+    <h1 class="page-title mb-1.5">{{ t('admin_content.title') }}</h1>
     <p class="page-subtitle">{{ t('admin_content.subtitle') }}</p>
+  </div>
+
+  <!-- KPI -->
+  <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
+    <UiStatCard :label="t('admin_content.kpi_total')" :value="String(stats.total)" />
+    <UiStatCard :label="t('admin_content.status_published')" :value="String(stats.published)" tone="success" />
+    <UiStatCard :label="t('admin_content.status_review')" :value="String(stats.review)" :tone="stats.review > 0 ? 'warning' : 'default'" />
+    <UiStatCard :label="t('admin_content.status_draft')" :value="String(stats.draft)" />
+    <UiStatCard :label="t('admin_content.status_archived')" :value="String(stats.archived)" />
   </div>
 
   <UiCard class="mb-4" no-padding>
@@ -200,6 +247,9 @@ function canArchive(c: ContentItem): boolean {
               class="text-[11px] text-muted-foreground mt-0.5 line-clamp-1 max-w-[280px]"
             >
               {{ c.description }}
+            </div>
+            <div v-if="c.file_size" class="font-mono text-[10px] text-muted-foreground mt-0.5">
+              {{ humanFileSize(c.file_size) }}
             </div>
           </td>
           <td class="px-4 py-3">
@@ -249,5 +299,20 @@ function canArchive(c: ContentItem): boolean {
         </tr>
       </tbody>
     </table>
+
+    <div
+      v-if="items.length > 0"
+      class="flex items-center justify-between px-4 py-3 border-t border-border text-[12px] text-muted-foreground"
+    >
+      <div>
+        {{ t('common.total') }}: <span class="font-mono text-foreground">{{ total }}</span> ·
+        {{ t('common.page') }} <span class="font-mono text-foreground">{{ page }}</span> /
+        <span class="font-mono">{{ totalPages }}</span>
+      </div>
+      <div class="flex gap-2">
+        <UiButton variant="outline" size="sm" :disabled="page <= 1 || loading" @click="page--">← {{ t('common.prev') }}</UiButton>
+        <UiButton variant="outline" size="sm" :disabled="page >= totalPages || loading" @click="page++">{{ t('common.next') }} →</UiButton>
+      </div>
+    </div>
   </UiCard>
 </template>

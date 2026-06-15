@@ -1736,7 +1736,9 @@
     "status_draft": "Черновик",
     "status_review": "На рассмотрении",
     "status_published": "Опубликован",
-    "status_archived": "Архив"
+    "status_archived": "Архив",
+    "kpi_total": "Всего контента",
+    "col_size": "Размер"
   },
   "user_picker": {
     "search_placeholder": "Поиск по email или имени",

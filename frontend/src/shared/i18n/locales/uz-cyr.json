@@ -1736,7 +1736,9 @@
     "status_draft": "Қоралама",
     "status_review": "Кўриб чиқилмоқда",
     "status_published": "Нашр этилган",
-    "status_archived": "Архив"
+    "status_archived": "Архив",
+    "kpi_total": "Жами контент",
+    "col_size": "Ҳажми"
   },
   "user_picker": {
     "search_placeholder": "Email ёки исм бўйича қидириш",
