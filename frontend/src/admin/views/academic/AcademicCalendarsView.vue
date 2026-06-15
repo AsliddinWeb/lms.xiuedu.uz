@@ -38,7 +38,7 @@ async function load() {
       currentId.value = null
     }
   } catch (e) {
-    error.value = extractErrorMessage(e, 'Yuklashda xato')
+    error.value = extractErrorMessage(e, t('common.load_error'))
   } finally {
     loading.value = false
   }
@@ -86,7 +86,7 @@ function fmtRange(s: string, e: string) {
 <template>
   <div class="mb-6 flex items-end justify-between gap-6">
     <div>
-      <UiBreadcrumb :items="['Admin', 'Akademik', t('calendar.title')]" class="mb-6" />
+      <UiBreadcrumb :items="['Admin', t('admin_academic.section_label'), t('calendar.title')]" class="mb-6" />
       <h1 class="page-title mb-1.5">{{ t('calendar.title') }}</h1>
       <p class="page-subtitle">{{ t('calendar.subtitle') }}</p>
     </div>
