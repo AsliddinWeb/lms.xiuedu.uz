@@ -1999,7 +1999,10 @@
     "no_sessions": "Live занятия не найдены.",
     "col_host": "Host",
     "col_recording": "Запись",
-    "recording_yes": "Есть"
+    "recording_yes": "Есть",
+    "kpi_total": "Всего занятий",
+    "minutes_short": "мин",
+    "export_csv": "Экспорт CSV"
   },
   "exams": {
     "tab_exams": "Экзамены",

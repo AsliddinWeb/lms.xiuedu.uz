@@ -1999,7 +1999,10 @@
     "no_sessions": "No live classes found.",
     "col_host": "Host",
     "col_recording": "Recording",
-    "recording_yes": "Available"
+    "recording_yes": "Available",
+    "kpi_total": "Total sessions",
+    "minutes_short": "min",
+    "export_csv": "Export CSV"
   },
   "exams": {
     "tab_exams": "Exams",

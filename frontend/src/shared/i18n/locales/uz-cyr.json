@@ -1999,7 +1999,10 @@
     "no_sessions": "Live дарслар топилмади.",
     "col_host": "Host",
     "col_recording": "Recording",
-    "recording_yes": "Мавжуд"
+    "recording_yes": "Мавжуд",
+    "kpi_total": "Жами дарслар",
+    "minutes_short": "дақ",
+    "export_csv": "CSV экспорт"
   },
   "exams": {
     "tab_exams": "Имтиҳонлар",

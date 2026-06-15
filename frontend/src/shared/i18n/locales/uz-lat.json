@@ -1999,7 +1999,10 @@
     "no_sessions": "Live darslar topilmadi.",
     "col_host": "Host",
     "col_recording": "Recording",
-    "recording_yes": "Mavjud"
+    "recording_yes": "Mavjud",
+    "kpi_total": "Jami darslar",
+    "minutes_short": "daq",
+    "export_csv": "CSV eksport"
   },
   "exams": {
     "tab_exams": "Imtihonlar",
