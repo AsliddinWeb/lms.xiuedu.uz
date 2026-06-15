@@ -479,13 +479,40 @@ async def unpublish_course(
     redis: RedisClient,
     _u: User = Depends(require_permission("course.publish")),
 ) -> CoursePublic:
+    """Kursni qoralama (draft) holatiga qaytaradi — published yoki archived'dan."""
     if not await _user_can_manage_course(db, redis, actor, course_id):
-        raise ForbiddenError("Bu kursni unpublish qilish huquqi yo'q")
-    # published → archived → draft (2 ta o'tish kerak)
+        raise ForbiddenError("Bu kursni qaytarish huquqi yo'q")
+    current = await service.get_course(db, course_id)
+    if current.status == "published":
+        # published → archived → draft (2 ta o'tish kerak)
+        await service.transition_course_status(db, course_id, new_status="archived")
+        course = await service.transition_course_status(
+            db, course_id, new_status="draft"
+        )
+    elif current.status == "archived":
+        course = await service.transition_course_status(
+            db, course_id, new_status="draft"
+        )
+    else:
+        course = current  # allaqachon draft — no-op
+    await db.commit()
+    return CoursePublic.model_validate(course)
+
+
+@router.post("/courses/{course_id}/archive", response_model=CoursePublic)
+async def archive_course(
+    course_id: int,
+    db: DbSession,
+    actor: CurrentUser,
+    redis: RedisClient,
+    _u: User = Depends(require_permission("course.publish")),
+) -> CoursePublic:
+    """Kursni arxivlaydi (draft yoki published'dan -> archived)."""
+    if not await _user_can_manage_course(db, redis, actor, course_id):
+        raise ForbiddenError("Bu kursni arxivlash huquqi yo'q")
     course = await service.transition_course_status(
         db, course_id, new_status="archived"
     )
-    course = await service.transition_course_status(db, course_id, new_status="draft")
     await db.commit()
     return CoursePublic.model_validate(course)
 

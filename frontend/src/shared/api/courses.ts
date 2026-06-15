@@ -56,6 +56,9 @@ export const coursesApi = {
   async unpublish(id: number): Promise<Course> {
     return (await apiClient.post<Course>(`/courses/${id}/unpublish`)).data
   },
+  async archive(id: number): Promise<Course> {
+    return (await apiClient.post<Course>(`/courses/${id}/archive`)).data
+  },
 }
 
 // ============================================================================
