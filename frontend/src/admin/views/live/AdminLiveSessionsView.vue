@@ -106,7 +106,7 @@ function statusVariant(s: LiveStatus): 'default' | 'success' | 'warning' {
       {{ t('admin_live.no_sessions') }}
     </div>
     <table v-else class="w-full text-[13px]">
-      <thead class="bg-muted/50 text-[11px] uppercase tracking-wider text-muted-foreground">
+      <thead class="bg-muted text-[11px] uppercase tracking-wider text-muted-foreground">
         <tr>
           <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('live.col_title') }}</th>
           <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('live.col_start') }}</th>

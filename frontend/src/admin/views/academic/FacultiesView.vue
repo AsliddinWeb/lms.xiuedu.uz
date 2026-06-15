@@ -139,7 +139,7 @@ const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize))
       <table class="w-full text-[13px]">
         <caption class="sr-only">{{ t('admin_academic.faculties_table_caption') }}</caption>
         <thead>
-          <tr class="border-b border-border bg-muted/50">
+          <tr class="bg-muted">
             <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_academic.col_code') }}</th>
             <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_academic.col_faculty') }}</th>
             <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_academic.col_dean') }}</th>

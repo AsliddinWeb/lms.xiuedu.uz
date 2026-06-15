@@ -229,7 +229,7 @@ async function triggerSync(entity: 'students' | 'employees' | 'departments' | 'g
     <div class="overflow-x-auto">
       <table class="w-full text-[13px]">
         <thead>
-          <tr class="border-b border-border bg-muted/50">
+          <tr class="bg-muted">
             <th scope="col" class="text-left px-4 py-3 mono-tag">ID</th>
             <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('hemis_log.col_type') }}</th>
             <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('hemis_log.col_target') }}</th>

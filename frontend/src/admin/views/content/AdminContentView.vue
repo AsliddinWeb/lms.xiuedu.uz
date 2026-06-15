@@ -176,7 +176,7 @@ function canArchive(c: ContentItem): boolean {
       {{ t('admin_content.no_content') }}
     </div>
     <table v-else class="w-full text-[13px]">
-      <thead class="bg-muted/50 text-[11px] uppercase tracking-wider text-muted-foreground">
+      <thead class="bg-muted text-[11px] uppercase tracking-wider text-muted-foreground">
         <tr>
           <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('admin_content.col_title') }}</th>
           <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('admin_content.col_type') }}</th>

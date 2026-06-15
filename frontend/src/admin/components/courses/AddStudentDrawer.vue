@@ -62,7 +62,7 @@ watch(searchQ, (q) => {
       const data = await usersApi.list({ q: q.trim(), role: 'student', page_size: 20 })
       results.value = data.items
     } catch (e) {
-      errorMsg.value = extractErrorMessage(e, 'Yuklashda xato')
+      errorMsg.value = extractErrorMessage(e, t('common.load_error'))
     } finally {
       loading.value = false
     }

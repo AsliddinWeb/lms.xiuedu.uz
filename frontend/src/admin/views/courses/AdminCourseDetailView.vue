@@ -73,7 +73,7 @@ async function loadCourse() {
       router.replace({ name: 'admin-courses' })
       return
     }
-    error.value = extractErrorMessage(e, 'Yuklashda xato')
+    error.value = extractErrorMessage(e, t('common.load_error'))
   } finally {
     loading.value = false
   }
@@ -95,7 +95,7 @@ async function loadStudents() {
     const data = await enrollmentsApi.listStudents(courseId.value, { page_size: 200 })
     students.value = data.items
   } catch (e) {
-    error.value = extractErrorMessage(e, 'Talabalarni yuklashda xato')
+    error.value = extractErrorMessage(e, t('common.load_error'))
   }
 }
 
@@ -292,7 +292,7 @@ function fmtDate(s: string | null | undefined): string {
           {{ t('admin_courses.students_empty') }}
         </div>
         <table v-else class="w-full text-[13px]">
-          <thead class="bg-muted/50 text-[11px] uppercase tracking-wider text-muted-foreground">
+          <thead class="bg-muted text-[11px] uppercase tracking-wider text-muted-foreground">
             <tr>
               <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('students.col_name') }}</th>
               <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('students.col_email') }}</th>

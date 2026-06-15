@@ -175,7 +175,7 @@ const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize))
     <div class="overflow-x-auto">
       <table class="w-full text-[13px]">
         <thead>
-          <tr class="border-b border-border bg-muted/50">
+          <tr class="bg-muted">
             <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_academic.col_dts') }}</th>
             <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_academic.col_specialty') }}</th>
             <th scope="col" class="text-left px-4 py-3 mono-tag">{{ t('admin_academic.col_level_duration') }}</th>

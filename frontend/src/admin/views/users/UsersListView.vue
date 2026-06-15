@@ -273,7 +273,7 @@ async function bulkSetActive(active: boolean) {
     <div class="overflow-x-auto">
       <table class="w-full text-[13px]">
         <thead>
-          <tr class="border-b border-border bg-muted/50">
+          <tr class="bg-muted">
             <th scope="col" class="px-4 py-3 w-10">
               <input
                 type="checkbox"
