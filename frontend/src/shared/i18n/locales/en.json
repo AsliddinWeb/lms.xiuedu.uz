@@ -1753,7 +1753,8 @@
     "delete": "Delete",
     "delete_confirm": "Delete content?",
     "action_restore": "Restore (draft)",
-    "action_archive": "Archive"
+    "action_archive": "Archive",
+    "export_csv": "Export CSV"
   },
   "user_picker": {
     "search_placeholder": "Search by email or name",

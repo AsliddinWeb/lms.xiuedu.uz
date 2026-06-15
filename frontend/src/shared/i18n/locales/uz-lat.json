@@ -1753,7 +1753,8 @@
     "delete": "O'chirish",
     "delete_confirm": "Kontentni o'chirish?",
     "action_restore": "Tiklash (qoralama)",
-    "action_archive": "Arxivlash"
+    "action_archive": "Arxivlash",
+    "export_csv": "CSV eksport"
   },
   "user_picker": {
     "search_placeholder": "Email yoki ism bo'yicha qidirish",

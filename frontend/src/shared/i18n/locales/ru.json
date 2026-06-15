@@ -1753,7 +1753,8 @@
     "delete": "Удалить",
     "delete_confirm": "Удалить контент?",
     "action_restore": "Восстановить (черновик)",
-    "action_archive": "Архивировать"
+    "action_archive": "Архивировать",
+    "export_csv": "Экспорт CSV"
   },
   "user_picker": {
     "search_placeholder": "Поиск по email или имени",

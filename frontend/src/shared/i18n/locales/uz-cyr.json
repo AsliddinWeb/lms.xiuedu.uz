@@ -1753,7 +1753,8 @@
     "delete": "Ўчириш",
     "delete_confirm": "Контентни ўчириш?",
     "action_restore": "Тиклаш (қоралама)",
-    "action_archive": "Архивлаш"
+    "action_archive": "Архивлаш",
+    "export_csv": "CSV экспорт"
   },
   "user_picker": {
     "search_placeholder": "Email ёки исм бўйича қидириш",
