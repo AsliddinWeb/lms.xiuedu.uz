@@ -1738,7 +1738,22 @@
     "status_published": "Нашр этилган",
     "status_archived": "Архив",
     "kpi_total": "Жами контент",
-    "col_size": "Ҳажми"
+    "col_size": "Ҳажми",
+    "detail_title": "Контент тафсилотлари",
+    "f_description": "Тавсиф",
+    "f_subject": "Фан",
+    "f_mime": "MIME тури",
+    "f_duration": "Давомийлик",
+    "f_tags": "Теглар",
+    "f_no_tags": "Тег йўқ",
+    "f_created": "Яратилган",
+    "f_meta": "Маълумотлар",
+    "f_file": "Файл",
+    "view": "Кўриш",
+    "delete": "Ўчириш",
+    "delete_confirm": "Контентни ўчириш?",
+    "action_restore": "Тиклаш (қоралама)",
+    "action_archive": "Архивлаш"
   },
   "user_picker": {
     "search_placeholder": "Email ёки исм бўйича қидириш",

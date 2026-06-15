@@ -1738,7 +1738,22 @@
     "status_published": "Опубликован",
     "status_archived": "Архив",
     "kpi_total": "Всего контента",
-    "col_size": "Размер"
+    "col_size": "Размер",
+    "detail_title": "Детали контента",
+    "f_description": "Описание",
+    "f_subject": "Предмет",
+    "f_mime": "MIME тип",
+    "f_duration": "Длительность",
+    "f_tags": "Теги",
+    "f_no_tags": "Нет тегов",
+    "f_created": "Создан",
+    "f_meta": "Данные",
+    "f_file": "Файл",
+    "view": "Просмотр",
+    "delete": "Удалить",
+    "delete_confirm": "Удалить контент?",
+    "action_restore": "Восстановить (черновик)",
+    "action_archive": "Архивировать"
   },
   "user_picker": {
     "search_placeholder": "Поиск по email или имени",

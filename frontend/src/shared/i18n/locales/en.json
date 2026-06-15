@@ -1738,7 +1738,22 @@
     "status_published": "Published",
     "status_archived": "Archived",
     "kpi_total": "Total content",
-    "col_size": "Size"
+    "col_size": "Size",
+    "detail_title": "Content details",
+    "f_description": "Description",
+    "f_subject": "Subject",
+    "f_mime": "MIME type",
+    "f_duration": "Duration",
+    "f_tags": "Tags",
+    "f_no_tags": "No tags",
+    "f_created": "Created",
+    "f_meta": "Metadata",
+    "f_file": "File",
+    "view": "View",
+    "delete": "Delete",
+    "delete_confirm": "Delete content?",
+    "action_restore": "Restore (draft)",
+    "action_archive": "Archive"
   },
   "user_picker": {
     "search_placeholder": "Search by email or name",

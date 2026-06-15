@@ -16,6 +16,7 @@ import { useAuthStore } from '@shared/stores/auth'
 import { extractErrorMessage } from '@shared/api/client'
 import { confirm } from '@shared/composables/useConfirm'
 import { toast } from '@shared/composables/useToast'
+import ContentDetailDrawer from '@admin/components/content/ContentDetailDrawer.vue'
 import type { ContentItem, ContentStatus, ContentType } from '@shared/types/content'
 
 const { t, locale } = useI18n()
@@ -186,6 +187,50 @@ function canPublish(c: ContentItem): boolean {
 function canArchive(c: ContentItem): boolean {
   return auth.hasPermission('content.publish') && c.status === 'published'
 }
+
+// Detail drawer + moderatsiya
+const detailOpen = ref(false)
+const selected = ref<ContentItem | null>(null)
+function openDetail(c: ContentItem) {
+  selected.value = c
+  detailOpen.value = true
+}
+
+async function onDrawerTransition(status: ContentStatus) {
+  if (!selected.value) return
+  acting.value = selected.value.id
+  try {
+    selected.value = await contentApi.transition(selected.value.id, status)
+    await load()
+    await loadStats()
+    toast.success(t('common.saved'))
+  } catch (e) {
+    toast.error(extractErrorMessage(e, t('common.save_error')))
+  } finally {
+    acting.value = null
+  }
+}
+
+async function onDrawerRemove() {
+  if (!selected.value) return
+  const ok = await confirm({
+    title: t('admin_content.delete_confirm'),
+    description: selected.value.title,
+    variant: 'danger',
+    confirmLabel: t('admin_content.delete'),
+    cancelLabel: t('common.cancel'),
+  })
+  if (!ok) return
+  try {
+    await contentApi.remove(selected.value.id)
+    detailOpen.value = false
+    await load()
+    await loadStats()
+    toast.success(t('common.deleted'))
+  } catch (e) {
+    toast.error(extractErrorMessage(e, t('common.delete_error')))
+  }
+}
 </script>
 
 <template>
@@ -268,15 +313,9 @@ function canArchive(c: ContentItem): boolean {
           </td>
           <td class="px-4 py-3 text-right">
             <div class="flex justify-end gap-1.5">
-              <a
-                v-if="c.file_url"
-                :href="c.file_url"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="inline-flex items-center justify-center rounded-md border border-border-strong bg-background text-foreground hover:bg-muted px-2.5 py-1.5 text-xs font-medium transition-colors"
-              >
-                {{ t('admin_content.preview') }}
-              </a>
+              <UiButton variant="outline" size="sm" @click="openDetail(c)">
+                {{ t('admin_content.view') }}
+              </UiButton>
               <UiButton
                 v-if="canPublish(c)"
                 size="sm"
@@ -315,4 +354,14 @@ function canArchive(c: ContentItem): boolean {
       </div>
     </div>
   </UiCard>
+
+  <ContentDetailDrawer
+    :open="detailOpen"
+    :content="selected"
+    :author-name="selected ? authorLabel(selected) : ''"
+    :acting="acting === selected?.id"
+    @close="detailOpen = false"
+    @transition="onDrawerTransition"
+    @remove="onDrawerRemove"
+  />
 </template>

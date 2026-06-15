@@ -30,4 +30,7 @@ export const contentApi = {
   async transition(id: number, status: ContentStatus): Promise<ContentItem> {
     return (await apiClient.post<ContentItem>(`/content/${id}/publish`, { status })).data
   },
+  async remove(id: number): Promise<void> {
+    await apiClient.delete(`/content/${id}`)
+  },
 }
