@@ -1703,7 +1703,9 @@
     "action_archive": "Arxivlash",
     "unpublish_confirm": "Kursni qoralamaga qaytarish?",
     "archive_confirm": "Kursni arxivlash?",
-    "delete_confirm": "Kursni o'chirish?"
+    "delete_confirm": "Kursni o'chirish?",
+    "kpi_total": "Jami kurslar",
+    "col_created": "Yaratilgan"
   },
   "admin_content": {
     "tag": "KONTENT (TIZIM)",

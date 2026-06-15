@@ -1703,7 +1703,9 @@
     "action_archive": "Архивировать",
     "unpublish_confirm": "Вернуть курс в черновик?",
     "archive_confirm": "Архивировать курс?",
-    "delete_confirm": "Удалить курс?"
+    "delete_confirm": "Удалить курс?",
+    "kpi_total": "Всего курсов",
+    "col_created": "Создан"
   },
   "admin_content": {
     "tag": "КОНТЕНТ (СИСТЕМА)",

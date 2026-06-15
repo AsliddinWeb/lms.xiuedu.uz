@@ -1703,7 +1703,9 @@
     "action_archive": "Archive",
     "unpublish_confirm": "Unpublish course?",
     "archive_confirm": "Archive course?",
-    "delete_confirm": "Delete course?"
+    "delete_confirm": "Delete course?",
+    "kpi_total": "Total courses",
+    "col_created": "Created"
   },
   "admin_content": {
     "tag": "CONTENT (SYSTEM)",

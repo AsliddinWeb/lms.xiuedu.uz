@@ -1703,7 +1703,9 @@
     "action_archive": "Архивлаш",
     "unpublish_confirm": "Курсни қораламага қайтариш?",
     "archive_confirm": "Курсни архивлаш?",
-    "delete_confirm": "Курсни ўчириш?"
+    "delete_confirm": "Курсни ўчириш?",
+    "kpi_total": "Жами курслар",
+    "col_created": "Яратилган"
   },
   "admin_content": {
     "tag": "КОНТЕНТ (ТИЗИМ)",
