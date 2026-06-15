@@ -1732,7 +1732,11 @@
     "unpublish": "Archive",
     "preview": "Просмотр",
     "transition_published_confirm": "Опубликовать этот контент?",
-    "transition_archived_confirm": "Архивировать этот контент?"
+    "transition_archived_confirm": "Архивировать этот контент?",
+    "status_draft": "Черновик",
+    "status_review": "На рассмотрении",
+    "status_published": "Опубликован",
+    "status_archived": "Архив"
   },
   "user_picker": {
     "search_placeholder": "Поиск по email или имени",

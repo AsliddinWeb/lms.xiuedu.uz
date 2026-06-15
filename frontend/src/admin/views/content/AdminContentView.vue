@@ -41,11 +41,14 @@ const typeOptions = computed(() => [
 
 const statusOptions = computed(() => [
   { value: '' as ContentStatus | '', label: t('admin_content.all_statuses') },
-  { value: 'draft', label: t('courses.status_draft') },
-  { value: 'review', label: 'Review' },
-  { value: 'published', label: t('courses.status_published') },
-  { value: 'archived', label: t('courses.status_archived') },
+  { value: 'draft', label: t('admin_content.status_draft') },
+  { value: 'review', label: t('admin_content.status_review') },
+  { value: 'published', label: t('admin_content.status_published') },
+  { value: 'archived', label: t('admin_content.status_archived') },
 ])
+function statusLabel(s: ContentStatus): string {
+  return t(`admin_content.status_${s}`)
+}
 
 async function load() {
   loading.value = true
@@ -72,7 +75,7 @@ async function load() {
       }),
     )
   } catch (e) {
-    error.value = extractErrorMessage(e, 'Yuklashda xato')
+    error.value = extractErrorMessage(e, t('common.load_error'))
   } finally {
     loading.value = false
   }
@@ -207,7 +210,7 @@ function canArchive(c: ContentItem): boolean {
           <td class="px-4 py-3 font-mono text-[12px]">v{{ c.version }}</td>
           <td class="px-4 py-3">
             <UiBadge :variant="statusVariant(c.status)" with-dot>
-              {{ c.status }}
+              {{ statusLabel(c.status) }}
             </UiBadge>
           </td>
           <td class="px-4 py-3 font-mono text-[12px] text-muted-foreground">

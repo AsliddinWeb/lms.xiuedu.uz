@@ -1732,7 +1732,11 @@
     "unpublish": "Archive",
     "preview": "Кўриш",
     "transition_published_confirm": "Бу контентни publish қиласизми?",
-    "transition_archived_confirm": "Бу контентни архивга оласизми?"
+    "transition_archived_confirm": "Бу контентни архивга оласизми?",
+    "status_draft": "Қоралама",
+    "status_review": "Кўриб чиқилмоқда",
+    "status_published": "Нашр этилган",
+    "status_archived": "Архив"
   },
   "user_picker": {
     "search_placeholder": "Email ёки исм бўйича қидириш",

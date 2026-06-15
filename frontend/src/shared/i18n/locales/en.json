@@ -1732,7 +1732,11 @@
     "unpublish": "Archive",
     "preview": "Preview",
     "transition_published_confirm": "Publish this content?",
-    "transition_archived_confirm": "Archive this content?"
+    "transition_archived_confirm": "Archive this content?",
+    "status_draft": "Draft",
+    "status_review": "In review",
+    "status_published": "Published",
+    "status_archived": "Archived"
   },
   "user_picker": {
     "search_placeholder": "Search by email or name",
