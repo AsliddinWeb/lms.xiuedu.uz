@@ -1705,7 +1705,8 @@
     "archive_confirm": "Архивировать курс?",
     "delete_confirm": "Удалить курс?",
     "kpi_total": "Всего курсов",
-    "col_created": "Создан"
+    "col_created": "Создан",
+    "export_csv": "Экспорт CSV"
   },
   "admin_content": {
     "tag": "КОНТЕНТ (СИСТЕМА)",

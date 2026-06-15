@@ -1705,7 +1705,8 @@
     "archive_confirm": "Курсни архивлаш?",
     "delete_confirm": "Курсни ўчириш?",
     "kpi_total": "Жами курслар",
-    "col_created": "Яратилган"
+    "col_created": "Яратилган",
+    "export_csv": "CSV экспорт"
   },
   "admin_content": {
     "tag": "КОНТЕНТ (ТИЗИМ)",

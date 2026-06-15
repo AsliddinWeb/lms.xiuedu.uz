@@ -15,6 +15,7 @@ import { coursesApi } from '@shared/api/courses'
 import { usersApi } from '@shared/api/users'
 import { extractErrorMessage } from '@shared/api/client'
 import { toast } from '@shared/composables/useToast'
+import { downloadBlob, timestampedFilename } from '@shared/utils/download'
 import CourseDrawer from '@shared/components/courses/CourseDrawer.vue'
 import type { Course, CourseStatus, CourseType } from '@shared/types/courses'
 
@@ -142,6 +143,57 @@ function authorLabel(c: Course): string {
 function fmtDate(s: string): string {
   return formatDate(s, locale.value, { day: '2-digit', month: 'short', year: 'numeric' })
 }
+
+// CSV eksport — joriy filtr bo'yicha barcha kurslar (client-side)
+const exporting = ref(false)
+function csvCell(v: string): string {
+  return `"${String(v).replace(/"/g, '""')}"`
+}
+async function exportCsv() {
+  exporting.value = true
+  try {
+    const all = await coursesApi.list({
+      status: statusFilter.value || undefined,
+      type: typeFilter.value || undefined,
+      q: searchQ.value || undefined,
+      page: 1,
+      page_size: 1000,
+    })
+    // Muallif nomlarini to'ldirish (yetishmaganlarni olib kelish)
+    const missing = Array.from(
+      new Set(all.items.map((c) => c.primary_author_id).filter((v): v is number => v !== null)),
+    ).filter((id) => !(id in authorNames.value))
+    await Promise.all(
+      missing.map(async (id) => {
+        try {
+          const u = await usersApi.get(id)
+          authorNames.value = { ...authorNames.value, [id]: u.full_name }
+        } catch {
+          authorNames.value = { ...authorNames.value, [id]: `#${id}` }
+        }
+      }),
+    )
+    const headers = [
+      t('admin_courses.col_title'), 'Slug', t('admin_courses.col_author'),
+      t('admin_courses.col_type'), t('admin_courses.col_status'),
+      t('admin_courses.col_students'), t('admin_courses.col_created'),
+    ]
+    const lines = [headers.map(csvCell).join(',')]
+    for (const c of all.items) {
+      lines.push([
+        c.title, c.slug, authorLabel(c),
+        t(`courses.type_${c.type}`), t(`courses.status_${c.status}`),
+        String(c.enrollment_count ?? ''), c.created_at.slice(0, 10),
+      ].map(csvCell).join(','))
+    }
+    const csv = '﻿' + lines.join('\r\n')
+    downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), timestampedFilename('kurslar'))
+  } catch (e) {
+    toast.error(extractErrorMessage(e, t('common.load_error')))
+  } finally {
+    exporting.value = false
+  }
+}
 </script>
 
 <template>
@@ -151,13 +203,18 @@ function fmtDate(s: string): string {
       <h1 class="page-title mb-1.5">{{ t('admin_courses.title') }}</h1>
       <p class="page-subtitle">{{ t('admin_courses.subtitle') }}</p>
     </div>
-    <UiButton v-permission="'course.create'" @click="openCreate">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor"
-        stroke-width="2" stroke-linecap="round">
-        <path d="M7 2v10M2 7h10" />
-      </svg>
-      {{ t('courses.drawer_new_title') }}
-    </UiButton>
+    <div class="flex items-center gap-2 shrink-0">
+      <UiButton variant="outline" :loading="exporting" @click="exportCsv">
+        {{ t('admin_courses.export_csv') }}
+      </UiButton>
+      <UiButton v-permission="'course.create'" @click="openCreate">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round">
+          <path d="M7 2v10M2 7h10" />
+        </svg>
+        {{ t('courses.drawer_new_title') }}
+      </UiButton>
+    </div>
   </div>
 
   <!-- KPI -->

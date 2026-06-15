@@ -1705,7 +1705,8 @@
     "archive_confirm": "Kursni arxivlash?",
     "delete_confirm": "Kursni o'chirish?",
     "kpi_total": "Jami kurslar",
-    "col_created": "Yaratilgan"
+    "col_created": "Yaratilgan",
+    "export_csv": "CSV eksport"
   },
   "admin_content": {
     "tag": "KONTENT (TIZIM)",

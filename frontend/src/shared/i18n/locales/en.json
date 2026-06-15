@@ -1705,7 +1705,8 @@
     "archive_confirm": "Archive course?",
     "delete_confirm": "Delete course?",
     "kpi_total": "Total courses",
-    "col_created": "Created"
+    "col_created": "Created",
+    "export_csv": "Export CSV"
   },
   "admin_content": {
     "tag": "CONTENT (SYSTEM)",
