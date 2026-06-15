@@ -1696,7 +1696,14 @@
     "remove_student_confirm": "Talabani kursdan chiqarish?",
     "structure_empty": "Modul yo'q",
     "module_lesson_count": "{n} dars",
-    "no_content_attached": "Kontent biriktirilmagan"
+    "no_content_attached": "Kontent biriktirilmagan",
+    "action_publish": "Nashr qilish",
+    "action_unpublish": "Qoralamaga qaytarish",
+    "action_restore": "Tiklash",
+    "action_archive": "Arxivlash",
+    "unpublish_confirm": "Kursni qoralamaga qaytarish?",
+    "archive_confirm": "Kursni arxivlash?",
+    "delete_confirm": "Kursni o'chirish?"
   },
   "admin_content": {
     "tag": "KONTENT (TIZIM)",

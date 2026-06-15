@@ -1696,7 +1696,14 @@
     "remove_student_confirm": "Талабани курсдан чиқариш?",
     "structure_empty": "Модул йўқ",
     "module_lesson_count": "{n} дарс",
-    "no_content_attached": "Контент бириктирилмаган"
+    "no_content_attached": "Контент бириктирилмаган",
+    "action_publish": "Нашр қилиш",
+    "action_unpublish": "Қораламага қайтариш",
+    "action_restore": "Тиклаш",
+    "action_archive": "Архивлаш",
+    "unpublish_confirm": "Курсни қораламага қайтариш?",
+    "archive_confirm": "Курсни архивлаш?",
+    "delete_confirm": "Курсни ўчириш?"
   },
   "admin_content": {
     "tag": "КОНТЕНТ (ТИЗИМ)",

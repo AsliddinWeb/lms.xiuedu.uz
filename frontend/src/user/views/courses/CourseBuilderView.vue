@@ -33,7 +33,7 @@ import type {
 import type { Exam, QuestionPublic } from '@shared/types/exams'
 
 import AssignmentDrawer from '@user/components/courses/AssignmentDrawer.vue'
-import CourseDrawer from '@user/components/courses/CourseDrawer.vue'
+import CourseDrawer from '@shared/components/courses/CourseDrawer.vue'
 import ExamDrawer from '@user/components/courses/ExamDrawer.vue'
 import LessonDrawer from '@user/components/courses/LessonDrawer.vue'
 import ModuleDrawer from '@user/components/courses/ModuleDrawer.vue'

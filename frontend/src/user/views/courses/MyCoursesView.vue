@@ -16,7 +16,7 @@ import { extractErrorMessage } from '@shared/api/client'
 import { useAuthStore } from '@shared/stores/auth'
 import type { Course, CourseStatus } from '@shared/types/courses'
 
-import CourseDrawer from '@user/components/courses/CourseDrawer.vue'
+import CourseDrawer from '@shared/components/courses/CourseDrawer.vue'
 
 const { t } = useI18n()
 const router = useRouter()

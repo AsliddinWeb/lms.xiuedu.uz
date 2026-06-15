@@ -27,6 +27,7 @@ import type {
 } from '@shared/types/courses'
 
 import AddStudentDrawer from '@admin/components/courses/AddStudentDrawer.vue'
+import CourseDrawer from '@shared/components/courses/CourseDrawer.vue'
 
 type Tab = 'overview' | 'students' | 'structure'
 
@@ -46,6 +47,65 @@ const tab = ref<Tab>('overview')
 const loading = ref(false)
 const error = ref<string | null>(null)
 const addOpen = ref(false)
+const editOpen = ref(false)
+
+function onCourseSaved(updated: Course) {
+  course.value = updated
+  toast.success(t('common.saved'))
+}
+
+const acting = ref(false)
+async function runStatusAction(
+  fn: () => Promise<Course>,
+  confirmKey?: string,
+): Promise<void> {
+  if (confirmKey) {
+    const ok = await confirm({
+      title: t(confirmKey),
+      description: course.value?.title,
+      confirmLabel: t('common.confirm'),
+      cancelLabel: t('common.cancel'),
+    })
+    if (!ok) return
+  }
+  acting.value = true
+  try {
+    course.value = await fn()
+    toast.success(t('common.saved'))
+  } catch (e) {
+    toast.error(extractErrorMessage(e, t('common.save_error')))
+  } finally {
+    acting.value = false
+  }
+}
+
+function handlePublish() {
+  runStatusAction(() => coursesApi.publish(courseId.value))
+}
+function handleUnpublish() {
+  runStatusAction(() => coursesApi.unpublish(courseId.value), 'admin_courses.unpublish_confirm')
+}
+function handleArchive() {
+  runStatusAction(() => coursesApi.archive(courseId.value), 'admin_courses.archive_confirm')
+}
+
+async function handleDeleteCourse() {
+  const ok = await confirm({
+    title: t('admin_courses.delete_confirm'),
+    description: course.value?.title,
+    variant: 'danger',
+    confirmLabel: t('common.delete'),
+    cancelLabel: t('common.cancel'),
+  })
+  if (!ok) return
+  try {
+    await coursesApi.remove(courseId.value)
+    toast.success(t('common.deleted'))
+    router.push({ name: 'admin-courses' })
+  } catch (e) {
+    toast.error(extractErrorMessage(e, t('common.delete_error')))
+  }
+}
 
 const totalLessons = computed(() =>
   Object.values(lessonsByModule.value).reduce((acc, arr) => acc + arr.length, 0),
@@ -173,6 +233,60 @@ function fmtDate(s: string | null | undefined): string {
           <p v-if="course.description" class="page-subtitle line-clamp-2">
             {{ course.description }}
           </p>
+        </div>
+
+        <!-- Moderatsiya amallari -->
+        <div class="flex items-center gap-2 shrink-0">
+          <UiButton
+            v-if="course.status === 'draft'"
+            v-permission="'course.publish'"
+            size="sm"
+            :loading="acting"
+            @click="handlePublish"
+          >
+            {{ t('admin_courses.action_publish') }}
+          </UiButton>
+          <UiButton
+            v-if="course.status === 'published'"
+            v-permission="'course.publish'"
+            variant="outline"
+            size="sm"
+            :loading="acting"
+            @click="handleUnpublish"
+          >
+            {{ t('admin_courses.action_unpublish') }}
+          </UiButton>
+          <UiButton
+            v-if="course.status === 'archived'"
+            v-permission="'course.publish'"
+            size="sm"
+            :loading="acting"
+            @click="handleUnpublish"
+          >
+            {{ t('admin_courses.action_restore') }}
+          </UiButton>
+          <UiButton
+            v-if="course.status !== 'archived'"
+            v-permission="'course.publish'"
+            variant="outline"
+            size="sm"
+            :loading="acting"
+            @click="handleArchive"
+          >
+            {{ t('admin_courses.action_archive') }}
+          </UiButton>
+          <UiButton v-permission="'course.edit'" variant="outline" size="sm" @click="editOpen = true">
+            {{ t('common.edit') }}
+          </UiButton>
+          <UiButton
+            v-permission="'course.edit'"
+            variant="ghost"
+            size="sm"
+            class="text-danger-600"
+            @click="handleDeleteCourse"
+          >
+            {{ t('common.delete') }}
+          </UiButton>
         </div>
       </div>
     </div>
@@ -397,6 +511,13 @@ function fmtDate(s: string | null | undefined): string {
       :course-id="courseId"
       @close="addOpen = false"
       @added="loadStudents"
+    />
+
+    <CourseDrawer
+      :open="editOpen"
+      :course="course"
+      @close="editOpen = false"
+      @saved="onCourseSaved"
     />
   </template>
 </template>

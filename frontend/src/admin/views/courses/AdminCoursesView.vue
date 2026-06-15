@@ -12,10 +12,27 @@ import UiSelect from '@shared/components/ui/UiSelect.vue'
 import { coursesApi } from '@shared/api/courses'
 import { usersApi } from '@shared/api/users'
 import { extractErrorMessage } from '@shared/api/client'
+import { toast } from '@shared/composables/useToast'
+import CourseDrawer from '@shared/components/courses/CourseDrawer.vue'
 import type { Course, CourseStatus, CourseType } from '@shared/types/courses'
 
 const { t } = useI18n()
 const router = useRouter()
+
+const drawerOpen = ref(false)
+const editing = ref<Course | null>(null)
+function openCreate() {
+  editing.value = null
+  drawerOpen.value = true
+}
+function openEdit(c: Course) {
+  editing.value = c
+  drawerOpen.value = true
+}
+function onSaved() {
+  toast.success(t('common.saved'))
+  void load()
+}
 
 const items = ref<Course[]>([])
 const authorNames = ref<Record<number, string>>({})
@@ -96,10 +113,19 @@ function authorLabel(c: Course): string {
 </script>
 
 <template>
-  <div class="mb-6">
-    <UiBreadcrumb :items="['Admin', t('admin_courses.title')]" class="mb-6" />
+  <div class="mb-6 flex items-end justify-between gap-6">
+    <div>
+      <UiBreadcrumb :items="['Admin', t('admin_courses.title')]" class="mb-6" />
       <h1 class="page-title mb-1.5">{{ t('admin_courses.title') }}</h1>
-    <p class="page-subtitle">{{ t('admin_courses.subtitle') }}</p>
+      <p class="page-subtitle">{{ t('admin_courses.subtitle') }}</p>
+    </div>
+    <UiButton v-permission="'course.create'" @click="openCreate">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor"
+        stroke-width="2" stroke-linecap="round">
+        <path d="M7 2v10M2 7h10" />
+      </svg>
+      {{ t('courses.drawer_new_title') }}
+    </UiButton>
   </div>
 
   <UiCard class="mb-4" no-padding>
@@ -152,7 +178,16 @@ function authorLabel(c: Course): string {
               {{ t(`courses.status_${c.status}`) }}
             </UiBadge>
           </td>
-          <td class="px-4 py-3 text-right">
+          <td class="px-4 py-3 text-right whitespace-nowrap">
+            <UiButton
+              v-permission="'course.edit'"
+              variant="ghost"
+              size="sm"
+              class="mr-1"
+              @click="openEdit(c)"
+            >
+              {{ t('common.edit') }}
+            </UiButton>
             <UiButton
               variant="outline"
               size="sm"
@@ -165,4 +200,11 @@ function authorLabel(c: Course): string {
       </tbody>
     </table>
   </UiCard>
+
+  <CourseDrawer
+    :open="drawerOpen"
+    :course="editing"
+    @close="drawerOpen = false"
+    @saved="onSaved"
+  />
 </template>

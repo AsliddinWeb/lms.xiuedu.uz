@@ -1696,7 +1696,14 @@
     "remove_student_confirm": "Удалить студента из курса?",
     "structure_empty": "Модулей нет",
     "module_lesson_count": "Уроков: {n}",
-    "no_content_attached": "Контент не прикреплён"
+    "no_content_attached": "Контент не прикреплён",
+    "action_publish": "Опубликовать",
+    "action_unpublish": "Вернуть в черновик",
+    "action_restore": "Восстановить",
+    "action_archive": "Архивировать",
+    "unpublish_confirm": "Вернуть курс в черновик?",
+    "archive_confirm": "Архивировать курс?",
+    "delete_confirm": "Удалить курс?"
   },
   "admin_content": {
     "tag": "КОНТЕНТ (СИСТЕМА)",

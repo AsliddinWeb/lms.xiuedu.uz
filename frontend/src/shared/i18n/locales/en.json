@@ -1696,7 +1696,14 @@
     "remove_student_confirm": "Remove student from course?",
     "structure_empty": "No modules",
     "module_lesson_count": "{n} lessons",
-    "no_content_attached": "No content attached"
+    "no_content_attached": "No content attached",
+    "action_publish": "Publish",
+    "action_unpublish": "Unpublish",
+    "action_restore": "Restore",
+    "action_archive": "Archive",
+    "unpublish_confirm": "Unpublish course?",
+    "archive_confirm": "Archive course?",
+    "delete_confirm": "Delete course?"
   },
   "admin_content": {
     "tag": "CONTENT (SYSTEM)",
