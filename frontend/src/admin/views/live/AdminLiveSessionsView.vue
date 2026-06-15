@@ -14,7 +14,9 @@ import UiStatCard from '@shared/components/ui/UiStatCard.vue'
 import { liveSessionsApi } from '@shared/api/live'
 import { extractErrorMessage } from '@shared/api/client'
 import { toast } from '@shared/composables/useToast'
+import { confirm } from '@shared/composables/useConfirm'
 import { downloadBlob, timestampedFilename } from '@shared/utils/download'
+import LiveSessionDetailDrawer from '@admin/components/live/LiveSessionDetailDrawer.vue'
 import type { LiveSession, LiveStatus } from '@shared/types/live'
 
 const { t, locale } = useI18n()
@@ -101,6 +103,69 @@ function statusVariant(s: LiveStatus): 'default' | 'success' | 'warning' {
   if (s === 'live') return 'success'
   if (s === 'cancelled') return 'warning'
   return 'default'
+}
+
+// Detail drawer + moderatsiya
+const detailOpen = ref(false)
+const selected = ref<LiveSession | null>(null)
+const acting = ref(false)
+function openDetail(s: LiveSession) {
+  selected.value = s
+  detailOpen.value = true
+}
+async function runAction(fn: () => Promise<unknown>, confirmKey: string, danger = false) {
+  if (!selected.value) return
+  const ok = await confirm({
+    title: t(confirmKey),
+    description: selected.value.title,
+    variant: danger ? 'danger' : 'default',
+    confirmLabel: t('common.confirm'),
+    cancelLabel: t('common.cancel'),
+  })
+  if (!ok) return
+  acting.value = true
+  try {
+    await fn()
+    await load()
+    await loadStats()
+    toast.success(t('common.saved'))
+  } catch (e) {
+    toast.error(extractErrorMessage(e, t('common.save_error')))
+  } finally {
+    acting.value = false
+  }
+}
+function onCancel() {
+  const id = selected.value!.id
+  runAction(() => liveSessionsApi.cancel(id), 'admin_live.cancel_confirm')
+}
+function onEnd() {
+  const id = selected.value!.id
+  runAction(() => liveSessionsApi.end(id), 'admin_live.end_confirm')
+}
+async function onRemove() {
+  if (!selected.value) return
+  const id = selected.value.id
+  const ok = await confirm({
+    title: t('admin_live.delete_confirm'),
+    description: selected.value.title,
+    variant: 'danger',
+    confirmLabel: t('admin_live.action_delete'),
+    cancelLabel: t('common.cancel'),
+  })
+  if (!ok) return
+  acting.value = true
+  try {
+    await liveSessionsApi.remove(id)
+    detailOpen.value = false
+    await load()
+    await loadStats()
+    toast.success(t('common.deleted'))
+  } catch (e) {
+    toast.error(extractErrorMessage(e, t('common.delete_error')))
+  } finally {
+    acting.value = false
+  }
 }
 
 // CSV eksport — joriy filtr bo'yicha barcha darslar
@@ -192,6 +257,7 @@ async function exportCsv() {
           <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('live.col_provider') }}</th>
           <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('live.col_status') }}</th>
           <th scope="col" class="text-left px-4 py-2.5 font-mono">{{ t('admin_live.col_recording') }}</th>
+          <th scope="col" class="px-4 py-2.5"></th>
         </tr>
       </thead>
       <tbody class="divide-y divide-border">
@@ -231,6 +297,11 @@ async function exportCsv() {
               —
             </span>
           </td>
+          <td class="px-4 py-3 text-right">
+            <UiButton variant="outline" size="sm" @click="openDetail(s)">
+              {{ t('admin_live.view') }}
+            </UiButton>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -250,4 +321,14 @@ async function exportCsv() {
       </div>
     </div>
   </UiCard>
+
+  <LiveSessionDetailDrawer
+    :open="detailOpen"
+    :session="selected"
+    :acting="acting"
+    @close="detailOpen = false"
+    @cancel="onCancel"
+    @end="onEnd"
+    @remove="onRemove"
+  />
 </template>
