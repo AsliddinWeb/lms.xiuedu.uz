@@ -75,10 +75,15 @@ const sections = computed<SidebarSection[]>(() => {
     { name: 'analytics', icon: 'analytics', label: t('admin_nav.analytics'), disabled: true, badge: 'Ph.9' },
   ]
 
+  // Boshqaruv — kirish/tashkilot
   const management: SidebarNavItem[] = [
     { name: 'admin-users', icon: 'users', label: t('admin_nav.users'), to: '/users', badge: counts.value.users },
     { name: 'admin-roles', icon: 'roles', label: t('admin_nav.roles'), to: '/roles', badge: counts.value.roles },
     { name: 'admin-university', icon: 'university', label: t('admin_nav.university'), to: '/university' },
+  ]
+
+  // Akademik tuzilma (breadcrumb'lar bilan izchil — admin_academic.section_label)
+  const academic: SidebarNavItem[] = [
     { name: 'admin-faculties', icon: 'faculties', label: t('admin_nav.faculties'), to: '/faculties', badge: counts.value.faculties },
     { name: 'admin-departments', icon: 'departments', label: t('admin_nav.departments'), to: '/departments', badge: counts.value.departments },
     { name: 'admin-specialties', icon: 'specialties', label: t('admin_nav.specialties'), to: '/specialties', badge: counts.value.specialties },
@@ -96,6 +101,7 @@ const sections = computed<SidebarSection[]>(() => {
   return [
     { title: t('admin_nav.overview'), items: overview },
     { title: t('admin_nav.management'), items: management },
+    { title: t('admin_academic.section_label'), items: academic },
     { title: t('admin_nav.learning_section'), items: learning },
   ]
 })
