@@ -23,6 +23,7 @@ import { extractErrorMessage } from '@shared/api/client'
 import { confirm } from '@shared/composables/useConfirm'
 import { toast } from '@shared/composables/useToast'
 import { formatDateTime } from '@shared/utils/datetime'
+import HemisSyncDetailDrawer from '@admin/components/integrations/HemisSyncDetailDrawer.vue'
 
 const { t, locale } = useI18n()
 
@@ -123,6 +124,20 @@ function fmtDateTime(s: string | null): string {
     return formatDateTime(s, locale.value)
   } catch {
     return s
+  }
+}
+
+// Detail drawer
+const detailOpen = ref(false)
+const selected = ref<HemisSyncLogItem | null>(null)
+function openDetail(it: HemisSyncLogItem) {
+  selected.value = it
+  detailOpen.value = true
+}
+function onDrawerRetry() {
+  if (selected.value) {
+    detailOpen.value = false
+    void retry(selected.value)
   }
 }
 
@@ -301,10 +316,13 @@ async function triggerSync(entity: 'students' | 'employees' | 'departments' | 'g
             <td class="px-4 py-3 font-mono text-[11px] text-muted-foreground whitespace-nowrap">
               {{ fmtDateTime(it.completed_at) }}
             </td>
-            <td class="px-4 py-3 text-right">
+            <td class="px-4 py-3 text-right whitespace-nowrap">
+              <UiButton variant="outline" size="sm" class="mr-1" @click="openDetail(it)">
+                {{ t('hemis_log.view') }}
+              </UiButton>
               <UiButton
                 v-if="it.status === 'failed'"
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 @click="retry(it)"
               >
@@ -336,4 +354,13 @@ async function triggerSync(entity: 'students' | 'employees' | 'departments' | 'g
       </div>
     </div>
   </UiCard>
+
+  <HemisSyncDetailDrawer
+    :open="detailOpen"
+    :log="selected"
+    :type-label="selected ? syncTypeLabel(selected.sync_type) : ''"
+    :status-label="selected ? statusLabel(selected.status) : ''"
+    @close="detailOpen = false"
+    @retry="onDrawerRetry"
+  />
 </template>

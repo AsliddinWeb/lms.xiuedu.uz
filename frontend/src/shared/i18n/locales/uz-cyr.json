@@ -273,7 +273,14 @@
     "sync_success": "{n} та {entity} янгиланди",
     "sync_skipped": "Синк ўтказиб юборилди (HEMIS_SYNC_ENABLED=False)",
     "sync_failed": "Синк хато: {error}",
-    "kpi_total": "Жами sync"
+    "kpi_total": "Жами sync",
+    "detail_title": "Sync тафсилотлари",
+    "f_payload": "Юборилган (payload)",
+    "f_response": "Жавоб (response)",
+    "f_error": "Хато",
+    "f_created": "Яратилган",
+    "f_no_data": "Маълумот йўқ",
+    "view": "Кўриш"
   },
   "a11y": {
     "skip_to_main": "Асосий контентга ўтиш",

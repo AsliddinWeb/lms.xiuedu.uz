@@ -273,7 +273,14 @@
     "sync_success": "Обновлено {n} {entity}",
     "sync_skipped": "Синхронизация пропущена (HEMIS_SYNC_ENABLED=False)",
     "sync_failed": "Ошибка: {error}",
-    "kpi_total": "Всего синхр."
+    "kpi_total": "Всего синхр.",
+    "detail_title": "Детали синхронизации",
+    "f_payload": "Запрос (payload)",
+    "f_response": "Ответ (response)",
+    "f_error": "Ошибка",
+    "f_created": "Создано",
+    "f_no_data": "Нет данных",
+    "view": "Просмотр"
   },
   "a11y": {
     "skip_to_main": "Перейти к основному содержимому",

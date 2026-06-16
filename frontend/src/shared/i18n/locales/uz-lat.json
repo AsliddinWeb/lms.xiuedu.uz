@@ -273,7 +273,14 @@
     "sync_success": "{n} ta {entity} yangilandi",
     "sync_skipped": "Sync o'tkazib yuborildi (HEMIS_SYNC_ENABLED=False)",
     "sync_failed": "Sync xato: {error}",
-    "kpi_total": "Jami sync"
+    "kpi_total": "Jami sync",
+    "detail_title": "Sync tafsilotlari",
+    "f_payload": "Yuborilgan (payload)",
+    "f_response": "Javob (response)",
+    "f_error": "Xato",
+    "f_created": "Yaratilgan",
+    "f_no_data": "Ma'lumot yo'q",
+    "view": "Ko'rish"
   },
   "a11y": {
     "skip_to_main": "Asosiy kontentga o'tish",
