@@ -2248,7 +2248,9 @@
     "col_avg": "O'rtacha %",
     "col_pass_rate": "Pass %",
     "col_flagged": "Flagged",
-    "kpi_flagged": "Belgilangan (flagged)"
+    "kpi_flagged": "Belgilangan (flagged)",
+    "filter_course": "Kurs",
+    "all_courses": "Barcha kurslar"
   },
   "attempt_review": {
     "title": "Tekshiruv",

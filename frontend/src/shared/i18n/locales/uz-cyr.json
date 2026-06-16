@@ -2248,7 +2248,9 @@
     "col_avg": "Ўртача %",
     "col_pass_rate": "Pass %",
     "col_flagged": "Flagged",
-    "kpi_flagged": "Белгиланган (flagged)"
+    "kpi_flagged": "Белгиланган (flagged)",
+    "filter_course": "Курс",
+    "all_courses": "Барча курслар"
   },
   "attempt_review": {
     "title": "Текширув",

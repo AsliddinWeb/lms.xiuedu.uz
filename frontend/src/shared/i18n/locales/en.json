@@ -2248,7 +2248,9 @@
     "col_avg": "Avg %",
     "col_pass_rate": "Pass %",
     "col_flagged": "Flagged",
-    "kpi_flagged": "Flagged"
+    "kpi_flagged": "Flagged",
+    "filter_course": "Course",
+    "all_courses": "All courses"
   },
   "attempt_review": {
     "title": "Review",

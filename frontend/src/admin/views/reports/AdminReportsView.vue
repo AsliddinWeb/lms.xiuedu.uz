@@ -18,12 +18,19 @@ import UiInput from '@shared/components/ui/UiInput.vue'
 import UiSelect from '@shared/components/ui/UiSelect.vue'
 import UiStatCard from '@shared/components/ui/UiStatCard.vue'
 import { reportsApi, type ExamReportSummary } from '@shared/api/reports'
+import { coursesApi } from '@shared/api/courses'
 import { extractErrorMessage } from '@shared/api/client'
 import { downloadBlob, timestampedFilename } from '@shared/utils/download'
+import type { Course } from '@shared/types/courses'
 
 const { t } = useI18n()
 
-const courseId = ref<number | null>(null)
+const courseFilter = ref<string>('') // '' = barcha kurslar
+const courses = ref<Course[]>([])
+const courseOptions = computed(() => [
+  { value: '', label: t('admin_reports.all_courses') },
+  ...courses.value.map((c) => ({ value: String(c.id), label: c.title })),
+])
 const examType = ref<string>('')
 const dateFrom = ref<string>('')
 const dateTo = ref<string>('')
@@ -54,7 +61,7 @@ async function load() {
   error.value = null
   try {
     summary.value = await reportsApi.examSummary({
-      course_id: courseId.value,
+      course_id: courseFilter.value ? Number(courseFilter.value) : null,
       type: examType.value || null,
       date_from: fromLocalInput(dateFrom.value),
       date_to: fromLocalInput(dateTo.value),
@@ -69,7 +76,7 @@ async function load() {
 async function downloadCsv() {
   try {
     const blob = await reportsApi.downloadCsv({
-      course_id: courseId.value,
+      course_id: courseFilter.value ? Number(courseFilter.value) : null,
       type: examType.value || null,
       date_from: fromLocalInput(dateFrom.value),
       date_to: fromLocalInput(dateTo.value),
@@ -81,14 +88,20 @@ async function downloadCsv() {
 }
 
 function reset() {
-  courseId.value = null
+  courseFilter.value = ''
   examType.value = ''
   dateFrom.value = ''
   dateTo.value = ''
   load()
 }
 
-onMounted(load)
+onMounted(() => {
+  coursesApi
+    .list({ page_size: 200 })
+    .then((r) => (courses.value = r.items))
+    .catch(() => {})
+  void load()
+})
 </script>
 
 <template>
@@ -107,8 +120,8 @@ onMounted(load)
   <!-- Filter -->
   <UiCard class="mb-6">
     <div class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
-      <UiFormField :label="t('admin_reports.filter_course_id')">
-        <UiInput v-model.number="courseId" type="number" min="1" placeholder="—" />
+      <UiFormField :label="t('admin_reports.filter_course')">
+        <UiSelect v-model="courseFilter" :options="courseOptions" />
       </UiFormField>
       <UiFormField :label="t('admin_reports.filter_type')">
         <UiSelect v-model="examType" :options="typeOptions" />
