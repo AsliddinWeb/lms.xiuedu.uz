@@ -272,7 +272,8 @@
     "sync_entity_groups": "Groups",
     "sync_success": "{n} {entity} updated",
     "sync_skipped": "Sync skipped (HEMIS_SYNC_ENABLED=False)",
-    "sync_failed": "Sync failed: {error}"
+    "sync_failed": "Sync failed: {error}",
+    "kpi_total": "Total syncs"
   },
   "a11y": {
     "skip_to_main": "Skip to main content",

@@ -17,6 +17,7 @@ import UiCard from '@shared/components/ui/UiCard.vue'
 import UiEmptyState from '@shared/components/ui/UiEmptyState.vue'
 import UiSelect from '@shared/components/ui/UiSelect.vue'
 import UiSkeleton from '@shared/components/ui/UiSkeleton.vue'
+import UiStatCard from '@shared/components/ui/UiStatCard.vue'
 import { hemisApi, type HemisSyncLogItem } from '@shared/api/hemis'
 import { extractErrorMessage } from '@shared/api/client'
 import { confirm } from '@shared/composables/useConfirm'
@@ -34,6 +35,16 @@ const typeFilter = ref<string>('')
 const statusFilter = ref<string>('')
 const page = ref(1)
 const pageSize = 50
+
+const stats = ref({ total: 0, success: 0, failed: 0, skipped: 0 })
+async function loadStats() {
+  const count = (status?: string) =>
+    hemisApi.listSyncLog({ status, page: 1, page_size: 1 }).then((r) => r.total).catch(() => 0)
+  const [tot, suc, fail, skip] = await Promise.all([
+    count(), count('success'), count('failed'), count('skipped'),
+  ])
+  stats.value = { total: tot, success: suc, failed: fail, skipped: skip }
+}
 
 const typeOptions = computed(() => [
   { value: '', label: t('hemis_log.all_types') },
@@ -92,7 +103,10 @@ watch([typeFilter, statusFilter], () => {
   void load()
 })
 watch(page, load)
-onMounted(load)
+onMounted(() => {
+  void loadStats()
+  void load()
+})
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize)))
 
@@ -148,6 +162,7 @@ async function triggerSync(entity: 'students' | 'employees' | 'departments' | 'g
       toast.error(t('hemis_log.sync_failed', { error: result.last_error ?? '' }))
     }
     await load()
+    await loadStats()
   } catch (e) {
     toast.error(extractErrorMessage(e, t('common.save_error')))
   } finally {
@@ -161,6 +176,14 @@ async function triggerSync(entity: 'students' | 'employees' | 'departments' | 'g
   <div class="mb-6">
     <h1 class="page-title mb-1.5">{{ t('hemis_log.title') }}</h1>
     <p class="page-subtitle">{{ t('hemis_log.subtitle') }}</p>
+  </div>
+
+  <!-- KPI -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+    <UiStatCard :label="t('hemis_log.kpi_total')" :value="String(stats.total)" />
+    <UiStatCard :label="t('hemis_log.status_success')" :value="String(stats.success)" tone="success" />
+    <UiStatCard :label="t('hemis_log.status_failed')" :value="String(stats.failed)" :tone="stats.failed > 0 ? 'danger' : 'default'" />
+    <UiStatCard :label="t('hemis_log.status_skipped')" :value="String(stats.skipped)" />
   </div>
 
   <!-- Phase 10f — manual sync trigger panel -->

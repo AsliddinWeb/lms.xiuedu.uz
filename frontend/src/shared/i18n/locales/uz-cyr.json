@@ -272,7 +272,8 @@
     "sync_entity_groups": "Гуруҳлар",
     "sync_success": "{n} та {entity} янгиланди",
     "sync_skipped": "Синк ўтказиб юборилди (HEMIS_SYNC_ENABLED=False)",
-    "sync_failed": "Синк хато: {error}"
+    "sync_failed": "Синк хато: {error}",
+    "kpi_total": "Жами sync"
   },
   "a11y": {
     "skip_to_main": "Асосий контентга ўтиш",

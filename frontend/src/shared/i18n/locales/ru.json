@@ -272,7 +272,8 @@
     "sync_entity_groups": "Группы",
     "sync_success": "Обновлено {n} {entity}",
     "sync_skipped": "Синхронизация пропущена (HEMIS_SYNC_ENABLED=False)",
-    "sync_failed": "Ошибка: {error}"
+    "sync_failed": "Ошибка: {error}",
+    "kpi_total": "Всего синхр."
   },
   "a11y": {
     "skip_to_main": "Перейти к основному содержимому",
