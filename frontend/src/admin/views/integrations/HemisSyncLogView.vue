@@ -37,9 +37,27 @@ const pageSize = 50
 
 const typeOptions = computed(() => [
   { value: '', label: t('hemis_log.all_types') },
+  { value: 'students', label: t('hemis_log.sync_entity_students') },
+  { value: 'employees', label: t('hemis_log.sync_entity_employees') },
+  { value: 'departments', label: t('hemis_log.sync_entity_departments') },
+  { value: 'groups', label: t('hemis_log.sync_entity_groups') },
   { value: 'exam_grades', label: t('hemis_log.type_exam_grades') },
   { value: 'schedule_pull', label: t('hemis_log.type_schedule_pull') },
 ])
+
+// sync_type / status -> i18n label
+const SYNC_TYPE_KEY: Record<string, string> = {
+  students: 'sync_entity_students', employees: 'sync_entity_employees',
+  departments: 'sync_entity_departments', groups: 'sync_entity_groups',
+  exam_grades: 'type_exam_grades', schedule_pull: 'type_schedule_pull',
+}
+function syncTypeLabel(v: string): string {
+  return SYNC_TYPE_KEY[v] ? t(`hemis_log.${SYNC_TYPE_KEY[v]}`) : v
+}
+const KNOWN_STATUS = ['pending', 'retrying', 'success', 'failed', 'skipped']
+function statusLabel(s: string): string {
+  return KNOWN_STATUS.includes(s) ? t(`hemis_log.status_${s}`) : s
+}
 
 const statusOptions = computed(() => [
   { value: '', label: t('hemis_log.all_statuses') },
@@ -242,12 +260,12 @@ async function triggerSync(entity: 'students' | 'employees' | 'departments' | 'g
         <tbody class="divide-y divide-border">
           <tr v-for="it in items" :key="it.id" class="hover:bg-muted/40 align-top">
             <td class="px-4 py-3 font-mono text-[12px] text-muted-foreground">#{{ it.id }}</td>
-            <td class="px-4 py-3 font-mono text-[12px]">{{ it.sync_type }}</td>
+            <td class="px-4 py-3 text-[12px]">{{ syncTypeLabel(it.sync_type) }}</td>
             <td class="px-4 py-3 font-mono text-[12px] text-muted-foreground">
               {{ it.target_id ?? '—' }}
             </td>
             <td class="px-4 py-3">
-              <UiBadge :variant="statusVariant(it.status)" with-dot>{{ it.status }}</UiBadge>
+              <UiBadge :variant="statusVariant(it.status)" with-dot>{{ statusLabel(it.status) }}</UiBadge>
               <div
                 v-if="it.last_error"
                 class="text-[11px] text-danger-600 mt-1 font-mono truncate max-w-xs"
