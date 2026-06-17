@@ -2479,5 +2479,10 @@
     "col_status": "Holat",
     "col_enrollments": "Ro'yxatlar",
     "no_data": "Ma'lumot yo'q"
+  },
+  "export": {
+    "button": "Eksport",
+    "heading": "Formatni tanlang",
+    "error": "Eksportda xato"
   }
 }

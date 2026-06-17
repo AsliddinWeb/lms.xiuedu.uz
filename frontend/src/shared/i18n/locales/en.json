@@ -2479,5 +2479,10 @@
     "col_status": "Status",
     "col_enrollments": "Enrollments",
     "no_data": "No data"
+  },
+  "export": {
+    "button": "Export",
+    "heading": "Choose format",
+    "error": "Export failed"
   }
 }
