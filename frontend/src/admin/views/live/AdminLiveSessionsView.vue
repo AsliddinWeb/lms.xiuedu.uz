@@ -8,6 +8,7 @@ import UiBreadcrumb from '@shared/components/ui/UiBreadcrumb.vue'
 import UiBadge from '@shared/components/ui/UiBadge.vue'
 import UiButton from '@shared/components/ui/UiButton.vue'
 import UiCard from '@shared/components/ui/UiCard.vue'
+import UiExportMenu from '@shared/components/ui/UiExportMenu.vue'
 import UiInput from '@shared/components/ui/UiInput.vue'
 import UiSelect from '@shared/components/ui/UiSelect.vue'
 import UiStatCard from '@shared/components/ui/UiStatCard.vue'
@@ -15,7 +16,7 @@ import { liveSessionsApi } from '@shared/api/live'
 import { extractErrorMessage } from '@shared/api/client'
 import { toast } from '@shared/composables/useToast'
 import { confirm } from '@shared/composables/useConfirm'
-import { downloadBlob, timestampedFilename } from '@shared/utils/download'
+import type { ExportSpec } from '@shared/utils/export'
 import LiveSessionDetailDrawer from '@admin/components/live/LiveSessionDetailDrawer.vue'
 import type { LiveSession, LiveStatus } from '@shared/types/live'
 
@@ -168,40 +169,39 @@ async function onRemove() {
   }
 }
 
-// CSV eksport — joriy filtr bo'yicha barcha darslar
-const exporting = ref(false)
-function csvCell(v: string): string {
-  return `"${String(v).replace(/"/g, '""')}"`
-}
-async function exportCsv() {
-  exporting.value = true
-  try {
-    const all = await liveSessionsApi.list({
-      status: statusFilter.value || undefined,
-      q: q.value || undefined,
-      page: 1,
-      page_size: 1000,
-    })
-    const headers = [
-      t('live.col_title'), t('live.col_start'), t('live.col_duration'),
-      t('admin_live.col_host'), t('live.col_provider'), t('live.col_status'),
-      t('admin_live.col_recording'),
-    ]
-    const lines = [headers.map(csvCell).join(',')]
-    for (const s of all.items) {
-      lines.push([
-        s.title, s.scheduled_start.slice(0, 16).replace('T', ' '),
-        `${s.duration_minutes} ${t('admin_live.minutes_short')}`,
-        s.host_full_name ?? `#${s.host_user_id}`, s.provider,
-        t(`live.status_${s.status}`), s.recording_url ? t('admin_live.recording_yes') : '—',
-      ].map(csvCell).join(','))
-    }
-    const csv = '﻿' + lines.join('\r\n')
-    downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), timestampedFilename('live_darslar'))
-  } catch (e) {
-    toast.error(extractErrorMessage(e, t('common.load_error')))
-  } finally {
-    exporting.value = false
+// Eksport — joriy filtr bo'yicha barcha darslar
+async function buildExport(): Promise<ExportSpec> {
+  const all = await liveSessionsApi.list({
+    status: statusFilter.value || undefined,
+    q: q.value || undefined,
+    page: 1,
+    page_size: 1000,
+  })
+  const meta: ExportSpec['meta'] = [{ label: t('live.col_title'), value: String(all.total) }]
+  if (statusFilter.value) meta.push({ label: t('live.col_status'), value: t(`live.status_${statusFilter.value}`) })
+  return {
+    title: t('admin_live.title'),
+    subtitle: t('admin_live.subtitle'),
+    filename: 'live_darslar',
+    meta,
+    columns: [
+      { key: 'title', label: t('live.col_title'), width: 32 },
+      { key: 'start', label: t('live.col_start'), width: 18 },
+      { key: 'duration', label: t('live.col_duration'), width: 14, align: 'right' },
+      { key: 'host', label: t('admin_live.col_host'), width: 22 },
+      { key: 'provider', label: t('live.col_provider'), width: 14 },
+      { key: 'status', label: t('live.col_status'), width: 14 },
+      { key: 'recording', label: t('admin_live.col_recording'), width: 12 },
+    ],
+    rows: all.items.map((s) => ({
+      title: s.title,
+      start: s.scheduled_start.slice(0, 16).replace('T', ' '),
+      duration: `${s.duration_minutes} ${t('admin_live.minutes_short')}`,
+      host: s.host_full_name ?? `#${s.host_user_id}`,
+      provider: s.provider,
+      status: t(`live.status_${s.status}`),
+      recording: s.recording_url ? t('admin_live.recording_yes') : '—',
+    })),
   }
 }
 </script>
@@ -213,9 +213,7 @@ async function exportCsv() {
       <h1 class="page-title mb-1.5">{{ t('admin_live.title') }}</h1>
       <p class="page-subtitle">{{ t('admin_live.subtitle') }}</p>
     </div>
-    <UiButton variant="outline" :loading="exporting" @click="exportCsv">
-      {{ t('admin_live.export_csv') }}
-    </UiButton>
+    <UiExportMenu :build="buildExport" />
   </div>
 
   <!-- KPI -->

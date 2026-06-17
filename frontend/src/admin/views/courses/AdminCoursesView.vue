@@ -8,6 +8,7 @@ import UiBreadcrumb from '@shared/components/ui/UiBreadcrumb.vue'
 import UiBadge from '@shared/components/ui/UiBadge.vue'
 import UiButton from '@shared/components/ui/UiButton.vue'
 import UiCard from '@shared/components/ui/UiCard.vue'
+import UiExportMenu from '@shared/components/ui/UiExportMenu.vue'
 import UiSelect from '@shared/components/ui/UiSelect.vue'
 import UiStatCard from '@shared/components/ui/UiStatCard.vue'
 import { formatDate } from '@shared/utils/datetime'
@@ -15,7 +16,7 @@ import { coursesApi } from '@shared/api/courses'
 import { usersApi } from '@shared/api/users'
 import { extractErrorMessage } from '@shared/api/client'
 import { toast } from '@shared/composables/useToast'
-import { downloadBlob, timestampedFilename } from '@shared/utils/download'
+import type { ExportSpec } from '@shared/utils/export'
 import CourseDrawer from '@shared/components/courses/CourseDrawer.vue'
 import type { Course, CourseStatus, CourseType } from '@shared/types/courses'
 
@@ -144,54 +145,56 @@ function fmtDate(s: string): string {
   return formatDate(s, locale.value, { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-// CSV eksport — joriy filtr bo'yicha barcha kurslar (client-side)
-const exporting = ref(false)
-function csvCell(v: string): string {
-  return `"${String(v).replace(/"/g, '""')}"`
-}
-async function exportCsv() {
-  exporting.value = true
-  try {
-    const all = await coursesApi.list({
-      status: statusFilter.value || undefined,
-      type: typeFilter.value || undefined,
-      q: searchQ.value || undefined,
-      page: 1,
-      page_size: 1000,
-    })
-    // Muallif nomlarini to'ldirish (yetishmaganlarni olib kelish)
-    const missing = Array.from(
-      new Set(all.items.map((c) => c.primary_author_id).filter((v): v is number => v !== null)),
-    ).filter((id) => !(id in authorNames.value))
-    await Promise.all(
-      missing.map(async (id) => {
-        try {
-          const u = await usersApi.get(id)
-          authorNames.value = { ...authorNames.value, [id]: u.full_name }
-        } catch {
-          authorNames.value = { ...authorNames.value, [id]: `#${id}` }
-        }
-      }),
-    )
-    const headers = [
-      t('admin_courses.col_title'), 'Slug', t('admin_courses.col_author'),
-      t('admin_courses.col_type'), t('admin_courses.col_status'),
-      t('admin_courses.col_students'), t('admin_courses.col_created'),
-    ]
-    const lines = [headers.map(csvCell).join(',')]
-    for (const c of all.items) {
-      lines.push([
-        c.title, c.slug, authorLabel(c),
-        t(`courses.type_${c.type}`), t(`courses.status_${c.status}`),
-        String(c.enrollment_count ?? ''), c.created_at.slice(0, 10),
-      ].map(csvCell).join(','))
-    }
-    const csv = '﻿' + lines.join('\r\n')
-    downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), timestampedFilename('kurslar'))
-  } catch (e) {
-    toast.error(extractErrorMessage(e, t('common.load_error')))
-  } finally {
-    exporting.value = false
+// Eksport — joriy filtr bo'yicha barcha kurslar (client-side)
+async function buildExport(): Promise<ExportSpec> {
+  const all = await coursesApi.list({
+    status: statusFilter.value || undefined,
+    type: typeFilter.value || undefined,
+    q: searchQ.value || undefined,
+    page: 1,
+    page_size: 1000,
+  })
+  // Muallif nomlarini to'ldirish (yetishmaganlarni olib kelish)
+  const missing = Array.from(
+    new Set(all.items.map((c) => c.primary_author_id).filter((v): v is number => v !== null)),
+  ).filter((id) => !(id in authorNames.value))
+  await Promise.all(
+    missing.map(async (id) => {
+      try {
+        const u = await usersApi.get(id)
+        authorNames.value = { ...authorNames.value, [id]: u.full_name }
+      } catch {
+        authorNames.value = { ...authorNames.value, [id]: `#${id}` }
+      }
+    }),
+  )
+  const meta: ExportSpec['meta'] = [{ label: t('admin_courses.col_students'), value: String(all.total) }]
+  if (statusFilter.value) meta.push({ label: t('admin_courses.col_status'), value: t(`courses.status_${statusFilter.value}`) })
+  if (typeFilter.value) meta.push({ label: t('admin_courses.col_type'), value: t(`courses.type_${typeFilter.value}`) })
+  if (searchQ.value) meta.push({ label: t('common.search'), value: searchQ.value })
+  return {
+    title: t('admin_courses.title'),
+    subtitle: t('admin_courses.subtitle'),
+    filename: 'kurslar',
+    meta,
+    columns: [
+      { key: 'title', label: t('admin_courses.col_title'), width: 34 },
+      { key: 'slug', label: 'Slug', width: 22 },
+      { key: 'author', label: t('admin_courses.col_author'), width: 24 },
+      { key: 'type', label: t('admin_courses.col_type'), width: 16 },
+      { key: 'status', label: t('admin_courses.col_status'), width: 14 },
+      { key: 'students', label: t('admin_courses.col_students'), width: 12, align: 'right' },
+      { key: 'created', label: t('admin_courses.col_created'), width: 14 },
+    ],
+    rows: all.items.map((c) => ({
+      title: c.title,
+      slug: c.slug,
+      author: authorLabel(c),
+      type: t(`courses.type_${c.type}`),
+      status: t(`courses.status_${c.status}`),
+      students: c.enrollment_count ?? 0,
+      created: c.created_at.slice(0, 10),
+    })),
   }
 }
 </script>
@@ -204,9 +207,7 @@ async function exportCsv() {
       <p class="page-subtitle">{{ t('admin_courses.subtitle') }}</p>
     </div>
     <div class="flex items-center gap-2 shrink-0">
-      <UiButton variant="outline" :loading="exporting" @click="exportCsv">
-        {{ t('admin_courses.export_csv') }}
-      </UiButton>
+      <UiExportMenu :build="buildExport" />
       <UiButton v-permission="'course.create'" @click="openCreate">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor"
           stroke-width="2" stroke-linecap="round">

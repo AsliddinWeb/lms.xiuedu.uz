@@ -9,16 +9,16 @@ import { useI18n } from 'vue-i18n'
 import UiAlert from '@shared/components/ui/UiAlert.vue'
 import UiBadge from '@shared/components/ui/UiBadge.vue'
 import UiBreadcrumb from '@shared/components/ui/UiBreadcrumb.vue'
-import UiButton from '@shared/components/ui/UiButton.vue'
 import UiCard from '@shared/components/ui/UiCard.vue'
 import UiChartBar from '@shared/components/ui/UiChartBar.vue'
+import UiExportMenu from '@shared/components/ui/UiExportMenu.vue'
 import UiProgressBar from '@shared/components/ui/UiProgressBar.vue'
 import UiProgressRing from '@shared/components/ui/UiProgressRing.vue'
 import UiStatCard from '@shared/components/ui/UiStatCard.vue'
 import { analyticsApi } from '@shared/api/courses'
 import { extractErrorMessage } from '@shared/api/client'
-import { downloadBlob, timestampedFilename } from '@shared/utils/download'
 import { formatDate } from '@shared/utils/datetime'
+import type { ExportSpec } from '@shared/utils/export'
 import type { PlatformAnalytics } from '@shared/types/courses'
 
 const { t, locale } = useI18n()
@@ -98,17 +98,32 @@ function statusVariant(s: string): 'default' | 'success' | 'warning' {
   return 'default'
 }
 
-function exportCsv() {
+function buildExport(): ExportSpec {
   const d = data.value
-  if (!d) return
-  const esc = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`
-  const lines: string[] = []
-  lines.push([t('admin_analytics.col_course'), t('admin_analytics.col_status'), t('admin_analytics.col_enrollments')].map(esc).join(','))
-  d.top_courses.forEach((c) => {
-    lines.push([c.title, t(`courses.status_${c.status}`), c.enrollments].map(esc).join(','))
-  })
-  const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' })
-  downloadBlob(blob, timestampedFilename('platform-top-courses', 'csv'))
+  const meta: ExportSpec['meta'] = d
+    ? [
+        { label: t('admin_analytics.kpi_users'), value: String(d.total_users) },
+        { label: t('admin_analytics.kpi_courses'), value: String(d.total_courses) },
+        { label: t('admin_analytics.kpi_enrollments'), value: String(d.total_enrollments) },
+        { label: t('admin_analytics.kpi_completion'), value: `${d.completion_rate}%` },
+      ]
+    : []
+  return {
+    title: t('admin_analytics.top_courses_title'),
+    subtitle: t('admin_analytics.title'),
+    filename: 'platform-top-kurslar',
+    meta,
+    columns: [
+      { key: 'title', label: t('admin_analytics.col_course'), width: 40 },
+      { key: 'status', label: t('admin_analytics.col_status'), width: 16 },
+      { key: 'enrollments', label: t('admin_analytics.col_enrollments'), width: 14, align: 'right' },
+    ],
+    rows: (d?.top_courses ?? []).map((c) => ({
+      title: c.title,
+      status: t(`courses.status_${c.status}`),
+      enrollments: c.enrollments,
+    })),
+  }
 }
 </script>
 
@@ -120,9 +135,7 @@ function exportCsv() {
       <h1 class="page-title mb-1.5">{{ t('admin_analytics.title') }}</h1>
       <p class="page-subtitle">{{ t('admin_analytics.subtitle') }}</p>
     </div>
-    <UiButton v-if="data" variant="outline" @click="exportCsv">
-      {{ t('admin_analytics.export') }}
-    </UiButton>
+    <UiExportMenu v-if="data" :build="buildExport" />
   </div>
 
   <UiAlert v-if="error" variant="danger" class="mb-4">{{ error }}</UiAlert>

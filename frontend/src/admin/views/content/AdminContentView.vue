@@ -8,6 +8,7 @@ import UiBreadcrumb from '@shared/components/ui/UiBreadcrumb.vue'
 import UiBadge from '@shared/components/ui/UiBadge.vue'
 import UiButton from '@shared/components/ui/UiButton.vue'
 import UiCard from '@shared/components/ui/UiCard.vue'
+import UiExportMenu from '@shared/components/ui/UiExportMenu.vue'
 import UiSelect from '@shared/components/ui/UiSelect.vue'
 import UiStatCard from '@shared/components/ui/UiStatCard.vue'
 import { contentApi } from '@shared/api/content'
@@ -16,7 +17,7 @@ import { useAuthStore } from '@shared/stores/auth'
 import { extractErrorMessage } from '@shared/api/client'
 import { confirm } from '@shared/composables/useConfirm'
 import { toast } from '@shared/composables/useToast'
-import { downloadBlob, timestampedFilename } from '@shared/utils/download'
+import type { ExportSpec } from '@shared/utils/export'
 import ContentDetailDrawer from '@admin/components/content/ContentDetailDrawer.vue'
 import type { ContentItem, ContentStatus, ContentType } from '@shared/types/content'
 
@@ -127,52 +128,55 @@ function authorLabel(c: ContentItem): string {
 }
 
 // CSV eksport — joriy filtr bo'yicha barcha kontent (client-side)
-const exporting = ref(false)
-function csvCell(v: string): string {
-  return `"${String(v).replace(/"/g, '""')}"`
-}
-async function exportCsv() {
-  exporting.value = true
-  try {
-    const all = await contentApi.list({
-      type: typeFilter.value || undefined,
-      status: statusFilter.value || undefined,
-      q: searchQ.value || undefined,
-      page: 1,
-      page_size: 1000,
-    })
-    const missing = Array.from(new Set(all.items.map((c) => c.author_id))).filter(
-      (id) => !(id in authorNames.value),
-    )
-    await Promise.all(
-      missing.map(async (id) => {
-        try {
-          const u = await usersApi.get(id)
-          authorNames.value = { ...authorNames.value, [id]: u.full_name }
-        } catch {
-          authorNames.value = { ...authorNames.value, [id]: `#${id}` }
-        }
-      }),
-    )
-    const headers = [
-      t('admin_content.col_title'), t('admin_content.col_type'), t('admin_content.col_author'),
-      t('admin_content.col_lang'), t('admin_content.col_version'), t('admin_content.col_status'),
-      t('admin_content.col_size'), t('admin_content.col_updated'),
-    ]
-    const lines = [headers.map(csvCell).join(',')]
-    for (const c of all.items) {
-      lines.push([
-        c.title, t(`content_picker.type_${c.type}`), authorLabel(c), c.language,
-        `v${c.version}`, t(`admin_content.status_${c.status}`),
-        humanFileSize(c.file_size), c.updated_at.slice(0, 10),
-      ].map(csvCell).join(','))
-    }
-    const csv = '﻿' + lines.join('\r\n')
-    downloadBlob(new Blob([csv], { type: 'text/csv;charset=utf-8' }), timestampedFilename('kontent'))
-  } catch (e) {
-    toast.error(extractErrorMessage(e, t('common.load_error')))
-  } finally {
-    exporting.value = false
+async function buildExport(): Promise<ExportSpec> {
+  const all = await contentApi.list({
+    type: typeFilter.value || undefined,
+    status: statusFilter.value || undefined,
+    q: searchQ.value || undefined,
+    page: 1,
+    page_size: 1000,
+  })
+  const missing = Array.from(new Set(all.items.map((c) => c.author_id))).filter(
+    (id) => !(id in authorNames.value),
+  )
+  await Promise.all(
+    missing.map(async (id) => {
+      try {
+        const u = await usersApi.get(id)
+        authorNames.value = { ...authorNames.value, [id]: u.full_name }
+      } catch {
+        authorNames.value = { ...authorNames.value, [id]: `#${id}` }
+      }
+    }),
+  )
+  const meta: ExportSpec['meta'] = [{ label: t('admin_content.col_title'), value: String(all.total) }]
+  if (statusFilter.value) meta.push({ label: t('admin_content.col_status'), value: t(`admin_content.status_${statusFilter.value}`) })
+  if (typeFilter.value) meta.push({ label: t('admin_content.col_type'), value: t(`content_picker.type_${typeFilter.value}`) })
+  return {
+    title: t('admin_content.title'),
+    subtitle: t('admin_content.subtitle'),
+    filename: 'kontent',
+    meta,
+    columns: [
+      { key: 'title', label: t('admin_content.col_title'), width: 32 },
+      { key: 'type', label: t('admin_content.col_type'), width: 16 },
+      { key: 'author', label: t('admin_content.col_author'), width: 22 },
+      { key: 'lang', label: t('admin_content.col_lang'), width: 10 },
+      { key: 'version', label: t('admin_content.col_version'), width: 10 },
+      { key: 'status', label: t('admin_content.col_status'), width: 14 },
+      { key: 'size', label: t('admin_content.col_size'), width: 12, align: 'right' },
+      { key: 'updated', label: t('admin_content.col_updated'), width: 14 },
+    ],
+    rows: all.items.map((c) => ({
+      title: c.title,
+      type: t(`content_picker.type_${c.type}`),
+      author: authorLabel(c),
+      lang: c.language,
+      version: `v${c.version}`,
+      status: t(`admin_content.status_${c.status}`),
+      size: humanFileSize(c.file_size),
+      updated: c.updated_at.slice(0, 10),
+    })),
   }
 }
 
@@ -291,9 +295,7 @@ async function onDrawerRemove() {
       <h1 class="page-title mb-1.5">{{ t('admin_content.title') }}</h1>
       <p class="page-subtitle">{{ t('admin_content.subtitle') }}</p>
     </div>
-    <UiButton variant="outline" :loading="exporting" @click="exportCsv">
-      {{ t('admin_content.export_csv') }}
-    </UiButton>
+    <UiExportMenu :build="buildExport" />
   </div>
 
   <!-- KPI -->

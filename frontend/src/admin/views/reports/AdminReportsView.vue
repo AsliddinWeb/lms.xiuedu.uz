@@ -13,6 +13,7 @@ import UiBadge from '@shared/components/ui/UiBadge.vue'
 import UiBreadcrumb from '@shared/components/ui/UiBreadcrumb.vue'
 import UiButton from '@shared/components/ui/UiButton.vue'
 import UiCard from '@shared/components/ui/UiCard.vue'
+import UiExportMenu from '@shared/components/ui/UiExportMenu.vue'
 import UiFormField from '@shared/components/ui/UiFormField.vue'
 import UiInput from '@shared/components/ui/UiInput.vue'
 import UiSelect from '@shared/components/ui/UiSelect.vue'
@@ -20,7 +21,7 @@ import UiStatCard from '@shared/components/ui/UiStatCard.vue'
 import { reportsApi, type ExamReportSummary } from '@shared/api/reports'
 import { coursesApi } from '@shared/api/courses'
 import { extractErrorMessage } from '@shared/api/client'
-import { downloadBlob, timestampedFilename } from '@shared/utils/download'
+import type { ExportSpec } from '@shared/utils/export'
 import type { Course } from '@shared/types/courses'
 
 const { t } = useI18n()
@@ -73,17 +74,42 @@ async function load() {
   }
 }
 
-async function downloadCsv() {
-  try {
-    const blob = await reportsApi.downloadCsv({
-      course_id: courseFilter.value ? Number(courseFilter.value) : null,
-      type: examType.value || null,
-      date_from: fromLocalInput(dateFrom.value),
-      date_to: fromLocalInput(dateTo.value),
-    })
-    downloadBlob(blob, timestampedFilename('imtihon_hisoboti'))
-  } catch (e) {
-    error.value = extractErrorMessage(e, t('admin_reports.csv_error'))
+function buildExport(): ExportSpec {
+  const s = summary.value
+  const meta: ExportSpec['meta'] = s
+    ? [
+        { label: t('admin_reports.kpi_exams'), value: String(s.total_exams) },
+        { label: t('admin_reports.kpi_attempts'), value: String(s.total_attempts) },
+        { label: t('admin_reports.kpi_avg_score'), value: `${s.avg_percentage}%` },
+        { label: t('admin_reports.kpi_pass_rate'), value: `${s.pass_rate}%` },
+        { label: t('admin_reports.kpi_flagged'), value: String(totalFlagged.value) },
+      ]
+    : []
+  const cf = courses.value.find((c) => String(c.id) === courseFilter.value)
+  if (cf) meta.push({ label: t('admin_reports.col_course'), value: cf.title })
+  return {
+    title: t('admin_reports.title'),
+    subtitle: t('admin_reports.subtitle'),
+    filename: 'imtihon_hisoboti',
+    meta,
+    columns: [
+      { key: 'exam', label: t('admin_reports.col_exam'), width: 30 },
+      { key: 'type', label: t('admin_reports.col_type'), width: 14 },
+      { key: 'course', label: t('admin_reports.col_course'), width: 28 },
+      { key: 'attempts', label: t('admin_reports.col_attempts'), width: 12, align: 'right' },
+      { key: 'avg', label: t('admin_reports.col_avg'), width: 12, align: 'right' },
+      { key: 'pass_rate', label: t('admin_reports.col_pass_rate'), width: 12, align: 'right' },
+      { key: 'flagged', label: t('admin_reports.col_flagged'), width: 12, align: 'right' },
+    ],
+    rows: (s?.items ?? []).map((r) => ({
+      exam: r.exam_title,
+      type: t(`exams.type_${r.exam_type}`),
+      course: r.course_title,
+      attempts: r.attempts,
+      avg: `${r.avg_percentage}%`,
+      pass_rate: `${r.pass_rate}%`,
+      flagged: r.flagged_count,
+    })),
   }
 }
 
@@ -112,7 +138,7 @@ onMounted(() => {
       <h1 class="page-title mb-1.5">{{ t('admin_reports.title') }}</h1>
       <p class="page-subtitle">{{ t('admin_reports.subtitle') }}</p>
     </div>
-    <UiButton @click="downloadCsv">⬇ {{ t('admin_reports.export_csv') }}</UiButton>
+    <UiExportMenu :build="buildExport" :disabled="!summary || loading" />
   </div>
 
   <UiAlert v-if="error" variant="danger" class="mb-4">{{ error }}</UiAlert>
