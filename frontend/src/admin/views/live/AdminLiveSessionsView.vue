@@ -169,14 +169,23 @@ async function onRemove() {
   }
 }
 
-// Eksport — joriy filtr bo'yicha barcha darslar
+// Eksport — joriy filtr bo'yicha barcha darslar (sahifalab yig'ish)
 async function buildExport(): Promise<ExportSpec> {
-  const all = await liveSessionsApi.list({
+  const params = {
     status: statusFilter.value || undefined,
     q: q.value || undefined,
-    page: 1,
-    page_size: 1000,
-  })
+  }
+  const collected: LiveSession[] = []
+  let page = 1
+  let total = 0
+  for (;;) {
+    const res = await liveSessionsApi.list({ ...params, page, page_size: 100 })
+    total = res.total
+    collected.push(...res.items)
+    if (res.items.length < 100 || collected.length >= total) break
+    page++
+  }
+  const all = { items: collected, total }
   const meta: ExportSpec['meta'] = [{ label: t('live.col_title'), value: String(all.total) }]
   if (statusFilter.value) meta.push({ label: t('live.col_status'), value: t(`live.status_${statusFilter.value}`) })
   return {

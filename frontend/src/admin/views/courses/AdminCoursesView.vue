@@ -145,15 +145,24 @@ function fmtDate(s: string): string {
   return formatDate(s, locale.value, { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-// Eksport — joriy filtr bo'yicha barcha kurslar (client-side)
+// Eksport — joriy filtr bo'yicha barcha kurslar (client-side, sahifalab yig'ish)
 async function buildExport(): Promise<ExportSpec> {
-  const all = await coursesApi.list({
+  const params = {
     status: statusFilter.value || undefined,
     type: typeFilter.value || undefined,
     q: searchQ.value || undefined,
-    page: 1,
-    page_size: 1000,
-  })
+  }
+  const collected: Course[] = []
+  let page = 1
+  let total = 0
+  for (;;) {
+    const res = await coursesApi.list({ ...params, page, page_size: 100 })
+    total = res.total
+    collected.push(...res.items)
+    if (res.items.length < 100 || collected.length >= total) break
+    page++
+  }
+  const all = { items: collected, total }
   // Muallif nomlarini to'ldirish (yetishmaganlarni olib kelish)
   const missing = Array.from(
     new Set(all.items.map((c) => c.primary_author_id).filter((v): v is number => v !== null)),

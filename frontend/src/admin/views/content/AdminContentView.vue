@@ -129,13 +129,22 @@ function authorLabel(c: ContentItem): string {
 
 // CSV eksport — joriy filtr bo'yicha barcha kontent (client-side)
 async function buildExport(): Promise<ExportSpec> {
-  const all = await contentApi.list({
+  const params = {
     type: typeFilter.value || undefined,
     status: statusFilter.value || undefined,
     q: searchQ.value || undefined,
-    page: 1,
-    page_size: 1000,
-  })
+  }
+  const collected: ContentItem[] = []
+  let page = 1
+  let total = 0
+  for (;;) {
+    const res = await contentApi.list({ ...params, page, page_size: 100 })
+    total = res.total
+    collected.push(...res.items)
+    if (res.items.length < 100 || collected.length >= total) break
+    page++
+  }
+  const all = { items: collected, total }
   const missing = Array.from(new Set(all.items.map((c) => c.author_id))).filter(
     (id) => !(id in authorNames.value),
   )
