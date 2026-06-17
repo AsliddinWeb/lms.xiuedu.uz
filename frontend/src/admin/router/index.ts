@@ -40,6 +40,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@admin/views/dashboard/AdminDashboardView.vue'),
       },
       {
+        path: 'analytics',
+        name: 'admin-analytics',
+        component: () => import('@admin/views/analytics/AdminAnalyticsView.vue'),
+        meta: { permission: 'org.read' },
+      },
+      {
         path: 'users',
         name: 'admin-users',
         component: () => import('@admin/views/users/UsersListView.vue'),

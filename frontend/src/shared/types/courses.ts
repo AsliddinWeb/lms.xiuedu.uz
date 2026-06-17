@@ -199,6 +199,41 @@ export interface TeacherAnalytics {
   per_course: PerCourseStat[]
 }
 
+export interface RoleCount {
+  code: string
+  name: string
+  count: number
+}
+
+export interface TopCourseStat {
+  course_id: number
+  title: string
+  status: CourseStatus
+  enrollments: number
+}
+
+export interface PlatformAnalytics {
+  total_users: number
+  active_users: number
+  users_by_role: RoleCount[]
+  total_courses: number
+  published_courses: number
+  draft_courses: number
+  archived_courses: number
+  total_enrollments: number
+  total_students: number
+  completion_rate: number
+  avg_grade: number | null
+  completion_breakdown: CompletionBreakdown
+  grade_distribution: GradeDistribution
+  enrollments_over_time: EnrollmentPoint[]
+  exam_attempts: number
+  exam_pass_rate: number | null
+  total_content: number
+  total_live: number
+  top_courses: TopCourseStat[]
+}
+
 export interface LessonProgress {
   id: number
   user_id: number

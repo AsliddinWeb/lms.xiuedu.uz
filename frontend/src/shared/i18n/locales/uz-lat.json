@@ -2452,5 +2452,32 @@
     "students_desc": "Barcha talabalaringiz: guruh, kurslar soni, tugatgan kurslar va o'rtacha baho.",
     "summary_title": "Umumiy xulosa",
     "summary_desc": "Brendlangan PDF: asosiy ko'rsatkichlar, baho taqsimoti va kurslar jadvali."
+  },
+  "admin_analytics": {
+    "title": "Platforma analitikasi",
+    "subtitle": "Barcha kurslar, foydalanuvchilar va ro'yxatlar bo'yicha umumiy ko'rsatkichlar",
+    "export": "Top kurslar (CSV)",
+    "kpi_users": "Foydalanuvchilar",
+    "kpi_courses": "Kurslar",
+    "kpi_students": "Talabalar",
+    "kpi_enrollments": "Ro'yxatlar",
+    "kpi_completion": "Tugatish",
+    "kpi_avg_grade": "O'rtacha baho",
+    "kpi_content": "Kontent",
+    "kpi_live": "Jonli darslar",
+    "active_hint": "{n} faol",
+    "published_hint": "{n} chop etilgan",
+    "completion_title": "Tugatish darajasi",
+    "grade_dist_title": "Baho taqsimoti",
+    "enroll_trend_title": "Ro'yxat dinamikasi (oylar)",
+    "exams_title": "Imtihonlar",
+    "exam_pass_rate": "O'tish darajasi",
+    "exam_attempts": "{n} urinish",
+    "roles_title": "Rol bo'yicha foydalanuvchilar",
+    "top_courses_title": "Top kurslar",
+    "col_course": "Kurs",
+    "col_status": "Holat",
+    "col_enrollments": "Ro'yxatlar",
+    "no_data": "Ma'lumot yo'q"
   }
 }

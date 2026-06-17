@@ -15,6 +15,7 @@ import type {
   PaginatedCourses,
   PaginatedStudents,
   PaginatedTeacherStudents,
+  PlatformAnalytics,
   StudentCourseItem,
   TeacherAnalytics,
 } from '@shared/types/courses'
@@ -166,6 +167,9 @@ export const enrollmentsApi = {
 export const analyticsApi = {
   async mine(): Promise<TeacherAnalytics> {
     return (await apiClient.get<TeacherAnalytics>('/me/analytics')).data
+  },
+  async platform(): Promise<PlatformAnalytics> {
+    return (await apiClient.get<PlatformAnalytics>('/analytics/platform')).data
   },
 }
 

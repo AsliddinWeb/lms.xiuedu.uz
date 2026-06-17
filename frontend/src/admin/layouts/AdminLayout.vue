@@ -72,7 +72,7 @@ const initials = computed(() => {
 const sections = computed<SidebarSection[]>(() => {
   const overview: SidebarNavItem[] = [
     { name: 'admin-dashboard', icon: 'dashboard', label: t('admin_nav.dashboard'), to: '/dashboard' },
-    { name: 'analytics', icon: 'analytics', label: t('admin_nav.analytics'), disabled: true, badge: 'Ph.9' },
+    { name: 'admin-analytics', icon: 'analytics', label: t('admin_nav.analytics'), to: '/analytics' },
   ]
 
   // Boshqaruv — kirish/tashkilot

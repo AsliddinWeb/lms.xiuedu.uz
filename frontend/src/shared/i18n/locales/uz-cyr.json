@@ -2452,5 +2452,32 @@
     "students_desc": "Барча талабаларингиз: гуруҳ, курслар сони, тугатган курслар ва ўртача баҳо.",
     "summary_title": "Умумий хулоса",
     "summary_desc": "Брендланган PDF: асосий кўрсаткичлар, баҳо тақсимоти ва курслар жадвали."
+  },
+  "admin_analytics": {
+    "title": "Платформа аналитикаси",
+    "subtitle": "Барча курслар, фойдаланувчилар ва рўйхатлар бўйича умумий кўрсаткичлар",
+    "export": "Топ курслар (CSV)",
+    "kpi_users": "Фойдаланувчилар",
+    "kpi_courses": "Курслар",
+    "kpi_students": "Талабалар",
+    "kpi_enrollments": "Рўйхатлар",
+    "kpi_completion": "Тугатиш",
+    "kpi_avg_grade": "Ўртача баҳо",
+    "kpi_content": "Контент",
+    "kpi_live": "Жонли дарслар",
+    "active_hint": "{n} фаол",
+    "published_hint": "{n} чоп этилган",
+    "completion_title": "Тугатиш даражаси",
+    "grade_dist_title": "Баҳо тақсимоти",
+    "enroll_trend_title": "Рўйхат динамикаси (ойлар)",
+    "exams_title": "Имтиҳонлар",
+    "exam_pass_rate": "Ўтиш даражаси",
+    "exam_attempts": "{n} уриниш",
+    "roles_title": "Рол бўйича фойдаланувчилар",
+    "top_courses_title": "Топ курслар",
+    "col_course": "Курс",
+    "col_status": "Ҳолат",
+    "col_enrollments": "Рўйхатлар",
+    "no_data": "Маълумот йўқ"
   }
 }

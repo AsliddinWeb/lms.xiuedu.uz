@@ -2452,5 +2452,32 @@
     "students_desc": "Все ваши студенты: группа, число курсов, завершённые курсы и средний балл.",
     "summary_title": "Сводный отчёт",
     "summary_desc": "Брендированный PDF: основные показатели, распределение оценок и таблица курсов."
+  },
+  "admin_analytics": {
+    "title": "Аналитика платформы",
+    "subtitle": "Общие показатели по всем курсам, пользователям и записям",
+    "export": "Топ курсы (CSV)",
+    "kpi_users": "Пользователи",
+    "kpi_courses": "Курсы",
+    "kpi_students": "Студенты",
+    "kpi_enrollments": "Записи",
+    "kpi_completion": "Завершение",
+    "kpi_avg_grade": "Средний балл",
+    "kpi_content": "Контент",
+    "kpi_live": "Онлайн-уроки",
+    "active_hint": "{n} активных",
+    "published_hint": "{n} опубликовано",
+    "completion_title": "Уровень завершения",
+    "grade_dist_title": "Распределение оценок",
+    "enroll_trend_title": "Динамика записей (месяцы)",
+    "exams_title": "Экзамены",
+    "exam_pass_rate": "Процент сдачи",
+    "exam_attempts": "{n} попыток",
+    "roles_title": "Пользователи по ролям",
+    "top_courses_title": "Топ курсы",
+    "col_course": "Курс",
+    "col_status": "Статус",
+    "col_enrollments": "Записи",
+    "no_data": "Нет данных"
   }
 }
