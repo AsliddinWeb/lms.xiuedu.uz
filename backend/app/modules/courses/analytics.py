@@ -273,3 +273,164 @@ async def get_teacher_analytics(db: AsyncSession, teacher_id: int) -> dict:
         "live_sessions_count": live_sessions_count,
         "per_course": per_course,
     }
+
+
+async def get_platform_analytics(db: AsyncSession) -> dict:
+    """Platforma bo'ylab aggregate analitika (admin) — teacher scope'siz.
+
+    Barcha kurslar/ro'yxatlar/imtihonlar bo'yicha umumiy ko'rsatkichlar.
+    """
+    from app.modules.courses.models import Course, Enrollment
+    from app.modules.users.models import User
+
+    # --- Foydalanuvchilar ---
+    urow = (
+        await db.execute(
+            select(
+                func.count(User.id),
+                func.coalesce(func.sum(case((User.is_active, 1), else_=0)), 0),
+            ).where(User.deleted_at.is_(None))
+        )
+    ).one()
+    total_users, active_users = int(urow[0]), int(urow[1])
+
+    # --- Rol bo'yicha foydalanuvchilar ---
+    from app.modules.rbac.models import Role, UserRole
+
+    role_rows = (
+        await db.execute(
+            select(Role.code, Role.name, func.count(distinct(UserRole.user_id)))
+            .join(UserRole, UserRole.role_id == Role.id)
+            .group_by(Role.code, Role.name)
+            .order_by(desc(func.count(distinct(UserRole.user_id))))
+        )
+    ).all()
+    users_by_role = [
+        {"code": c, "name": n, "count": int(cnt)} for c, n, cnt in role_rows
+    ]
+
+    # --- Kurslar (holat bo'yicha) ---
+    crow = (
+        await db.execute(
+            select(
+                func.count(Course.id),
+                func.coalesce(func.sum(case((Course.status == "published", 1), else_=0)), 0),
+                func.coalesce(func.sum(case((Course.status == "draft", 1), else_=0)), 0),
+                func.coalesce(func.sum(case((Course.status == "archived", 1), else_=0)), 0),
+            ).where(Course.deleted_at.is_(None))
+        )
+    ).one()
+    total_courses, published_courses, draft_courses, archived_courses = (
+        int(crow[0]), int(crow[1]), int(crow[2]), int(crow[3])
+    )
+
+    # --- Ro'yxatlar aggregate (holat + baho taqsimoti) ---
+    g = Enrollment.final_grade
+    agg = (
+        await db.execute(
+            select(
+                func.count(Enrollment.id),
+                func.count(distinct(Enrollment.user_id)),
+                func.coalesce(func.sum(case((Enrollment.completion_status == "completed", 1), else_=0)), 0),
+                func.coalesce(func.sum(case((Enrollment.completion_status == "in_progress", 1), else_=0)), 0),
+                func.coalesce(func.sum(case((Enrollment.completion_status == "failed", 1), else_=0)), 0),
+                func.coalesce(func.sum(case((Enrollment.completion_status == "dropped", 1), else_=0)), 0),
+                func.avg(g),
+                func.coalesce(func.sum(case((g >= 86, 1), else_=0)), 0),
+                func.coalesce(func.sum(case((and_(g >= 71, g < 86), 1), else_=0)), 0),
+                func.coalesce(func.sum(case((and_(g >= 55, g < 71), 1), else_=0)), 0),
+                func.coalesce(func.sum(case((and_(g.isnot(None), g < 55), 1), else_=0)), 0),
+            )
+            .select_from(Enrollment)
+            .join(Course, and_(Course.id == Enrollment.course_id, Course.deleted_at.is_(None)))
+        )
+    ).one()
+    total_enr = int(agg[0])
+    unique_students = int(agg[1])
+    completed, in_progress, failed, dropped = int(agg[2]), int(agg[3]), int(agg[4]), int(agg[5])
+    avg_grade = agg[6]
+    excellent, good, satisfactory, fail = int(agg[7]), int(agg[8]), int(agg[9]), int(agg[10])
+    completion_rate = round(completed / total_enr * 100, 1) if total_enr else 0.0
+
+    # --- Ro'yxat dinamikasi (oxirgi 12 oy) ---
+    since = datetime.now(UTC) - timedelta(days=370)
+    month_expr = func.to_char(func.date_trunc("month", Enrollment.enrolled_at), "YYYY-MM")
+    over_time_rows = (
+        await db.execute(
+            select(month_expr.label("m"), func.count().label("c"))
+            .select_from(Enrollment)
+            .where(Enrollment.enrolled_at >= since)
+            .group_by(month_expr)
+            .order_by(month_expr)
+        )
+    ).all()
+    enrollments_over_time = [{"month": m, "count": int(c)} for m, c in over_time_rows]
+
+    # --- Imtihon pass-rate (platform) ---
+    from app.modules.exams.models import ExamAttempt
+
+    erow = (
+        await db.execute(
+            select(
+                func.coalesce(func.sum(case((ExamAttempt.passed.isnot(None), 1), else_=0)), 0),
+                func.coalesce(func.sum(case((ExamAttempt.passed.is_(True), 1), else_=0)), 0),
+            ).select_from(ExamAttempt)
+        )
+    ).one()
+    exam_attempts, exam_passed = int(erow[0]), int(erow[1])
+    exam_pass_rate = round(exam_passed / exam_attempts * 100, 1) if exam_attempts else None
+
+    # --- Kontent + Live ---
+    from app.modules.content.models import ContentItem
+    from app.modules.live.models import LiveSession
+
+    total_content = int((await db.execute(select(func.count(ContentItem.id)))).scalar_one())
+    total_live = int((await db.execute(select(func.count(LiveSession.id)))).scalar_one())
+
+    # --- Top kurslar (ro'yxat bo'yicha, top 8) ---
+    top_rows = (
+        await db.execute(
+            select(
+                Course.id, Course.title, Course.status,
+                func.count(Enrollment.id),
+            )
+            .select_from(Course)
+            .outerjoin(Enrollment, Enrollment.course_id == Course.id)
+            .where(Course.deleted_at.is_(None))
+            .group_by(Course.id, Course.title, Course.status)
+            .order_by(desc(func.count(Enrollment.id)))
+            .limit(8)
+        )
+    ).all()
+    top_courses = [
+        {"course_id": cid, "title": title, "status": st, "enrollments": int(cnt)}
+        for cid, title, st, cnt in top_rows
+    ]
+
+    return {
+        "total_users": total_users,
+        "active_users": active_users,
+        "users_by_role": users_by_role,
+        "total_courses": total_courses,
+        "published_courses": published_courses,
+        "draft_courses": draft_courses,
+        "archived_courses": archived_courses,
+        "total_enrollments": total_enr,
+        "total_students": unique_students,
+        "completion_rate": completion_rate,
+        "avg_grade": float(avg_grade) if avg_grade is not None else None,
+        "completion_breakdown": {
+            "completed": completed, "in_progress": in_progress,
+            "failed": failed, "dropped": dropped,
+        },
+        "grade_distribution": {
+            "excellent": excellent, "good": good,
+            "satisfactory": satisfactory, "fail": fail,
+        },
+        "enrollments_over_time": enrollments_over_time,
+        "exam_attempts": exam_attempts,
+        "exam_pass_rate": exam_pass_rate,
+        "total_content": total_content,
+        "total_live": total_live,
+        "top_courses": top_courses,
+    }

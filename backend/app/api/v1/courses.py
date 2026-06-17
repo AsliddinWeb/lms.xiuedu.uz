@@ -797,6 +797,17 @@ async def get_my_analytics(
     return TeacherAnalytics(**data)
 
 
+@router.get(
+    "/analytics/platform",
+    summary="Platforma bo'ylab aggregate analitika (admin)",
+)
+async def get_platform_analytics(
+    db: DbSession,
+    _u: User = Depends(require_permission("org.read")),
+) -> dict:
+    return await analytics_service.get_platform_analytics(db)
+
+
 def _csv_response(csv_text: str, prefix: str) -> Response:
     fname = filename_with_timestamp(prefix)
     return Response(
