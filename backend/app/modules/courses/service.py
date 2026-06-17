@@ -162,7 +162,7 @@ async def update_course(
             raise NotFoundError(f"Fan id={data.subject_id} topilmadi")
     if data.organization_id is not None:
         if (await db.get(Organization, data.organization_id)) is None:
-            raise NotFoundError(f"OTM id={data.organization_id} topilmadi")
+            raise NotFoundError(f"Universitet id={data.organization_id} topilmadi")
 
     update = data.model_dump(exclude_unset=True)
     for k, v in update.items():

@@ -508,7 +508,7 @@ async def update_rubric(
 
     if "organization_id" in update and update["organization_id"] is not None:
         if (await db.get(Organization, update["organization_id"])) is None:
-            raise NotFoundError(f"OTM id={update['organization_id']} topilmadi")
+            raise NotFoundError(f"Universitet id={update['organization_id']} topilmadi")
 
     if "criteria" in update and update["criteria"] is not None:
         criteria = [c if isinstance(c, dict) else c.model_dump(mode="json")

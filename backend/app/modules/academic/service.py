@@ -76,7 +76,7 @@ async def list_organizations(
 async def get_organization(db: AsyncSession, org_id: int) -> Organization:
     org = await db.get(Organization, org_id)
     if org is None:
-        raise NotFoundError("OTM topilmadi")
+        raise NotFoundError("Universitet topilmadi")
     return org
 
 
@@ -84,7 +84,7 @@ async def create_organization(db: AsyncSession, data: dict[str, Any]) -> Organiz
     # Code uniqueness check
     existing = await db.execute(select(Organization).where(Organization.code == data["code"]))
     if existing.scalar_one_or_none():
-        raise ConflictError(f"OTM kodi '{data['code']}' band")
+        raise ConflictError(f"Universitet kodi '{data['code']}' band")
     org = Organization(**data)
     db.add(org)
     await db.flush()

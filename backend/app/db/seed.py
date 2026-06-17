@@ -32,9 +32,9 @@ PERMISSIONS: list[tuple[str, str, str]] = [
     # Platform-level
     ("platform.*", "Platforma — universal", "platform"),
     # Org / Tenant
-    ("org.read", "OTM ko'rish", "organization"),
-    ("org.manage", "OTM boshqarish", "organization"),
-    ("org.users.manage", "OTM foydalanuvchilarini boshqarish", "organization"),
+    ("org.read", "Universitet ko'rish", "organization"),
+    ("org.manage", "Universitet boshqarish", "organization"),
+    ("org.users.manage", "Universitet foydalanuvchilarini boshqarish", "organization"),
     # Faculty
     ("faculty.read", "Fakultet ko'rish", "academic"),
     ("faculty.manage", "Fakultet boshqarish", "academic"),
