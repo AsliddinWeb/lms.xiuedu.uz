@@ -129,6 +129,12 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@admin/views/integrations/HemisSyncLogView.vue'),
         meta: { permission: 'exam.create' },
       },
+      {
+        path: 'settings',
+        name: 'admin-settings',
+        component: () => import('@admin/views/settings/AdminSettingsView.vue'),
+        meta: { permission: 'org.manage' },
+      },
     ],
   },
 

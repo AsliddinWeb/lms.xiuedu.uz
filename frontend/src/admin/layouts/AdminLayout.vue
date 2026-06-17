@@ -111,7 +111,7 @@ const footerSection = computed<SidebarSection>(() => ({
   items: [
     { name: 'admin-reports', icon: 'reports', label: t('admin_nav.reports'), to: '/reports' },
     { name: 'admin-hemis-sync', icon: 'audit', label: t('admin_nav.hemis_sync'), to: '/hemis-sync' },
-    { name: 'settings', icon: 'settings', label: t('admin_nav.settings'), disabled: true, badge: 'Ph.10' },
+    { name: 'admin-settings', icon: 'settings', label: t('admin_nav.settings'), to: '/settings' },
   ],
 }))
 

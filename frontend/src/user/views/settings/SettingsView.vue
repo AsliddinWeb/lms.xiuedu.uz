@@ -18,7 +18,7 @@ import { useSidebar } from '@shared/composables/useSidebar'
 import { useLocaleStore } from '@shared/stores/locale'
 import { useThemeStore } from '@shared/stores/theme'
 import type { Theme } from '@shared/utils/theme'
-import SettingToggle from './SettingToggle.vue'
+import SettingToggle from '@shared/components/ui/UiSettingToggle.vue'
 
 const { t } = useI18n()
 const themeStore = useThemeStore()
