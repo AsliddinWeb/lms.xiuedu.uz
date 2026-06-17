@@ -24,6 +24,9 @@ export async function toPdf(spec: ExportSpec): Promise<void> {
     const { dejaVuSansBase64 } = await import('./fonts/dejavuSans')
     doc.addFileToVFS('DejaVuSans.ttf', dejaVuSansBase64)
     doc.addFont('DejaVuSans.ttf', FONT, 'normal')
+    // 'bold' ham bir faylga: autotable sarlavhalari bold so'raydi —
+    // aks holda kirill/uz matn standart shriftga tushib buziladi.
+    doc.addFont('DejaVuSans.ttf', FONT, 'bold')
     doc.setFont(FONT)
   } catch {
     /* shrift bo'lmasa standart bilan davom (faqat lotin) */
