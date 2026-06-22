@@ -34,9 +34,11 @@ log "3/4 — Servislarni yangilash (zero-downtime — rolling restart)..."
 # Backend va frontend ni qayta yarating, infra (postgres/redis/minio) tegmaydi
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --no-deps --build backend frontend-user frontend-admin
 # Egress (server-side recording worker) ishlab turishini ta'minlaymiz.
-# livekit'ga tegmaymiz (jonli darsni uzmaslik uchun) — egress uning namespace'iga ulanadi.
-docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --no-deps egress 2>/dev/null || \
-  log "  (egress hali sozlanmagan/ishga tushmadi — alohida tekshiring)"
+# --no-deps ISHLATMAYMIZ: u network_mode:service:livekit ni hal qila olmaydi
+# ("network service:livekit not found"). livekit konfig o'zgarmasa qayta
+# yaratilmaydi -> jonli dars uzilmaydi; faqat egress ulanadi.
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d egress 2>/dev/null || \
+  log "  (egress ishga tushmadi — alohida tekshiring)"
 
 log "4/4 — Eski image'larni tozalash..."
 docker image prune -f --filter "label!=keep"
