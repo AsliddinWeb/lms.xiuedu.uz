@@ -120,8 +120,6 @@ const screenAllowed = ref(true)
 const connQuality = ref<'excellent' | 'good' | 'poor' | 'unknown'>('unknown')
 const roomConnected = ref(false)
 
-// Phase 5b.4 — Recording toggle state
-const togglingRecording = ref(false)
 
 // Phase 5b.7 — Background blur state
 const backgroundBlurEnabled = ref(false)
@@ -578,6 +576,7 @@ onUnmounted(async () => {
   if (studentCaptionsTimer) clearInterval(studentCaptionsTimer)
   if (admissionPollTimer) clearInterval(admissionPollTimer)
   if (hostAdmissionTimer) clearInterval(hostAdmissionTimer)
+  stopServerRecTimer()
   if (joinedRoom.value && !canManage.value) {
     try {
       await liveSessionsApi.leave(sessionId.value)
@@ -860,70 +859,41 @@ function toggleStudentCaptions(): void {
   }, 5000)
 }
 
-async function toggleRecording() {
-  if (!session.value) return
-  togglingRecording.value = true
-  try {
-    if (recorder.isRecording.value) {
-      // Stop + upload
-      showRecordingHint(t('live.recording_hint_uploading'))
-      const final = await recorder.stop()
-      if (final) {
-        // Backend `upload_blob` ham session.recording_url'ni yangiladi —
-        // sessionni refetch qilish kerakmas, lekin flag'ni o'chiramiz.
-        const updated = await liveSessionsApi.update(session.value.id, {
-          is_recording_enabled: false,
-        })
-        session.value = updated
-        showRecordingHint(t('live.recording_hint_off'))
-      } else if (recorder.error.value) {
-        setTransientError(recorder.error.value)
-      }
-    } else {
-      // Start — pass a callback so composable can re-read tracks during recording
-      // (e.g. user starts screen-share mid-recording)
-      const getTracks = () =>
-        nativeRoomRef.value?.getLocalTracks?.() ?? {
-          audio: null,
-          camera: null,
-          screen: null,
-        }
-      const initial = getTracks()
-      if (!initial.audio && !initial.camera && !initial.screen) {
-        setTransientError(t('live.recording_no_stream'))
-        return
-      }
-      await recorder.start(session.value.id, getTracks)
-      if (recorder.error.value) {
-        setTransientError(recorder.error.value)
-        return
-      }
-      const updated = await liveSessionsApi.update(session.value.id, {
-        is_recording_enabled: true,
-      })
-      session.value = updated
-      showRecordingHint(t('live.recording_hint_on'))
-    }
-  } catch (e) {
-    setTransientError(extractErrorMessage(e, t('common.save_error')))
-  } finally {
-    togglingRecording.value = false
-  }
-}
+// Phase 55.5 — klient canvas recorder (toggleRecording) olib tashlandi:
+// tab fonida muzlab qora ekran berardi. Endi server egress ishlatiladi.
+// `recorder` composable hali REC indikatori va RecordingUploader (zaxira
+// qo'lda yuklash) uchun saqlanadi.
 
-// === Server-side recording (egress) — Phase 32 ===
+// === Server-side recording (egress) — Phase 32 / 55.5 (asosiy yozuv usuli) ===
+// Klient canvas recorder tab fonida muzlab qora ekran berardi; egress server
+// tomonda yozadi (livekit namespace, media 127.0.0.1:7882) — ishonchli.
 const serverRecording = ref(false)
 const togglingServerRec = ref(false)
+const serverRecElapsed = ref(0)
+let serverRecTimer: ReturnType<typeof setInterval> | null = null
+function startServerRecTimer() {
+  serverRecElapsed.value = 0
+  if (serverRecTimer) clearInterval(serverRecTimer)
+  serverRecTimer = setInterval(() => {
+    serverRecElapsed.value += 1
+  }, 1000)
+}
+function stopServerRecTimer() {
+  if (serverRecTimer) clearInterval(serverRecTimer)
+  serverRecTimer = null
+}
 async function toggleServerRecording() {
   togglingServerRec.value = true
   try {
     if (serverRecording.value) {
       await liveSessionsApi.egressStop(sessionId.value)
       serverRecording.value = false
+      stopServerRecTimer()
       showRecordingHint(t('live.server_rec_stopped'))
     } else {
       await liveSessionsApi.egressStart(sessionId.value)
       serverRecording.value = true
+      startServerRecTimer()
       showRecordingHint(t('live.server_rec_started'))
     }
   } catch (e) {
@@ -1165,10 +1135,10 @@ function initials(name: string): string {
             <span class="live-dot"></span>
             <span>LIVE · {{ formattedElapsed }}</span>
           </div>
-          <!-- Phase 5b.4 / 7a — REC indicator (everyone sees), pulsing dot + timer -->
-          <div v-if="recorder.isRecording.value || session.is_recording_enabled" class="rec-indicator" :title="t('live.recording_active')">
+          <!-- Phase 5b.4 / 7a / 55.5 — REC indicator (everyone sees), pulsing dot + timer -->
+          <div v-if="serverRecording || recorder.isRecording.value || session.is_recording_enabled" class="rec-indicator" :title="t('live.recording_active')">
             <span class="rec-dot"></span>
-            <span>REC · {{ fmtDuration(recorder.elapsedSec.value) }}</span>
+            <span>REC · {{ fmtDuration(serverRecording ? serverRecElapsed : recorder.elapsedSec.value) }}</span>
           </div>
           <div v-else-if="recorder.isUploading.value" class="rec-indicator" :title="t('live.recording_hint_uploading')">
             <span>⬆ {{ t('live.recording_hint_uploading') }}</span>
@@ -1181,22 +1151,8 @@ function initials(name: string): string {
           </div>
         </div>
         <div class="header-actions">
-          <!-- Phase 5b.4 — Recording toggle (host only) -->
-          <button
-            v-if="canManage"
-            class="header-btn"
-            :class="{ recording: session.is_recording_enabled }"
-            :disabled="togglingRecording"
-            :title="session.is_recording_enabled ? t('live.recording_stop') : t('live.recording_start')"
-            @click="toggleRecording"
-          >
-            <span
-              class="rec-dot-sm"
-              :class="{ active: session.is_recording_enabled }"
-            ></span>
-            {{ session.is_recording_enabled ? t('live.recording_stop') : t('live.recording_start') }}
-          </button>
-          <!-- Phase 32 — Server yozuvi (egress, host only) -->
+          <!-- Phase 55.5 — Yozib olish: server egress (ishonchli, asosiy usul).
+               Klient canvas recorder tab fonida qora ekran berardi -> olib tashlandi. -->
           <button
             v-if="canManage"
             class="header-btn"
@@ -1206,7 +1162,7 @@ function initials(name: string): string {
             @click="toggleServerRecording"
           >
             <span class="rec-dot-sm" :class="{ active: serverRecording }"></span>
-            {{ serverRecording ? t('live.server_rec_stop') : t('live.server_rec') }}
+            {{ serverRecording ? t('live.recording_stop') : t('live.recording_start') }}
           </button>
           <!-- Phase 9c — Captions toggle (host yozadi, talaba ko'radi) -->
           <button
