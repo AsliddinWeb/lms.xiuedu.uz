@@ -2042,7 +2042,11 @@
     "server_rec_hint": "Запись на сервере (egress) — без браузера",
     "server_rec_started": "Запись на сервере начата",
     "server_rec_stopped": "Запись на сервере остановлена",
-    "server_rec_failed": "Не удалось начать запись на сервере"
+    "server_rec_failed": "Не удалось начать запись на сервере",
+    "screen_not_allowed": "Хост не разрешил демонстрацию экрана",
+    "screen_grant": "Разрешить демонстрацию экрана",
+    "screen_revoke": "Отозвать разрешение",
+    "screen_grant_failed": "Не удалось изменить разрешение"
   },
   "admin_live": {
     "tag": "Admin · Live",

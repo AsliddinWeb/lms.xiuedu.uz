@@ -140,6 +140,12 @@ class LiveAttendanceItem(BaseModel):
     is_counted: bool
 
 
+class ScreenShareGrant(BaseModel):
+    """Host talabaga ekran ulashish ruxsatini beradi/oladi."""
+
+    allow: bool
+
+
 class LiveAdmissionItem(BaseModel):
     """Waiting room — kutayotgan talaba (host ko'radi)."""
 

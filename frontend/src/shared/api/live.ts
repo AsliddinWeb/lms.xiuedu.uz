@@ -99,6 +99,18 @@ export const liveSessionsApi = {
     await apiClient.post(`/live-sessions/${id}/admissions/${userId}`, { approve })
   },
 
+  // Host talabaga ekran ulashish ruxsatini beradi/oladi (Phase 55.4)
+  async setScreenshare(
+    id: number,
+    userId: number,
+    allow: boolean,
+  ): Promise<void> {
+    await apiClient.post(
+      `/live-sessions/${id}/participants/${userId}/screenshare`,
+      { allow },
+    )
+  },
+
   // Server-side recording (egress) — Phase 32
   async egressStart(id: number): Promise<LiveRecording> {
     return (

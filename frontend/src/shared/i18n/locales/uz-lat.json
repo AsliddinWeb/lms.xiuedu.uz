@@ -2042,7 +2042,11 @@
     "server_rec_hint": "Serverda yozish (egress) — brauzersiz, ishonchli",
     "server_rec_started": "Server yozuvi boshlandi",
     "server_rec_stopped": "Server yozuvi to'xtatildi",
-    "server_rec_failed": "Server yozuvini boshlab bo'lmadi"
+    "server_rec_failed": "Server yozuvini boshlab bo'lmadi",
+    "screen_not_allowed": "Ekran ulashishga host ruxsat bermagan",
+    "screen_grant": "Ekran ulashishga ruxsat berish",
+    "screen_revoke": "Ekran ruxsatini olish",
+    "screen_grant_failed": "Ruxsatni o'zgartirib bo'lmadi"
   },
   "admin_live": {
     "tag": "Admin · Live",

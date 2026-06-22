@@ -2042,7 +2042,11 @@
     "server_rec_hint": "Record on the server (egress) — browserless, reliable",
     "server_rec_started": "Server recording started",
     "server_rec_stopped": "Server recording stopped",
-    "server_rec_failed": "Couldn't start server recording"
+    "server_rec_failed": "Couldn't start server recording",
+    "screen_not_allowed": "Host hasn't allowed screen sharing",
+    "screen_grant": "Allow screen sharing",
+    "screen_revoke": "Revoke screen permission",
+    "screen_grant_failed": "Could not change permission"
   },
   "admin_live": {
     "tag": "Admin · Live",

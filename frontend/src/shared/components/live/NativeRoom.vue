@@ -82,7 +82,22 @@ const emit = defineEmits<{
   audioLevel: [level: number]  // Phase 5b.3 — lokal mic level (0–1)
   reaction: [data: ReactionEvent]  // Phase 5b.6
   handRaise: [data: HandRaiseEvent]  // Phase 5b.6
+  screenShareAllowed: [allowed: boolean]  // Phase 55.4 — host ruxsati
 }>()
+
+// Phase 55.4 — lokal ishtirokchi ekran ulasha oladimi (token/host ruxsati)
+function computeScreenAllowed(): boolean {
+  const perms = room.value?.localParticipant.permissions
+  if (!perms) return true
+  const sources = perms.canPublishSources
+  if (!sources || sources.length === 0) return true // bo'sh = barchasi ruxsat
+  // LiveKit proto TrackSource enum: SCREEN_SHARE = 3 (raqamli)
+  const SCREEN_SHARE_SOURCE = 3
+  return sources.some((s) => (s as unknown as number) === SCREEN_SHARE_SOURCE)
+}
+function emitScreenAllowed() {
+  emit('screenShareAllowed', computeScreenAllowed())
+}
 
 const room = ref<Room | null>(null)
 
@@ -207,6 +222,10 @@ async function connect() {
     r.on(RoomEvent.AudioPlaybackStatusChanged, () => {
       if (!r.canPlaybackAudio) void ensureAudioStarted()
     })
+    // Phase 55.4 — host ekran ruxsatini o'zgartirsa, tugmani yangilaymiz
+    r.on(RoomEvent.ParticipantPermissionsChanged, (_prev, participant) => {
+      if (participant === r.localParticipant) emitScreenAllowed()
+    })
     r.on(RoomEvent.TrackMuted, refreshParticipants)
     r.on(RoomEvent.TrackUnmuted, refreshParticipants)
     r.on(RoomEvent.LocalTrackPublished, refreshParticipants)
@@ -281,6 +300,7 @@ async function connect() {
     // Remote audio — allaqachon obuna bo'lingan track'lar + autoplay unblock
     attachExistingRemoteAudio()
     void ensureAudioStarted()
+    emitScreenAllowed()
   } catch (e) {
     emit('error', e instanceof Error ? e.message : String(e))
   }
@@ -582,6 +602,10 @@ defineExpose({
   async toggleScreenShare() {
     if (!room.value) {
       emit('error', 'Room is not connected yet')
+      return
+    }
+    if (!localScreenSharing.value && !computeScreenAllowed()) {
+      emit('error', 'screen-permission-denied')
       return
     }
     await ensureAudioStarted()

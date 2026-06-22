@@ -77,12 +77,17 @@ class NativeProvider:
             "video": {
                 "room": room,
                 "roomJoin": True,
-                # Host kerak bo'lsa keyinroq cheklash mumkin
-                # (canPublish=False qilib talabani faqat tinglovchi qilish)
                 "canPublish": True,
                 "canPublishData": True,
                 "canSubscribe": True,
                 "canUpdateOwnMetadata": True,
+                # Ekran ulashish: host'da to'liq, talabada faqat host ruxsat
+                # berganda (keyin update_participant orqali screen_share qo'shiladi).
+                "canPublishSources": (
+                    ["camera", "microphone", "screen_share", "screen_share_audio"]
+                    if user.is_host
+                    else ["camera", "microphone"]
+                ),
                 # Host moderator huquqlari — boshqalarni mute qilish va h.k.
                 "roomAdmin": user.is_host,
                 "roomCreate": user.is_host,

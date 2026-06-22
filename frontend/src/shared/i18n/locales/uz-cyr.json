@@ -2042,7 +2042,11 @@
     "server_rec_hint": "Серверда ёзиш (egress) — браузерсиз, ишончли",
     "server_rec_started": "Сервер ёзуви бошланди",
     "server_rec_stopped": "Сервер ёзуви тўхтатилди",
-    "server_rec_failed": "Сервер ёзувини бошлаб бўлмади"
+    "server_rec_failed": "Сервер ёзувини бошлаб бўлмади",
+    "screen_not_allowed": "Экран улашишга хост рухсат бермаган",
+    "screen_grant": "Экран улашишга рухсат бериш",
+    "screen_revoke": "Экран рухсатини олиш",
+    "screen_grant_failed": "Рухсатни ўзгартириб бўлмади"
   },
   "admin_live": {
     "tag": "Admin · Live",

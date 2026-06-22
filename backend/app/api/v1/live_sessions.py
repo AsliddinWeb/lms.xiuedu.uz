@@ -73,6 +73,7 @@ from app.modules.live.schemas import (
     CalendarTokenResponse,
     LiveAdmissionDecision,
     LiveAdmissionItem,
+    ScreenShareGrant,
     LiveAttendanceItem,
     LiveAttendancePublic,
     LiveCaptionBatchRequest,
@@ -392,6 +393,29 @@ async def decide_admission(
         db, session_id=session_id, user_id=user_id, approve=payload.approve
     )
     await db.commit()
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post(
+    "/live-sessions/{session_id}/participants/{user_id}/screenshare",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Talabaga ekran ulashish ruxsatini berish/olish (host)",
+)
+async def set_participant_screenshare(
+    session_id: int,
+    user_id: int,
+    payload: ScreenShareGrant,
+    db: DbSession,
+    actor: CurrentUser,
+    redis: RedisClient,
+    _u: User = Depends(require_permission("live.host")),
+) -> Response:
+    if not await _user_can_manage_session(db, redis, actor, session_id):
+        raise ForbiddenError("Ekran ruxsatini boshqarish huquqi yo'q")
+    session = await service.get_session(db, session_id)
+    await lkadmin.set_screenshare_permission(
+        service.room_name_for(session), str(user_id), allow=payload.allow
+    )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 

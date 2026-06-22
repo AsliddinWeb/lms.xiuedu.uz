@@ -114,6 +114,8 @@ const participants = ref<ParticipantState[]>([])
 const audioMuted = ref(false)
 const videoMuted = ref(false)
 const screenSharing = ref(false)
+// Phase 55.4 — talaba ekran ulasha oladimi (host ruxsati). Host doim true.
+const screenAllowed = ref(true)
 const connQuality = ref<'excellent' | 'good' | 'poor' | 'unknown'>('unknown')
 const roomConnected = ref(false)
 
@@ -644,6 +646,11 @@ function setTransientError(msg: string) {
   }, 5000)
 }
 function onRoomError(message: string) {
+  // Phase 55.4 — ekran ulashish ruxsati yo'q (host bermagan)
+  if (message === 'screen-permission-denied') {
+    setTransientError(t('live.screen_not_allowed'))
+    return
+  }
   // Phase 5b.9 — permission errorni alohida banner sifatida ko'rsatamiz (toast emas)
   if (isPermissionError(message)) {
     permissionDenied.value = true
@@ -862,6 +869,9 @@ function onVideoMute(muted: boolean) {
 function onScreenShare(active: boolean) {
   screenSharing.value = active
 }
+function onScreenAllowed(allowed: boolean) {
+  screenAllowed.value = allowed
+}
 function onQualityChanged(q: string) {
   const v = String(q).toLowerCase()
   if (v.includes('excellent')) connQuality.value = 'excellent'
@@ -921,6 +931,21 @@ function toggleCam() {
 }
 function toggleScreen() {
   nativeRoomRef.value?.toggleScreenShare()
+}
+
+// Phase 55.4 — host talabaga ekran ulashish ruxsatini beradi/oladi
+const grantedScreen = ref<Set<number>>(new Set())
+async function toggleScreenGrant(userId: number) {
+  const allow = !grantedScreen.value.has(userId)
+  try {
+    await liveSessionsApi.setScreenshare(sessionId.value, userId, allow)
+    const next = new Set(grantedScreen.value)
+    if (allow) next.add(userId)
+    else next.delete(userId)
+    grantedScreen.value = next
+  } catch (e) {
+    setTransientError(extractErrorMessage(e, t('live.screen_grant_failed')))
+  }
 }
 function sendChat() {
   const text = chatInput.value.trim()
@@ -1053,6 +1078,7 @@ function initials(name: string): string {
         @audio-level="onAudioLevel"
         @reaction="onReaction"
         @hand-raise="onHandRaise"
+        @screen-share-allowed="onScreenAllowed"
       />
 
       <!-- Hidden audio mixer for main participant (so we hear them) -->
@@ -1360,6 +1386,18 @@ function initials(name: string): string {
               <li v-for="a in attendance" :key="a.user_id" class="attendance-row">
                 <div class="attendance-name">{{ a.full_name }}</div>
                 <div class="attendance-meta">
+                  <button
+                    v-if="a.user_id !== auth.user?.id"
+                    class="screen-grant-btn"
+                    :class="{ on: grantedScreen.has(a.user_id) }"
+                    :title="grantedScreen.has(a.user_id) ? t('live.screen_revoke') : t('live.screen_grant')"
+                    @click="toggleScreenGrant(a.user_id)"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="3" width="14" height="9" rx="1" />
+                      <path d="M9 12v3M5 15h8" />
+                    </svg>
+                  </button>
                   <span class="attendance-min">{{ a.live_minutes }} min</span>
                   <span class="attendance-counted" :class="{ ok: a.is_counted }">
                     {{ a.is_counted ? '✓' : '–' }}
@@ -1542,12 +1580,14 @@ function initials(name: string): string {
         <button
           class="ctrl-btn"
           :class="{ active: screenSharing }"
-          :title="t('live.ctrl_screen')"
+          :disabled="!isHost && !screenAllowed"
+          :title="!isHost && !screenAllowed ? t('live.screen_not_allowed') : t('live.ctrl_screen')"
           @click="toggleScreen"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="2" y="3" width="14" height="9" rx="1" />
             <path d="M9 12v3M5 15h8" />
+            <path v-if="!isHost && !screenAllowed" d="M2 2l14 14" />
           </svg>
         </button>
         <div class="ctrl-sep"></div>
@@ -2603,6 +2643,24 @@ function initials(name: string): string {
 .attendance-min { color: #a1a1aa; }
 .attendance-counted { color: #71717a; }
 .attendance-counted.ok { color: #4ade80; }
+.screen-grant-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid #3f3f46;
+  background: transparent;
+  color: #71717a;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.screen-grant-btn:hover { color: #e4e4e7; border-color: #52525b; }
+.screen-grant-btn.on {
+  color: #4ade80;
+  border-color: #4ade80;
+  background: rgba(74, 222, 128, 0.12);
+}
 
 /* Live error toast (mic/cam permission etc.) */
 .live-error-toast {
