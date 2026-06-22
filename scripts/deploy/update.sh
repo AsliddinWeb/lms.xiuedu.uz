@@ -33,6 +33,10 @@ docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" run --rm --no-deps back
 log "3/4 — Servislarni yangilash (zero-downtime — rolling restart)..."
 # Backend va frontend ni qayta yarating, infra (postgres/redis/minio) tegmaydi
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --no-deps --build backend frontend-user frontend-admin
+# Egress (server-side recording worker) ishlab turishini ta'minlaymiz.
+# livekit'ga tegmaymiz (jonli darsni uzmaslik uchun) — egress uning namespace'iga ulanadi.
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d --no-deps egress 2>/dev/null || \
+  log "  (egress hali sozlanmagan/ishga tushmadi — alohida tekshiring)"
 
 log "4/4 — Eski image'larni tozalash..."
 docker image prune -f --filter "label!=keep"

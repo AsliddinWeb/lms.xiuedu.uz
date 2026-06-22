@@ -74,17 +74,58 @@ services:
     image: livekit/livekit-server:latest
     container_name: lms_livekit
     restart: always
-    # PROD: --dev EMAS. Config orqali use_external_ip:true -> media tashqi IP'da.
-    # Kalitlar LIVEKIT_KEYS env orqali config ustiga qo'shiladi.
-    command: --config /etc/livekit/livekit.yaml
-    volumes:
-      - ./livekit/livekit.prod.yaml:/etc/livekit/livekit.yaml:ro
+    # PROD: --dev EMAS. use_external_ip:true -> media tashqi IP'da.
+    # Config env (LIVEKIT_CONFIG_BODY) orqali — redis paroli interpolatsiya
+    # qilinishi uchun (egress redis orqali ulanadi). Eski fayl-config rollback
+    # uchun ./livekit/livekit.prod.yaml'da qoladi.
+    command: --bind 0.0.0.0
+    depends_on:
+      redis:
+        condition: service_healthy
     ports:
       - "${LIVEKIT_PORT:-7880}:7880"
       - "${LIVEKIT_TCP_PORT:-7881}:7881"
       - "${LIVEKIT_UDP_PORT:-7882}:7882/udp"
     environment:
-      LIVEKIT_KEYS: "${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}"
+      LIVEKIT_CONFIG_BODY: |
+        port: 7880
+        bind_addresses:
+          - ""
+        rtc:
+          tcp_port: 7881
+          udp_port: 7882
+          use_external_ip: true
+        redis:
+          address: redis:6379
+          password: ${REDIS_PASSWORD}
+        keys:
+          ${LIVEKIT_API_KEY}: ${LIVEKIT_API_SECRET}
+        logging:
+          level: info
+
+  # LiveKit Egress — server-side recording (qora ekransiz, ishonchli).
+  # Livekit tarmoq namespace'ini bo'lishadi -> media 127.0.0.1:7882 (ICE ichki).
+  # Redis orqali livekit bilan bog'lanadi, MinIO'ga (egress START so'rovida) yozadi.
+  egress:
+    image: livekit/egress:latest
+    container_name: lms_egress
+    restart: always
+    network_mode: "service:livekit"
+    cap_add:
+      - SYS_ADMIN
+    depends_on:
+      - livekit
+      - redis
+    environment:
+      EGRESS_CONFIG_BODY: |
+        log_level: info
+        api_key: ${LIVEKIT_API_KEY}
+        api_secret: ${LIVEKIT_API_SECRET}
+        ws_url: ws://127.0.0.1:7880
+        redis:
+          address: redis:6379
+          password: ${REDIS_PASSWORD}
+        insecure: true
 
   backend:
     build:
