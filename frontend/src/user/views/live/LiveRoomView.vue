@@ -1060,7 +1060,7 @@ function initials(name: string): string {
           <!-- Phase 5b.4 / 7a — REC indicator (everyone sees), pulsing dot + timer -->
           <div v-if="recorder.isRecording.value || session.is_recording_enabled" class="rec-indicator" :title="t('live.recording_active')">
             <span class="rec-dot"></span>
-            <span>REC · {{ recorder.elapsedSec.value }}s</span>
+            <span>REC · {{ fmtDuration(recorder.elapsedSec.value) }}</span>
           </div>
           <div v-else-if="recorder.isUploading.value" class="rec-indicator" :title="t('live.recording_hint_uploading')">
             <span>⬆ {{ t('live.recording_hint_uploading') }}</span>

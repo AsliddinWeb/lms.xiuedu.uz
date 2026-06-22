@@ -11,6 +11,8 @@ import {
   type LocalVideoTrack,
   type Participant,
   type RemoteParticipant,
+  type RemoteTrack,
+  type RemoteTrackPublication,
   Room,
   RoomEvent,
   ScreenSharePresets,
@@ -89,6 +91,43 @@ const localAudioMuted = ref(false)
 const localVideoMuted = ref(false)
 const localScreenSharing = ref(false)
 
+// Remote audio — har bir remote mikrofon/screen-audio track'i alohida <audio>
+// elementiga ulanadi. Aks holda LiveKit raw Room remote audioni avtomatik
+// chalmaydi va ishtirokchilar bir-birini eshitmaydi (eng keng tarqalgan bug).
+const audioElements = new Map<string, HTMLAudioElement>()
+
+function attachRemoteAudio(track: RemoteTrack, pub: RemoteTrackPublication) {
+  if (track.kind !== 'audio') return
+  if (audioElements.has(pub.trackSid)) return
+  const el = track.attach() as HTMLAudioElement
+  el.autoplay = true
+  el.setAttribute('data-lk-remote-audio', pub.trackSid)
+  el.style.display = 'none'
+  document.body.appendChild(el)
+  audioElements.set(pub.trackSid, el)
+  // Autoplay policy — gesturedan keyin chalishni "unblock" qilamiz
+  void ensureAudioStarted()
+  el.play?.().catch(() => {})
+}
+
+function detachRemoteAudio(pub: RemoteTrackPublication) {
+  const el = audioElements.get(pub.trackSid)
+  if (el) {
+    try {
+      pub.track?.detach(el)
+    } catch {
+      // ignore
+    }
+    el.remove()
+    audioElements.delete(pub.trackSid)
+  }
+}
+
+function clearAllRemoteAudio() {
+  audioElements.forEach((el) => el.remove())
+  audioElements.clear()
+}
+
 function decodeMetadata(meta?: string): Record<string, unknown> {
   if (!meta) return {}
   try {
@@ -150,8 +189,24 @@ async function connect() {
     r.on(RoomEvent.ParticipantDisconnected, refreshParticipants)
     r.on(RoomEvent.TrackPublished, refreshParticipants)
     r.on(RoomEvent.TrackUnpublished, refreshParticipants)
-    r.on(RoomEvent.TrackSubscribed, refreshParticipants)
-    r.on(RoomEvent.TrackUnsubscribed, refreshParticipants)
+    r.on(
+      RoomEvent.TrackSubscribed,
+      (track: RemoteTrack, pub: RemoteTrackPublication) => {
+        attachRemoteAudio(track, pub)
+        refreshParticipants()
+      },
+    )
+    r.on(
+      RoomEvent.TrackUnsubscribed,
+      (_track: RemoteTrack, pub: RemoteTrackPublication) => {
+        detachRemoteAudio(pub)
+        refreshParticipants()
+      },
+    )
+    // Autoplay bloklangan bo'lsa (brauzer siyosati) — gesturedan keyin qayta urinish
+    r.on(RoomEvent.AudioPlaybackStatusChanged, () => {
+      if (!r.canPlaybackAudio) void ensureAudioStarted()
+    })
     r.on(RoomEvent.TrackMuted, refreshParticipants)
     r.on(RoomEvent.TrackUnmuted, refreshParticipants)
     r.on(RoomEvent.LocalTrackPublished, refreshParticipants)
@@ -223,6 +278,9 @@ async function connect() {
     refreshParticipants()
     // Phase 5b.3 — local mic level meter (RAF loop)
     startLocalAudioMeter()
+    // Remote audio — allaqachon obuna bo'lingan track'lar + autoplay unblock
+    attachExistingRemoteAudio()
+    void ensureAudioStarted()
   } catch (e) {
     emit('error', e instanceof Error ? e.message : String(e))
   }
@@ -368,12 +426,25 @@ async function disconnect() {
   if (!room.value) return
   stopLocalAudioMeter()
   stopRtt()
+  clearAllRemoteAudio()
   try {
     await room.value.disconnect()
   } catch {
     // ignore
   }
   room.value = null
+}
+
+// Ulanishdan oldin obuna bo'lingan remote audio track'larni ulash (zaxira)
+function attachExistingRemoteAudio() {
+  const r = room.value
+  if (!r) return
+  r.remoteParticipants.forEach((rp) => {
+    rp.trackPublications.forEach((pub) => {
+      const p = pub as RemoteTrackPublication
+      if (p.track && p.kind === 'audio') attachRemoteAudio(p.track, p)
+    })
+  })
 }
 
 onMounted(connect)
