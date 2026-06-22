@@ -282,6 +282,23 @@ def _recompute_counted(att: LiveAttendance, session: LiveSession) -> None:
     att.is_counted = pct >= session.min_attendance_percent
 
 
+def effective_minutes(att: LiveAttendance, session: LiveSession) -> int:
+    """Ko'rsatish uchun jonli daqiqalar.
+
+    Ishtirokchi hozir ulanib tursa (joined_at bor, left_at yo'q, session live),
+    o'tib ketgan vaqtni ham qo'shadi — aks holda davomat panelida "0 min" turardi.
+    """
+    base = att.total_minutes
+    if (
+        att.joined_at is not None
+        and att.left_at is None
+        and session.status == "live"
+    ):
+        delta = (_now() - att.joined_at).total_seconds()
+        return max(base, int(delta // 60))
+    return base
+
+
 async def mark_join(
     db: AsyncSession, session_id: int, user_id: int
 ) -> LiveAttendance:
@@ -350,7 +367,9 @@ async def attendance_summary(db: AsyncSession, session_id: int) -> dict:
     joined = sum(1 for a in items if a.joined_at is not None)
     counted = sum(1 for a in items if a.is_counted)
     avg_minutes = (
-        sum(a.total_minutes for a in items) / total if total > 0 else 0.0
+        sum(effective_minutes(a, session) for a in items) / total
+        if total > 0
+        else 0.0
     )
     counted_pct = (counted / joined * 100) if joined > 0 else 0.0
     return {

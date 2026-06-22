@@ -437,6 +437,7 @@ async def list_session_attendance(
     # Faqat host yoki platform.* — talaba boshqalarning davomatini ko'rmaydi
     if not await _user_can_manage_session(db, redis, actor, session_id):
         raise ForbiddenError("Davomat ro'yxatini ko'rish huquqi yo'q")
+    session = await service.get_session(db, session_id)
     rows = await service.list_attendance(db, session_id)
     return [
         LiveAttendanceItem(
@@ -446,6 +447,7 @@ async def list_session_attendance(
             joined_at=att.joined_at,
             left_at=att.left_at,
             total_minutes=att.total_minutes,
+            live_minutes=service.effective_minutes(att, session),
             is_counted=att.is_counted,
         )
         for att, user in rows

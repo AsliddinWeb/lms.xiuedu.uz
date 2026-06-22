@@ -1352,7 +1352,7 @@ function initials(name: string): string {
               <li v-for="a in attendance" :key="a.user_id" class="attendance-row">
                 <div class="attendance-name">{{ a.full_name }}</div>
                 <div class="attendance-meta">
-                  <span class="attendance-min">{{ a.total_minutes }} min</span>
+                  <span class="attendance-min">{{ a.live_minutes }} min</span>
                   <span class="attendance-counted" :class="{ ok: a.is_counted }">
                     {{ a.is_counted ? '✓' : '–' }}
                   </span>

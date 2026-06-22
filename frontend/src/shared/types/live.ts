@@ -85,6 +85,7 @@ export interface LiveAttendanceItem {
   joined_at: string | null
   left_at: string | null
   total_minutes: number
+  live_minutes: number
   is_counted: boolean
 }
 

@@ -136,6 +136,7 @@ class LiveAttendanceItem(BaseModel):
     joined_at: datetime | None
     left_at: datetime | None
     total_minutes: int
+    live_minutes: int  # ulanib turgan bo'lsa o'tgan vaqtni ham qo'shadi
     is_counted: bool
 
 
