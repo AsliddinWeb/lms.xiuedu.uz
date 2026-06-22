@@ -98,8 +98,13 @@ const joinedRoom = ref(false)
 type Tab = 'chat' | 'people' | 'qa'
 const activeTab = ref<Tab>('chat')
 
-// Phase 5b.8 — Mobile drawer state (side panel)
-const panelOpen = ref(true)
+// Phase 5b.8 / 55.7 — Mobile drawer state (side panel).
+// Desktop (>1024px): panel doimiy ustun sifatida ochiq.
+// Mobil/planshet (<=1024px): drawer YOPIQ boshlanadi — aks holda chat paneli
+// butun ekranni qoplab video ko'rinmasdi ("telefonda faqat chat" bug'i).
+const panelOpen = ref(
+  typeof window !== 'undefined' ? window.innerWidth > 1024 : true,
+)
 function togglePanel() {
   panelOpen.value = !panelOpen.value
 }
