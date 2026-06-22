@@ -2046,7 +2046,12 @@
     "screen_not_allowed": "Экран улашишга хост рухсат бермаган",
     "screen_grant": "Экран улашишга рухсат бериш",
     "screen_revoke": "Экран рухсатини олиш",
-    "screen_grant_failed": "Рухсатни ўзгартириб бўлмади"
+    "screen_grant_failed": "Рухсатни ўзгартириб бўлмади",
+    "qa_upvote": "Овоз бериш",
+    "qa_answered": "Жавоб берилди",
+    "qa_mark_answered": "Жавоб берилди деб белгилаш",
+    "qa_empty": "Ҳали савол йўқ. Биринчи бўлиб сўранг!",
+    "qa_placeholder": "Саволингизни ёзинг..."
   },
   "admin_live": {
     "tag": "Admin · Live",

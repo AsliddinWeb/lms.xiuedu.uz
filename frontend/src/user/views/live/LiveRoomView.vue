@@ -20,6 +20,7 @@ import NativeRoom, {
   type ChatMessage,
   type HandRaiseEvent,
   type ParticipantState,
+  type QaEvent,
   type ReactionEvent,
 } from '@shared/components/live/NativeRoom.vue'
 import { liveCaptionsApi, liveSessionsApi, type LiveCaptionItem } from '@shared/api/live'
@@ -196,6 +197,78 @@ async function toggleHandRaise() {
   myHandRaised.value = next
   await nativeRoomRef.value?.sendHandRaise(next)
 }
+
+// ============================================================================
+// Phase 55.6 — Q&A (data-channel orqali, jonli)
+// ============================================================================
+interface QaQuestion {
+  id: string
+  from: string
+  nick: string
+  text: string
+  votes: number
+  answered: boolean
+  ts: number
+  voters: Set<string>
+}
+const questions = ref<QaQuestion[]>([])
+const qaInput = ref('')
+
+// Ovoz bo'yicha, javoblanmaganlar yuqorida
+const sortedQuestions = computed(() =>
+  [...questions.value].sort((a, b) => {
+    if (a.answered !== b.answered) return a.answered ? 1 : -1
+    if (b.votes !== a.votes) return b.votes - a.votes
+    return a.ts - b.ts
+  }),
+)
+const myIdentity = computed(() => String(auth.user?.id ?? ''))
+
+function applyQa(e: QaEvent) {
+  if (e.action === 'ask' && e.text) {
+    if (questions.value.some((q) => q.id === e.id)) return
+    questions.value.push({
+      id: e.id,
+      from: e.from,
+      nick: e.nick,
+      text: e.text,
+      votes: 0,
+      answered: false,
+      ts: e.ts,
+      voters: new Set(),
+    })
+  } else if (e.action === 'upvote') {
+    const q = questions.value.find((x) => x.id === e.id)
+    if (q && !q.voters.has(e.from)) {
+      q.voters.add(e.from)
+      q.votes = q.voters.size
+    }
+  } else if (e.action === 'answer') {
+    const q = questions.value.find((x) => x.id === e.id)
+    if (q) q.answered = true
+  }
+}
+function onQa(data: QaEvent) {
+  applyQa(data)
+}
+async function askQuestion() {
+  const text = qaInput.value.trim()
+  if (!text) return
+  const id = `${myIdentity.value}-${Date.now()}-${Math.floor(Math.random() * 1000)}`
+  const ev: QaEvent = { action: 'ask', id, text, from: myIdentity.value, nick: auth.user?.full_name ?? 'Siz', ts: Date.now() }
+  applyQa(ev)
+  qaInput.value = ''
+  await nativeRoomRef.value?.sendQa({ action: 'ask', id, text })
+}
+async function upvoteQuestion(id: string) {
+  applyQa({ action: 'upvote', id, from: myIdentity.value, nick: '', ts: Date.now() })
+  await nativeRoomRef.value?.sendQa({ action: 'upvote', id })
+}
+async function answerQuestion(id: string) {
+  applyQa({ action: 'answer', id, from: myIdentity.value, nick: '', ts: Date.now() })
+  await nativeRoomRef.value?.sendQa({ action: 'answer', id })
+}
+const unansweredCount = computed(() => questions.value.filter((q) => !q.answered).length)
 
 // Phase 5b.3 — Local mic audio level (0-1)
 const localAudioLevel = ref(0)
@@ -1079,6 +1152,7 @@ function initials(name: string): string {
         @reaction="onReaction"
         @hand-raise="onHandRaise"
         @screen-share-allowed="onScreenAllowed"
+        @qa="onQa"
       />
 
       <!-- Hidden audio mixer for main participant (so we hear them) -->
@@ -1326,6 +1400,7 @@ function initials(name: string): string {
               @click="activeTab = 'qa'"
             >
               📋 {{ t('live.room_tab_qa') }}
+              <span v-if="unansweredCount > 0" class="tab-badge">{{ unansweredCount }}</span>
             </button>
           </div>
 
@@ -1407,9 +1482,39 @@ function initials(name: string): string {
             </ul>
           </div>
 
-          <!-- Q&A placeholder -->
-          <div v-else class="panel-content">
-            <div class="empty-state">{{ t('live.room_qa_placeholder') }}</div>
+          <!-- Q&A (Phase 55.6) -->
+          <div v-else-if="activeTab === 'qa'" class="panel-content qa-panel">
+            <ul v-if="sortedQuestions.length" class="qa-list">
+              <li v-for="q in sortedQuestions" :key="q.id" class="qa-item" :class="{ answered: q.answered }">
+                <button
+                  class="qa-vote"
+                  :class="{ voted: q.voters.has(myIdentity) }"
+                  :disabled="q.from === myIdentity"
+                  :title="t('live.qa_upvote')"
+                  @click="upvoteQuestion(q.id)"
+                >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 2.5l4 5H2z" />
+                  </svg>
+                  <span>{{ q.votes }}</span>
+                </button>
+                <div class="qa-body">
+                  <div class="qa-text">{{ q.text }}</div>
+                  <div class="qa-meta">
+                    <span class="qa-author">{{ q.nick }}</span>
+                    <span v-if="q.answered" class="qa-answered-tag">✓ {{ t('live.qa_answered') }}</span>
+                    <button
+                      v-else-if="canManage"
+                      class="qa-mark"
+                      @click="answerQuestion(q.id)"
+                    >
+                      {{ t('live.qa_mark_answered') }}
+                    </button>
+                  </div>
+                </div>
+              </li>
+            </ul>
+            <div v-else class="empty-state">{{ t('live.qa_empty') }}</div>
           </div>
 
           <!-- Chat input -->
@@ -1421,6 +1526,19 @@ function initials(name: string): string {
               @keydown.enter="sendChat"
             />
             <button class="chat-send" :disabled="!chatInput.trim()" @click="sendChat">
+              →
+            </button>
+          </div>
+
+          <!-- Q&A input (Phase 55.6) -->
+          <div v-if="activeTab === 'qa'" class="chat-input-wrap">
+            <input
+              v-model="qaInput"
+              class="chat-input"
+              :placeholder="t('live.qa_placeholder')"
+              @keydown.enter="askQuestion"
+            />
+            <button class="chat-send" :disabled="!qaInput.trim()" @click="askQuestion">
               →
             </button>
           </div>
@@ -2506,6 +2624,66 @@ function initials(name: string): string {
   font-family: 'Geist Mono', ui-monospace, monospace;
   font-size: 10px;
 }
+.tab-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: #ef4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: 'Geist Mono', ui-monospace, monospace;
+}
+
+/* Phase 55.6 — Q&A */
+.qa-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.qa-item {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid #27272a;
+  border-radius: 8px;
+  background: #18181b;
+}
+.qa-item.answered { opacity: 0.55; }
+.qa-vote {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 34px;
+  padding: 4px 0;
+  border: 1px solid #3f3f46;
+  border-radius: 6px;
+  background: transparent;
+  color: #a1a1aa;
+  cursor: pointer;
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+.qa-vote:hover:not(:disabled) { color: white; border-color: #52525b; }
+.qa-vote:disabled { opacity: 0.5; cursor: default; }
+.qa-vote.voted { color: #60a5fa; border-color: #60a5fa; background: rgba(96, 165, 250, 0.12); }
+.qa-body { flex: 1; min-width: 0; }
+.qa-text { font-size: 13px; color: #e4e4e7; line-height: 1.4; word-break: break-word; }
+.qa-meta { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+.qa-author { font-size: 11px; color: #71717a; }
+.qa-answered-tag { font-size: 11px; color: #4ade80; font-weight: 600; }
+.qa-mark {
+  font-size: 11px;
+  color: #60a5fa;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+.qa-mark:hover { text-decoration: underline; }
 
 .panel-content {
   flex: 1;

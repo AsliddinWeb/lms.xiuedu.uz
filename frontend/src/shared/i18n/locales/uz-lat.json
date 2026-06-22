@@ -2046,7 +2046,12 @@
     "screen_not_allowed": "Ekran ulashishga host ruxsat bermagan",
     "screen_grant": "Ekran ulashishga ruxsat berish",
     "screen_revoke": "Ekran ruxsatini olish",
-    "screen_grant_failed": "Ruxsatni o'zgartirib bo'lmadi"
+    "screen_grant_failed": "Ruxsatni o'zgartirib bo'lmadi",
+    "qa_upvote": "Ovoz berish",
+    "qa_answered": "Javob berildi",
+    "qa_mark_answered": "Javob berildi deb belgilash",
+    "qa_empty": "Hali savol yo'q. Birinchi bo'lib so'rang!",
+    "qa_placeholder": "Savolingizni yozing..."
   },
   "admin_live": {
     "tag": "Admin · Live",

@@ -68,6 +68,16 @@ export interface HandRaiseEvent {
   up: boolean
 }
 
+// Phase 55.6 — Q&A (data-channel orqali)
+export interface QaEvent {
+  action: 'ask' | 'upvote' | 'answer'
+  id: string
+  text?: string
+  from: string
+  nick: string
+  ts: number
+}
+
 const emit = defineEmits<{
   connected: []
   disconnected: []
@@ -83,6 +93,7 @@ const emit = defineEmits<{
   reaction: [data: ReactionEvent]  // Phase 5b.6
   handRaise: [data: HandRaiseEvent]  // Phase 5b.6
   screenShareAllowed: [allowed: boolean]  // Phase 55.4 — host ruxsati
+  qa: [data: QaEvent]  // Phase 55.6 — Q&A
 }>()
 
 // Phase 55.4 — lokal ishtirokchi ekran ulasha oladimi (token/host ruxsati)
@@ -247,6 +258,8 @@ async function connect() {
             text?: string
             emoji?: string
             up?: boolean
+            action?: 'ask' | 'upvote' | 'answer'
+            id?: string
           }
           const from = participant?.identity ?? 'unknown'
           const nick = participant?.name ?? 'Mehmon'
@@ -262,6 +275,15 @@ async function connect() {
             emit('reaction', { from, nick, emoji: data.emoji, ts: Date.now() })
           } else if (data.kind === 'hand_raise') {
             emit('handRaise', { from, nick, up: data.up === true })
+          } else if (data.kind === 'qa' && data.action && data.id) {
+            emit('qa', {
+              action: data.action,
+              id: data.id,
+              text: data.text,
+              from,
+              nick,
+              ts: Date.now(),
+            })
           }
         } catch {
           // ignore
@@ -682,6 +704,18 @@ defineExpose({
       })
     } catch (e) {
       emit('error', e instanceof Error ? `Hand raise: ${e.message}` : String(e))
+    }
+  },
+  // Phase 55.6 — Q&A xabarini yuborish (ask/upvote/answer)
+  async sendQa(payload: { action: 'ask' | 'upvote' | 'answer'; id: string; text?: string }) {
+    if (!room.value) return
+    const data = new TextEncoder().encode(
+      JSON.stringify({ kind: 'qa', ...payload }),
+    )
+    try {
+      await room.value.localParticipant.publishData(data, { reliable: true })
+    } catch (e) {
+      emit('error', e instanceof Error ? `Q&A: ${e.message}` : String(e))
     }
   },
   hangup() {

@@ -2046,7 +2046,12 @@
     "screen_not_allowed": "Host hasn't allowed screen sharing",
     "screen_grant": "Allow screen sharing",
     "screen_revoke": "Revoke screen permission",
-    "screen_grant_failed": "Could not change permission"
+    "screen_grant_failed": "Could not change permission",
+    "qa_upvote": "Upvote",
+    "qa_answered": "Answered",
+    "qa_mark_answered": "Mark as answered",
+    "qa_empty": "No questions yet. Be the first to ask!",
+    "qa_placeholder": "Type your question..."
   },
   "admin_live": {
     "tag": "Admin · Live",

@@ -2046,7 +2046,12 @@
     "screen_not_allowed": "Хост не разрешил демонстрацию экрана",
     "screen_grant": "Разрешить демонстрацию экрана",
     "screen_revoke": "Отозвать разрешение",
-    "screen_grant_failed": "Не удалось изменить разрешение"
+    "screen_grant_failed": "Не удалось изменить разрешение",
+    "qa_upvote": "Голосовать",
+    "qa_answered": "Отвечено",
+    "qa_mark_answered": "Отметить как отвеченный",
+    "qa_empty": "Пока нет вопросов. Задайте первым!",
+    "qa_placeholder": "Напишите свой вопрос..."
   },
   "admin_live": {
     "tag": "Admin · Live",
