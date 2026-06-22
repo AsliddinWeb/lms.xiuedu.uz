@@ -53,6 +53,7 @@ from app.modules.auth.dependencies import (
 )
 from app.modules.live import captions as captions_service
 from app.modules.live import egress as egress_service
+from app.modules.live import lkadmin
 from app.modules.live import recordings as recordings_service
 from app.modules.live import service
 from app.modules.live.ical import (
@@ -272,6 +273,15 @@ async def end_live_session(
         raise ForbiddenError("Faqat host yoki super_admin sessionni tugata oladi")
     session = await service.end_session(db, session_id)
     await db.commit()
+    # LiveKit xonasini o'chiramiz -> barcha ishtirokchilar avtomatik uziladi
+    try:
+        await lkadmin.delete_room(service.room_name_for(session))
+    except Exception as e:  # noqa: BLE001 — best-effort, asosiy oqim to'xtamaydi
+        import logging as _logging
+
+        _logging.getLogger("app.live").warning(
+            "room delete failed session=%s: %s", session_id, e
+        )
     return _sign_session(LiveSessionPublic.model_validate(session))
 
 

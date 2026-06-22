@@ -522,6 +522,12 @@ async def detach_recording(db: AsyncSession, session_id: int) -> LiveSession:
     return session
 
 
+def room_name_for(session: LiveSession) -> str:
+    """LiveKit xona nomi — admin operatsiyalari (delete/update) uchun."""
+    provider = get_provider(session.provider)
+    return session.provider_meeting_id or provider.make_room_name(session.id)
+
+
 def build_join_info(session: LiveSession, *, user: User) -> dict:
     """Provider-specific token + URL ni qaytaradi.
 

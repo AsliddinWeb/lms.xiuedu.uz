@@ -625,6 +625,14 @@ async function onRoomConnected() {
 async function onRoomDisconnected() {
   roomConnected.value = false
   joinedRoom.value = false
+  // Host darsni yakunlagan bo'lsa xona o'chiriladi -> bu yerga tushamiz.
+  // Sessiya statusini yangilaymiz: 'ended' bo'lsa avtomatik yakuniy ekran chiqadi.
+  try {
+    const s = await liveSessionsApi.get(sessionId.value)
+    session.value = s
+  } catch {
+    // ignore — sessiya o'chirilgan bo'lishi mumkin
+  }
 }
 
 let errorClearTimer: ReturnType<typeof setTimeout> | null = null
