@@ -6,7 +6,12 @@ requires-python = ">=3.11"
 license = { text = "Proprietary" }
 
 dependencies = [
-    "fastapi>=0.110.0",
+    # fastapi/starlette PINLANGAN: starlette 1.3.x `_IncludedRouter` kiritdi,
+    # prometheus-fastapi-instrumentator 8.0.0 uni qo'llamaydi -> har so'rovda
+    # `'_IncludedRouter' object has no attribute 'path'` 500. Dev'da ishlaydigan
+    # versiyalarga qotirib qo'yilgan (reproducible build).
+    "fastapi==0.136.3",
+    "starlette==1.2.1",
     "uvicorn[standard]>=0.29.0",
     "pydantic>=2.6.0",
     "pydantic-settings>=2.2.0",
@@ -30,7 +35,7 @@ dependencies = [
     "reportlab>=4.1.0",
     "structlog>=24.1.0",
     "sentry-sdk[fastapi]>=1.40.0",
-    "prometheus-fastapi-instrumentator>=7.0.0",
+    "prometheus-fastapi-instrumentator==8.0.0",
     "tenacity>=8.2.3",
     "livekit-api>=0.7.0",
 ]
